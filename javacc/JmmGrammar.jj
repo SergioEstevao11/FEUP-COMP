@@ -5,13 +5,58 @@ SMART_NODE_CREATION=false;
 SKIP : " " | "\t" | "\r" | "\n";
 
 TOKEN :
-	< PLUS : "+" > |
-	< MINUS : "-" > |
-	< TIMES : "*" > |
-	< DIVIDE : "/" > |
-	< OPEN_PAREN : "(" > |
-	< CLOSE_PAREN : ")" > |
-	< INTEGER : (["0" - "9"])+ >
+		<IMPORT: "import">
+
+    |   < INT: "int" >
+    |   < BOOLEAN: "boolean" >
+    |   < INTBRACKETS: "int[]">
+    |   < STRING: "String" >
+
+    |   < COMMA: "," >
+    |   < DOT: ".">
+    |   < COLON: ":" >
+    |   < SEMICOLON: ";" >
+    |   < OPENSQUAREBRACKET: "[">
+    |   < CLOSESQUAREBRACKET: "]">
+    |   < OPENCURVEBRACKET: "(">
+    |   < CLOSECURVEBRACKET: ")">
+    |   < OPENBRACKET: "{">
+    |   < CLOSEBRACKET: "}">
+
+    |   < CLASS: "class">
+    |   < PUBLIC: "public">
+    |   < STATIC: "static">
+    |   < VOID: "void">
+    |   < MAIN: "main">
+    |   < PRINTLN: "System.out.println" >
+    |   < THIS: "this" >
+    |   < EXTENDS: "extends" >
+    |   < RETURN: "return" >
+    |   < LENGTH: "length">
+    |   < NEW: "new">
+
+    |   < TRUE: "true">
+    |   < FALSE: "false">
+    |   < NOT: "!">
+    |   < AND: "&&">
+    |   < LESS: "<" >
+    |   < SUM: "+">
+    |   < SUB: "-">
+    |   < MULT: "*">
+    |   < DIV: "/">
+    |   < EQUALS: "=">
+
+
+    |   < IF: "if">
+    |   < ELSE: "else">
+    |   < WHILE: "while">
+
+    |   < IDENTIFIER:  ("$" | <LETTER>) ("_" | "$" | <LETTER> | <DIGIT> | <UNDERSCORE>)*
+                     | ("_" ("_" | "$" | <LETTER> | <DIGIT> | <UNDERSCORE>)+) >
+    |   < LETTER: ["a"-"z","A"-"Z"] >
+    |   < UNDERSCORE: "_" >
+    |   < INTEGERLITERAL: (<DIGIT>)+ >
+    |   < DIGIT: ["0"-"9"] >
 ;
 
 Start : AdditiveExpression <EOF> ;

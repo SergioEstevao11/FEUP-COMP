@@ -30,11 +30,11 @@ public class BackendTest {
     // assertEquals("Hello, World!", output.trim());
     // }
 
-    @Test
-    public void testHelloWorld() {
+    // @Test
+    // public void testHelloWorld() {
 
-        String jasminCode = SpecsIo.getResource("fixtures/public/jasmin/HelloWorld.j");
-        var output = TestUtils.runJasmin(jasminCode);
-        assertEquals("Hello World!\nHello World Again!\n", SpecsStrings.normalizeFileContents(output));
-    }
+    //     String jasminCode = SpecsIo.getResource("fixtures/public/jasmin/HelloWorld.j");
+    //     var output = TestUtils.runJasmin(jasminCode);
+    //     assertEquals("Hello World!\nHello World Again!\n", SpecsStrings.normalizeFileContents(output));
+    // }
 }
