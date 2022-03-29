@@ -133,3 +133,55 @@ Expression = Expression, ( "&&" | "<" | "+" | "-" | "*" | "/") , Expression
 ;
 
 
+INJECT BaseNode :
+  import  pt.up.fe.comp.jmm.ast.JmmNode;
+  import  pt.up.fe.comp.jmm.ast.AJmmNode;
+  import  pt.up.fe.specs.util.SpecsCollections;
+  extends  AJmmNode
+{
+  @Override
+  public  List <JmmNode > getChildren () {
+    return  SpecsCollections.cast(children(), JmmNode.class);
+  }
+
+  @Override
+  public  void  add(JmmNode  child , int  index) {
+
+    if (child  instanceof  Node) {
+      addChild(index , (Node) child);
+    }
+    
+    else{
+      throw  new  RuntimeException("Node " + child + " is not a Node.");
+    }
+  }
+}
+
+INJECT  Token :
+              import  pt.up.fe.comp.jmm.ast.JmmNode;
+              import  pt.up.fe.comp.jmm.ast.AJmmNode;
+              import  pt.up.fe.specs.util.SpecsCollections;
+              extends  AJmmNode;
+{
+              @Override
+               public  List <JmmNode > getChildren () {
+                          return  SpecsCollections.cast(children(), JmmNode.class);
+{
+              @Override
+              public  void  add(JmmNode  child , int  index) {
+
+              throw  new  RuntimeException("Cannot  add  child  nodes  to a Token.");
+      } 
+@Override
+public List <String > getAttributes () {
+  return  SpecsCollections.concat("image", super.getAttributes ());
+}
+
+@Override
+public  String  get(String  attribute) {
+  if(attribute.equals("image")) {
+    return  getImage ();
+  }
+  return  super.get(attribute );
+}
+}
