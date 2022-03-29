@@ -117,6 +117,28 @@ Statement = "{", { Statement }, "}"
 ;
 
 
+Expression = "true", NextExpression
+| "true", NextExpression
+| "false", NextExpression
+| IntegerLiteral, NextExpression
+| "new", Identifier ,"(" ,")", NextExpression
+| Identifier, NextExpression
+
+;
+
+
+NextExpression = ( "&&" | "<" | "+" | "-" | "*" | "/") , NextExpression
+| "[", NextExpression, "]"
+| ".", "length"
+| ".", Identifier, "(", [ Expression { ",", Expression } ], ")"
+| "new", Identifier ,"(" ,")", NextExpression
+| ?
+;
+
+
+
+
+
 Expression = Expression, ( "&&" | "<" | "+" | "-" | "*" | "/") , Expression
 | Expression, "[", Expression, "]"
 | Expression, ".", "length"
@@ -131,5 +153,4 @@ Expression = Expression, ( "&&" | "<" | "+" | "-" | "*" | "/") , Expression
 | "!", Expression
 | "(", Expression, ")"
 ;
-
 
