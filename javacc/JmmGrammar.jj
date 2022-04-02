@@ -18,8 +18,8 @@ TOKEN :
     |   < SEMICOLON: ";" >
     |   < OPENSQUAREBRACKET: "[">
     |   < CLOSESQUAREBRACKET: "]">
-    |   < OPENCURVEBRACKET: "(">
-    |   < CLOSECURVEBRACKET: ")">
+    |   < OPEN_PAREN_CURVE: "(">
+    |   < CLOSE_PAREN_CURVE: ")">
     |   < OPENBRACKET: "{">
     |   < CLOSEBRACKET: "}">
 
@@ -40,10 +40,10 @@ TOKEN :
     |   < NOT: "!">
     |   < AND: "&&">
     |   < LESS: "<" >
-    |   < SUM: "+">
-    |   < SUB: "-">
-    |   < MULT: "*">
-    |   < DIV: "/">
+    |   < PLUS: "+">
+    |   < MINUS: "-">
+    |   < TIMES: "*">
+    |   < DIVIDE: "/">
     |   < EQUALS: "=">
 
 
@@ -57,9 +57,11 @@ TOKEN :
     |   < UNDERSCORE: "_" >
     |   < INTEGERLITERAL: (<DIGIT>)+ >
     |   < DIGIT: ["0"-"9"] >
-;
+    ;
+
 
 Start : AdditiveExpression <EOF> ;
+
 
 AdditiveExpression :
 	MultiplicativeExpression
@@ -78,79 +80,7 @@ MultiplicativeExpression :
 ;
 
 Factor :
-	< INTEGER > |
+	< INT > |
 	< MINUS> Factor |
-	< OPEN_PAREN > AdditiveExpression < CLOSE_PAREN >
+	< OPEN_PAREN_CURVE > AdditiveExpression < CLOSE_PAREN_CURVE >
 ;
-
-//Fornecido pela UC
-
-Program = ImportDeclaration, ClassDeclaration, EOF;
-
-
-ImportDeclaration = {"import", Identifier, { ”.”, Identifier }, ";"}
-
-
-ClassDeclaration = "class", Identifier, [ "extends", Identifier ], "{", { VarDeclaration }, { MethodDeclaration } "}";
-
-
-VarDeclaration = Type, Identifier, ";";
-
-
-MethodDeclaration = "public", Type, Identifier, "(", [ Type, Identifier, { ",", Type, Identifier }, ], ")", "{", { VarDeclaration }, { Statement }, "return", Expression, ";", "}"
-|"public", "static", "void", "main", "(", "String", "[","]", Identifier, ")", "{", { VarDeclaration }, { Statement }, "}";
-
-
-Type = "int", "[", "]"
-| "boolean"
-| "int"
-| Identifier
-;
-
-
-Statement = "{", { Statement }, "}"
-| "if", "(", Expression, ")", Statement, "else", Statement
-| "while", "(", Expression, ")", Statement
-| Expression, ";"
-| Identifier, "=", Expression, ";"
-| Identifier, "[", Expression, "]", "=", Expression, ";"
-;
-
-
-Expression = "true", NextExpression
-| "true", NextExpression
-| "false", NextExpression
-| IntegerLiteral, NextExpression
-| "new", Identifier ,"(" ,")", NextExpression
-| Identifier, NextExpression
-
-;
-
-
-NextExpression = ( "&&" | "<" | "+" | "-" | "*" | "/") , NextExpression
-| "[", NextExpression, "]"
-| ".", "length"
-| ".", Identifier, "(", [ Expression { ",", Expression } ], ")"
-| "new", Identifier ,"(" ,")", NextExpression
-| ?
-;
-
-
-
-
-
-Expression = Expression, ( "&&" | "<" | "+" | "-" | "*" | "/") , Expression
-| Expression, "[", Expression, "]"
-| Expression, ".", "length"
-| Expression, ".", Identifier, "(", [ Expression { ",", Expression } ], ")"
-| IntegerLiteral
-| "true"
-| "false"
-| Identifier
-| "this"
-| "new", "int", "[", Expression, "]"
-| "new", Identifier ,"(" ,")"
-| "!", Expression
-| "(", Expression, ")"
-;
-
