@@ -60,27 +60,46 @@ TOKEN :
     ;
 
 
-Start : AdditiveExpression <EOF> ;
-
-
-AdditiveExpression :
-	MultiplicativeExpression
-	(
-		(< PLUS > | < MINUS >)
-		MultiplicativeExpression
-	)?
+Program : ImportDeclaration ClassDeclaration <EOF>
 ;
 
-MultiplicativeExpression :
-	Factor
-	(
-		(< TIMES > | < DIVIDE >)
-		Factor
-	)?
+ImportDeclaration : (<IMPORT> <IDENTIFIER> ( <DOT> <IDENTIFIER> )* <SEMICOLON>)
 ;
 
-Factor :
-	< INT > |
-	< MINUS> Factor |
-	< OPEN_PAREN_CURVE > AdditiveExpression < CLOSE_PAREN_CURVE >
+ClassDeclaration : <CLASS> <IDENTIFIER> [ <EXTENDS> <IDENTIFIER> ] <OPENBRACKET> ( VarDeclaration )* (MethodDeclaration)* <CLOSEBRACKET> 
+;
+
+VarDeclaration : Type <IDENTIFIER> <SEMICOLON>
+;
+
+Type :  <INTBRACKETS> | 
+        <INT> <OPENSQUAREBRACKET> <IDENTIFIER> <CLOSESQUAREBRACKET |
+        <BOOLEAN> |
+        <STRING>
+;
+
+MethodDeclaration : <PUBLIC> (CommonMethodHeader | MainMethodHeader) <OPENBRACKET> MethodBody <CLOSEBRACKET>
+;
+
+CommonMethodHeader : Type <IDENTIFIER> <OPEN_PAREN_CURVE> [ Type <IDENTIFIER> (<COMMA> Type <IDENTIFIER>)* ] <CLOSE_PAREN_CURVE>
+;
+
+MainMethodHeader : <STATIC> <VOID> <MAIN> <OPEN_PAREN_CURVE> <STRING> <OPENSQUAREBRACKET> <CLOSESQUAREBRACKET> <IDENTIFIER> <CLOSE_PAREN_CURVE>
+;
+
+MethodBody : (VarDeclaration | Statement)*
+;
+
+Statement : 
+
+
+
+
+LessDeclaration : AddSubDeclaration (<LESS> AddSubDeclaration )
+;
+AddSubDeclaration : MultDivDeclaration (<PLUS> MultDivDeclaration | <MINUS> MultDivDeclaration)
+;
+MultDivDeclaration : NotDeclaration (<Times> NotDeclaration | <DIVIDE> NotDeclaration)
+;
+NotDeclaration : (<NOT> NotDeclaration) | DotArrayDeclaration)
 ;
