@@ -67,7 +67,7 @@ Start : ImportDeclaration ClassDeclaration <EOF>
 ImportDeclaration : (<IMPORT> <IDENTIFIER> ( <DOT> <IDENTIFIER> )* <SEMICOLON>)*
 ;
 
-ClassDeclaration : <CLASS> <IDENTIFIER> ( <EXTENDS> <IDENTIFIER> ) <OPENBRACKET> ( VarDeclaration )* (MethodDeclaration)* <CLOSEBRACKET> 
+ClassDeclaration : <CLASS> <IDENTIFIER> [( <EXTENDS> <IDENTIFIER> )] <OPENBRACKET> ( VarDeclaration )* (MethodDeclaration)* <CLOSEBRACKET>
 ;
 
 VarDeclaration : Type <IDENTIFIER> <SEMICOLON>
@@ -82,7 +82,7 @@ Type :  <INTBRACKETS> |
 MethodDeclaration : <PUBLIC> (CommonMethodHeader | MainMethodHeader) <OPENBRACKET> MethodBody <CLOSEBRACKET>
 ;
 
-CommonMethodHeader : Type <IDENTIFIER> <OPEN_CURVE_BRACKET> ( Type <IDENTIFIER> (<COMMA> Type <IDENTIFIER>)* ) <CLOSE_CURVE_BRACKET>
+CommonMethodHeader : Type <IDENTIFIER> <OPEN_CURVE_BRACKET> [( Type <IDENTIFIER> (<COMMA> Type <IDENTIFIER>)* )] <CLOSE_CURVE_BRACKET>
 ;
 
 MainMethodHeader : <STATIC> <VOID> <MAIN> <OPEN_CURVE_BRACKET> <STRING> <OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET> <IDENTIFIER> <CLOSE_CURVE_BRACKET>
@@ -125,7 +125,7 @@ NotDeclaration : DotArrayDeclaration | (<NOT> NotDeclaration)
 DotArrayDeclaration : KeyWords (<DOT> DotDeclaration | <OPEN_SQUARE_BRACKET> AndDeclaration <CLOSE_SQUARE_BRACKET>)*
 ;
 
-DotDeclaration : <LENGTH> | <IDENTIFIER> <OPEN_CURVE_BRACKET> (AndDeclaration (<COMMA> AndDeclaration)*)  <CLOSE_CURVE_BRACKET> 
+DotDeclaration : <LENGTH> | <IDENTIFIER> <OPEN_CURVE_BRACKET> [(AndDeclaration (<COMMA> AndDeclaration)*)]  <CLOSE_CURVE_BRACKET>
 ;
 
 KeyWords :  <TRUE>  | 
