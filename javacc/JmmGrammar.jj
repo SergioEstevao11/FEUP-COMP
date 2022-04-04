@@ -73,8 +73,9 @@ ClassDeclaration : <CLASS> <IDENTIFIER> ( <EXTENDS> <IDENTIFIER> )* <OPEN_BRACKE
 VarDeclaration : Type <IDENTIFIER> <SEMICOLON>
 ;
 
-Type :  <INTBRACKETS> | 
-        <INT> /*<OPEN_SQUARE_BRACKET> <IDENTIFIER> <CLOSE_SQUARE_BRACKET>*/ |
+Type :  <INTBRACKETS> |
+        <IDENTIFIER> |
+        <INT>  |
         <BOOLEAN> |
         <STRING>
 ;
@@ -88,14 +89,15 @@ CommonMethodHeader : Type <IDENTIFIER> <OPEN_CURVE_BRACKET> (Type <IDENTIFIER> (
 MainMethodHeader : <STATIC> <VOID> <MAIN> <OPEN_CURVE_BRACKET> <STRING> <OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET> <IDENTIFIER> <CLOSE_CURVE_BRACKET>
 ;
 
-MethodBody : (VarDeclaration | Statement)* (<RETURN> AndDeclaration <SEMICOLON>)*
+MethodBody : (SCAN 2 VarDeclaration)* (Statement)* (<RETURN> AndDeclaration <SEMICOLON>)*
 ;
 
 Statement : <OPEN_BRACKET> (Statement)* <CLOSE_BRACKET> |
             IfStatement |
-            WhileStatement | 
-            SCAN 2 AndDeclaration <SEMICOLON> |
-            SCAN 2 Assignment
+            WhileStatement |
+            SCAN 2 Assignment |
+            SCAN 2 AndDeclaration <SEMICOLON>
+
 ;
 
 IfStatement : <IF> <OPEN_CURVE_BRACKET> AndDeclaration <CLOSE_CURVE_BRACKET> Statement <ELSE> Statement
@@ -104,11 +106,11 @@ IfStatement : <IF> <OPEN_CURVE_BRACKET> AndDeclaration <CLOSE_CURVE_BRACKET> Sta
 WhileStatement : <WHILE> <OPEN_CURVE_BRACKET> AndDeclaration <CLOSE_CURVE_BRACKET> Statement
 ;
 
-Assignment : VarAccess <EQUALS> AndDeclaration <SEMICOLON>      
+Assignment : VarAccess <EQUALS> AndDeclaration <SEMICOLON>
 ;
 
-VarAccess : SCAN 2 <IDENTIFIER> <OPEN_SQUARE_BRACKET> AndDeclaration <CLOSE_SQUARE_BRACKET> |
-            <IDENTIFIER>
+VarAccess : SCAN 2 <IDENTIFIER> <OPEN_SQUARE_BRACKET> AndDeclaration <CLOSE_SQUARE_BRACKET>|
+            SCAN 2 <IDENTIFIER>
 ;
 
 AndDeclaration : LessDeclaration (<AND> LessDeclaration)*
@@ -123,7 +125,7 @@ AddSubDeclaration : MultDivDeclaration (<PLUS> MultDivDeclaration | <MINUS> Mult
 MultDivDeclaration : NotDeclaration (<TIMES> NotDeclaration | <DIVIDE> NotDeclaration)*
 ;
 
-NotDeclaration : DotArrayDeclaration | (<NOT> NotDeclaration)
+NotDeclaration : DotArrayDeclaration | <NOT> NotDeclaration
 ;
 
 DotArrayDeclaration : KeyWords (<DOT> DotDeclaration | <OPEN_SQUARE_BRACKET> AndDeclaration <CLOSE_SQUARE_BRACKET>)*
@@ -137,8 +139,8 @@ KeyWords :  <TRUE>  |
             <THIS>  |
             NewDeclaration |
             <OPEN_CURVE_BRACKET> AndDeclaration <CLOSE_CURVE_BRACKET> |
-            <IDENTIFIER> |
-            <INTEGERLITERAL> 
+            <INTEGERLITERAL> |
+            <IDENTIFIER>
 ;
 
 NewDeclaration : <NEW> (<INT> <OPEN_SQUARE_BRACKET> AndDeclaration <CLOSE_SQUARE_BRACKET> | <IDENTIFIER> <OPEN_CURVE_BRACKET> <CLOSE_CURVE_BRACKET>)
