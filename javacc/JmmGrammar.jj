@@ -2,6 +2,7 @@ PARSER_PACKAGE=pt.up.fe.comp;
 PARSER_CLASS=JmmGrammarParser;
 SMART_NODE_CREATION=false;
 
+
 SKIP : " " | "\t" | "\r" | "\n";
 
 TOKEN :
@@ -16,10 +17,10 @@ TOKEN :
     |   < DOT: ".">
     |   < COLON: ":" >
     |   < SEMICOLON: ";" >
-    |   < OPENSQUAREBRACKET: "[">
-    |   < CLOSESQUAREBRACKET: "]">
-    |   < OPENCURVEBRACKET: "(">
-    |   < CLOSECURVEBRACKET: ")">
+    |   < OPEN_SQUARE_BRACKET: "[">
+    |   < CLOSE_SQUARE_BRACKET: "]">
+    |   < OPEN_CURVE_BRACKET: "(">
+    |   < CLOSE_CURVE_BRACKET: ")">
     |   < OPENBRACKET: "{">
     |   < CLOSEBRACKET: "}">
 
@@ -40,10 +41,10 @@ TOKEN :
     |   < NOT: "!">
     |   < AND: "&&">
     |   < LESS: "<" >
-    |   < SUM: "+">
-    |   < SUB: "-">
-    |   < MULT: "*">
-    |   < DIV: "/">
+    |   < PLUS: "+">
+    |   < MINUS: "-">
+    |   < TIMES: "*">
+    |   < DIVIDE: "/">
     |   < EQUALS: "=">
 
 
@@ -57,131 +58,116 @@ TOKEN :
     |   < UNDERSCORE: "_" >
     |   < INTEGERLITERAL: (<DIGIT>)+ >
     |   < DIGIT: ["0"-"9"] >
+    ;
+
+
+Start : ImportDeclaration ClassDeclaration <EOF>
 ;
 
-Start : AdditiveExpression <EOF> ;
-
-AdditiveExpression :
-	MultiplicativeExpression
-	(
-		(< PLUS > | < MINUS >)
-		MultiplicativeExpression
-	)?
+ImportDeclaration : (<IMPORT> <IDENTIFIER> ( <DOT> <IDENTIFIER> )* <SEMICOLON>)*
 ;
 
-MultiplicativeExpression :
-	Factor
-	(
-		(< TIMES > | < DIVIDE >)
-		Factor
-	)?
+ClassDeclaration : <CLASS> <IDENTIFIER> ( <EXTENDS> <IDENTIFIER> ) <OPENBRACKET> ( VarDeclaration )* (MethodDeclaration)* <CLOSEBRACKET> 
 ;
 
-Factor :
-	< INTEGER > |
-	< MINUS> Factor |
-	< OPEN_PAREN > AdditiveExpression < CLOSE_PAREN >
+VarDeclaration : Type <IDENTIFIER> <SEMICOLON>
 ;
 
-//Fornecido pela UC
-
-Program = ImportDeclaration, ClassDeclaration, EOF;
-
-
-ImportDeclaration = {"import", Identifier, { ”.”, Identifier }, ";"}
-
-
-ClassDeclaration = "class", Identifier, [ "extends", Identifier ], "{", { VarDeclaration }, { MethodDeclaration } "}";
-
-
-VarDeclaration = Type, Identifier, ";";
-
-
-MethodDeclaration = "public", Type, Identifier, "(", [ Type, Identifier, { ",", Type, Identifier }, ], ")", "{", { VarDeclaration }, { Statement }, "return", Expression, ";", "}"
-|"public", "static", "void", "main", "(", "String", "[","]", Identifier, ")", "{", { VarDeclaration }, { Statement }, "}";
-
-
-Type = "int", "[", "]"
-| "boolean"
-| "int"
-| Identifier
+Type :  <INTBRACKETS> | 
+        <INT> <OPEN_SQUARE_BRACKET> <IDENTIFIER> <CLOSE_SQUARE_BRACKET> |
+        <BOOLEAN> |
+        <STRING>
 ;
 
+MethodDeclaration : <PUBLIC> (CommonMethodHeader | MainMethodHeader) <OPENBRACKET> MethodBody <CLOSEBRACKET>
+;
 
-Statement = "{", { Statement }, "}"
-| "if", "(", Expression, ")", Statement, "else", Statement
-| "while", "(", Expression, ")", Statement
-| Expression, ";"
-| Identifier, "=", Expression, ";"
-| Identifier, "[", Expression, "]", "=", Expression, ";"
+CommonMethodHeader : Type <IDENTIFIER> <OPEN_CURVE_BRACKET> ( Type <IDENTIFIER> (<COMMA> Type <IDENTIFIER>)* ) <CLOSE_CURVE_BRACKET>
+;
+
+MainMethodHeader : <STATIC> <VOID> <MAIN> <OPEN_CURVE_BRACKET> <STRING> <OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET> <IDENTIFIER> <CLOSE_CURVE_BRACKET>
+;
+
+MethodBody : (VarDeclaration | Statement)* <RETURN> AndDeclaration <SEMICOLON>
+;
+
+Statement : <OPENBRACKET> (Statement)* <CLOSEBRACKET> |
+            IfStatement |
+            WhileStatement | 
+            SCAN 2 AndDeclaration <SEMICOLON> |
+            SCAN 2 Assignment
+;
+
+IfStatement : <IF> <OPEN_CURVE_BRACKET> AndDeclaration <CLOSE_CURVE_BRACKET> Statement <ELSE> Statement
+;
+
+WhileStatement : <WHILE> <OPEN_CURVE_BRACKET> AndDeclaration <CLOSE_CURVE_BRACKET> Statement
+;
+
+Assignment : VarAccess <EQUALS> AndDeclaration <SEMICOLON>      
+;
+
+VarAccess : SCAN 2 <IDENTIFIER> <OPEN_SQUARE_BRACKET> AndDeclaration <CLOSE_SQUARE_BRACKET> |
+            <IDENTIFIER>
 ;
 
 
-Expression = Expression, ( "&&" | "<" | "+" | "-" | "*" | "/") , Expression
-| Expression, "[", Expression, "]"
-| Expression, ".", "length"
-| Expression, ".", Identifier, "(", [ Expression { ",", Expression } ], ")"
-| IntegerLiteral
-| "true"
-| "false"
-| Identifier
-| "this"
-| "new", "int", "[", Expression, "]"
-| "new", Identifier ,"(" ,")"
-| "!", Expression
-| "(", Expression, ")"
+AndDeclaration : LessDeclaration (<AND> LessDeclaration)*
+;
+LessDeclaration : AddSubDeclaration (<LESS> AddSubDeclaration)*
+;
+AddSubDeclaration : MultDivDeclaration (<PLUS> MultDivDeclaration | <MINUS> MultDivDeclaration)*
+;
+MultDivDeclaration : NotDeclaration (<TIMES> NotDeclaration | <DIVIDE> NotDeclaration)*
+;
+NotDeclaration : DotArrayDeclaration | (<NOT> NotDeclaration)
+;
+DotArrayDeclaration : KeyWords (<DOT> DotDeclaration | <OPEN_SQUARE_BRACKET> AndDeclaration <CLOSE_SQUARE_BRACKET>)*
 ;
 
+DotDeclaration : <LENGTH> | <IDENTIFIER> <OPEN_CURVE_BRACKET> (AndDeclaration (<COMMA> AndDeclaration)*)  <CLOSE_CURVE_BRACKET> 
+;
 
+KeyWords :  <TRUE>  | 
+            <FALSE> | 
+            <THIS>  |
+            NewDeclaration |
+            <OPEN_CURVE_BRACKET> AndDeclaration <CLOSE_CURVE_BRACKET> |
+            <IDENTIFIER> |
+            <INTEGERLITERAL> 
+;
+
+NewDeclaration : <NEW> (<INT> <OPEN_SQUARE_BRACKET> AndDeclaration <CLOSE_SQUARE_BRACKET> | <IDENTIFIER> <OPEN_CURVE_BRACKET> <CLOSE_CURVE_BRACKET>)
+;          
+
+
+
+
+
+// Injections for the implementation of JmmNode
+// Since this is injected into BaseNode, it affects only non-terminals
 INJECT BaseNode :
-  import  pt.up.fe.comp.jmm.ast.JmmNode;
-  import  pt.up.fe.comp.jmm.ast.AJmmNode;
-  import  pt.up.fe.specs.util.SpecsCollections;
-  extends  AJmmNode
+        import pt.up.fe.comp.jmm.ast.JmmNode;
+        import pt.up.fe.comp.jmm.ast.AJmmNode;
+        import pt.up.fe.specs.util.SpecsCollections;
+        extends AJmmNode
 {
-  @Override
-  public  List <JmmNode > getChildren () {
-    return  SpecsCollections.cast(children(), JmmNode.class);
-  }
+    @Override
+    public List<JmmNode> getChildren() {
 
-  @Override
-  public  void  add(JmmNode  child , int  index) {
-
-    if (child  instanceof  Node) {
-      addChild(index , (Node) child);
+        return SpecsCollections.cast(children(), JmmNode.class);
     }
-    
-    else{
-      throw  new  RuntimeException("Node " + child + " is not a Node.");
+
+    @Override
+    public void add(JmmNode child, int index) {
+
+        if (child instanceof Node) {
+
+            addChild(index, (Node) child);
+        } else {
+
+            throw new RuntimeException("Node " + child + " is not a Node.");
+        }
+
     }
-  }
-}
-
-INJECT  Token :
-              import  pt.up.fe.comp.jmm.ast.JmmNode;
-              import  pt.up.fe.comp.jmm.ast.AJmmNode;
-              import  pt.up.fe.specs.util.SpecsCollections;
-              extends  AJmmNode;
-{
-              @Override
-               public  List <JmmNode > getChildren () {
-                          return  SpecsCollections.cast(children(), JmmNode.class);
-{
-              @Override
-              public  void  add(JmmNode  child , int  index) {
-
-              throw  new  RuntimeException("Cannot  add  child  nodes  to a Token.");
-      } 
-@Override
-public List <String > getAttributes () {
-  return  SpecsCollections.concat("image", super.getAttributes ());
-}
-
-@Override
-public  String  get(String  attribute) {
-  if(attribute.equals("image")) {
-    return  getImage ();
-  }
-  return  super.get(attribute );
-}
 }
