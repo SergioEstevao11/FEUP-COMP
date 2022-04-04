@@ -21,8 +21,8 @@ TOKEN :
     |   < CLOSE_SQUARE_BRACKET: "]">
     |   < OPEN_CURVE_BRACKET: "(">
     |   < CLOSE_CURVE_BRACKET: ")">
-    |   < OPENBRACKET: "{">
-    |   < CLOSEBRACKET: "}">
+    |   < OPEN_BRACKET: "{">
+    |   < CLOSE_BRACKET: "}">
 
     |   < CLASS: "class">
     |   < PUBLIC: "public">
@@ -67,31 +67,31 @@ Start : ImportDeclaration ClassDeclaration <EOF>
 ImportDeclaration : (<IMPORT> <IDENTIFIER> ( <DOT> <IDENTIFIER> )* <SEMICOLON>)*
 ;
 
-ClassDeclaration : <CLASS> <IDENTIFIER> ( <EXTENDS> <IDENTIFIER> ) <OPENBRACKET> ( VarDeclaration )* (MethodDeclaration)* <CLOSEBRACKET> 
+ClassDeclaration : <CLASS> <IDENTIFIER> ( <EXTENDS> <IDENTIFIER> )* <OPEN_BRACKET> ( VarDeclaration )* (MethodDeclaration)* <CLOSE_BRACKET>
 ;
 
 VarDeclaration : Type <IDENTIFIER> <SEMICOLON>
 ;
 
 Type :  <INTBRACKETS> | 
-        <INT> <OPEN_SQUARE_BRACKET> <IDENTIFIER> <CLOSE_SQUARE_BRACKET> |
+        <INT> /*<OPEN_SQUARE_BRACKET> <IDENTIFIER> <CLOSE_SQUARE_BRACKET>*/ |
         <BOOLEAN> |
         <STRING>
 ;
 
-MethodDeclaration : <PUBLIC> (CommonMethodHeader | MainMethodHeader) <OPENBRACKET> MethodBody <CLOSEBRACKET>
+MethodDeclaration : <PUBLIC> (CommonMethodHeader | MainMethodHeader) <OPEN_BRACKET> MethodBody <CLOSE_BRACKET>
 ;
 
-CommonMethodHeader : Type <IDENTIFIER> <OPEN_CURVE_BRACKET> ( Type <IDENTIFIER> (<COMMA> Type <IDENTIFIER>)* ) <CLOSE_CURVE_BRACKET>
+CommonMethodHeader : Type <IDENTIFIER> <OPEN_CURVE_BRACKET> (Type <IDENTIFIER> (<COMMA> Type <IDENTIFIER>)* )* <CLOSE_CURVE_BRACKET>
 ;
 
 MainMethodHeader : <STATIC> <VOID> <MAIN> <OPEN_CURVE_BRACKET> <STRING> <OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET> <IDENTIFIER> <CLOSE_CURVE_BRACKET>
 ;
 
-MethodBody : (VarDeclaration | Statement)* <RETURN> AndDeclaration <SEMICOLON>
+MethodBody : (VarDeclaration | Statement)* (<RETURN> AndDeclaration <SEMICOLON>)*
 ;
 
-Statement : <OPENBRACKET> (Statement)* <CLOSEBRACKET> |
+Statement : <OPEN_BRACKET> (Statement)* <CLOSE_BRACKET> |
             IfStatement |
             WhileStatement | 
             SCAN 2 AndDeclaration <SEMICOLON> |
@@ -111,21 +111,25 @@ VarAccess : SCAN 2 <IDENTIFIER> <OPEN_SQUARE_BRACKET> AndDeclaration <CLOSE_SQUA
             <IDENTIFIER>
 ;
 
-
 AndDeclaration : LessDeclaration (<AND> LessDeclaration)*
 ;
+
 LessDeclaration : AddSubDeclaration (<LESS> AddSubDeclaration)*
 ;
+
 AddSubDeclaration : MultDivDeclaration (<PLUS> MultDivDeclaration | <MINUS> MultDivDeclaration)*
 ;
+
 MultDivDeclaration : NotDeclaration (<TIMES> NotDeclaration | <DIVIDE> NotDeclaration)*
 ;
+
 NotDeclaration : DotArrayDeclaration | (<NOT> NotDeclaration)
 ;
+
 DotArrayDeclaration : KeyWords (<DOT> DotDeclaration | <OPEN_SQUARE_BRACKET> AndDeclaration <CLOSE_SQUARE_BRACKET>)*
 ;
 
-DotDeclaration : <LENGTH> | <IDENTIFIER> <OPEN_CURVE_BRACKET> (AndDeclaration (<COMMA> AndDeclaration)*)  <CLOSE_CURVE_BRACKET> 
+DotDeclaration : <LENGTH> | <IDENTIFIER> <OPEN_CURVE_BRACKET> (AndDeclaration (<COMMA> AndDeclaration)*)* <CLOSE_CURVE_BRACKET>
 ;
 
 KeyWords :  <TRUE>  | 
@@ -139,10 +143,6 @@ KeyWords :  <TRUE>  |
 
 NewDeclaration : <NEW> (<INT> <OPEN_SQUARE_BRACKET> AndDeclaration <CLOSE_SQUARE_BRACKET> | <IDENTIFIER> <OPEN_CURVE_BRACKET> <CLOSE_CURVE_BRACKET>)
 ;          
-
-
-
-
 
 // Injections for the implementation of JmmNode
 // Since this is injected into BaseNode, it affects only non-terminals
