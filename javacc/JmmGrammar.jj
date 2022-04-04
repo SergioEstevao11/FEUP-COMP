@@ -171,3 +171,107 @@ INJECT BaseNode :
 
     }
 }
+
+
+SimpleNode Program():{}{
+    ImportDeclaration() ClassDeclaration() <EOF> { return jjtThis; }
+}
+
+void ImportDeclaration():{Token t1, t2;}{
+	(<IMPORT> t1 = <IDENTIFIER> {jjtThis.put("HEAD", t1.image)}; #Identifier(true) ( <DOT> t2 = <IDENTIFIER> {  jjtThis.put("NEXT", t2.image); } #Identifier)* <SEMICOLON>)*
+}
+
+void ClassDeclaration():{Token t1, t2;}{
+	<Class> t1 = <IDENTIFIER> {jjtThis.put("CHILD", t1.image);} #Identifier [<EXTENDS> t2 = <IDENTIFIER> {jjtThis.put("PARENT", t2.image);} #Extends] <OPENBRACKET> ( VarDeclaration() )* (MethodDeclaration())* <CLOSEBRACKET>                            
+}
+
+void VarDeclaration():{Token t1;}{
+	Type() t1 = <IDENTIFIER> {jjtThis.put("NAME", t1.image);} #Identifier <SEMICOLON>
+}
+
+void MethodDeclaration():{}{
+	<PUBLIC> (CommonMethodHeader() | MainMethodHeader()) <OPENBRACKET> MethodBody() <CLOSEBRACKET>
+}
+
+void CommonMethodHeader():{Token t1, t2, t3;}{
+	Type() t1 = <IDENTIFIER> {jjtThis.put("METHOD", t1.image);} #Identifier <OPEN_CURVE_BRACKET> [Type() t2 = <IDENTIFIER> {jjtThis.put("METHOD", t2.image);} #Identifier (<COMMA> Type() t3 = <IDENTIFIER> {jjtThis.put("METHOD", t3.image);} #Identifier)*] <CLOSE_CURVE_BRACKET>
+}
+
+void MainMethodHeader():{Token t1}{
+	<STATIC> <VOID> <MAIN> <OPEN_CURVE_BRACKET> <STRING> <OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET> t1 = <IDENTIFIER> {jjtThis.put("METHOD", t1.image);} #Identifier <CLOSE_CURVE_BRACKET>
+}
+
+void MethodBody():{}{
+	(VarDeclaration() | Statement())* <RETURN> AndDeclaration() <SEMICOLON>
+}
+
+void Statement():{}{
+	<OPENBRACKET> (Statement())* <CLOSEBRACKET> |
+        IfStatement() |
+        WhileStatement() | 
+        LOOKAHEAD(2) AndDeclaration() <SEMICOLON> |
+        LOOKAHEAD(2) Assignment()
+}
+
+void IfStatement():{}{
+	<IF> <OPEN_CURVE_BRACKET> AndDeclaration() <CLOSE_CURVE_BRACKET> Statement() <ELSE> Statement()
+}
+
+void WhileStatement():{}{
+	<WHILE> <OPEN_CURVE_BRACKET> AndDeclaration() <CLOSE_CURVE_BRACKET> Statement()
+}
+
+void Assignment():{}{
+	VarAccess() <EQUALS> AndDeclaration() <SEMICOLON>     
+}
+
+void VarAccess():{Token t1;}{
+	LOOKAHEAD(2) t1 = <IDENTIFIER> {jjtThis.put("VAR", t1.image); } #Identifier <OPEN_SQUARE_BRACKET> AndDeclaration() <CLOSE_SQUARE_BRACKET> |
+        LOOKAHEAD(2) t1 = <IDENTIFIER> {jjtThis.put("VAR", t1.image); } #Identifier
+}
+
+void AndDeclaration():{}{
+	LessDeclaration() (<AND> LessDeclaration())*
+}
+
+void LessDeclaration():{}{
+	AddSubDeclaration() (<LESS> AddSubDeclaration())*
+}
+
+void AddSubDeclaration():{}{
+	MultDivDeclaration() (<PLUS> MultDivDeclaration() | <MINUS> MultDivDeclaration())*
+}
+
+void MultDivDeclaration():{}{
+	NotDeclaration() (<TIMES> NotDeclaration() | <DIVIDE> NotDeclaration())*
+}
+
+void NotDeclaration():{}{
+	DotArrayDeclaration() | (<NOT> NotDeclaration())
+}
+
+void DotArrayDeclaration():{}{
+	KeyWords() (<DOT> DotDeclaration() | <OPEN_SQUARE_BRACKET> AndDeclaration() <CLOSE_SQUARE_BRACKET>)*
+}
+
+void DotDeclaration():{Token t1;}{
+	<LENGTH> | t1 = <IDENTIFIER> {jjtThis.put("NAME", t1.image); } #Identifier <OPEN_CURVE_BRACKET> [(AndDeclaration() (<COMMA> AndDeclaration())*)]  <CLOSE_CURVE_BRACKET>
+}
+
+void KeyWords():{Token t1;}{
+	<TRUE>  | 
+        <FALSE> | 
+        <THIS>  |
+        NewDeclaration() |
+        <OPEN_CURVE_BRACKET> AndDeclaration() <CLOSE_CURVE_BRACKET> |
+        t1 = <IDENTIFIER> {jjtThis.put("NAME", t1.image); } #Identifier |
+        t1 = <INTEGERLITERAL> {jjtThis.put("NUMBER", t1.image); } #Number
+}
+
+void NewDeclaration():{Token t1;}{
+	<NEW> (<INT> <OPEN_SQUARE_BRACKET> AndDeclaration() <CLOSE_SQUARE_BRACKET> | t1 = <IDENTIFIER> {jjtThis.put("OBJECT", t1.image); } #Identifier | <OPEN_CURVE_BRACKET> <CLOSE_CURVE_BRACKET>)
+}
+
+
+
+
