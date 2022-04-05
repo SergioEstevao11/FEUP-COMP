@@ -2,6 +2,9 @@ PARSER_PACKAGE=pt.up.fe.comp;
 PARSER_CLASS=JmmGrammarParser;
 SMART_NODE_CREATION=false;
 
+SPECIAL_TOKEN : <SINGLE_LINE_COMMENT:"//" (~["\n","\r"])* ("\n"|"\r"|"\r\n") >
+                | < MULTI_LINE_COMMENT: "/*" (~["*"])* "*" (~["*","/"] (~["*"])* "*" | "*")* "/" >
+;
 
 SKIP : " " | "\t" | "\r" | "\n";
 
@@ -21,8 +24,8 @@ TOKEN :
     |   < CLOSE_SQUARE_BRACKET: "]">
     |   < OPEN_CURVE_BRACKET: "(">
     |   < CLOSE_CURVE_BRACKET: ")">
-    |   < OPENBRACKET: "{">
-    |   < CLOSEBRACKET: "}">
+    |   < OPEN_BRACKET: "{">
+    |   < CLOSE_BRACKET: "}">
 
     |   < CLASS: "class">
     |   < PUBLIC: "public">
@@ -67,35 +70,39 @@ Start : ImportDeclaration ClassDeclaration <EOF>
 ImportDeclaration : (<IMPORT> <IDENTIFIER> ( <DOT> <IDENTIFIER> )* <SEMICOLON>)*
 ;
 
-ClassDeclaration : <CLASS> <IDENTIFIER> [( <EXTENDS> <IDENTIFIER> )] <OPENBRACKET> ( VarDeclaration )* (MethodDeclaration)* <CLOSEBRACKET>
+
+ClassDeclaration : <CLASS> <IDENTIFIER> ( <EXTENDS> <IDENTIFIER> )* <OPEN_BRACKET> ( VarDeclaration )* (MethodDeclaration)* <CLOSE_BRACKET>
 ;
 
-VarDeclaration : Type <IDENTIFIER> <SEMICOLON>
+VarDeclaration : Type <IDENTIFIER> (<EQUALS> AndDeclaration)? <SEMICOLON>
 ;
 
-Type :  <INTBRACKETS> | 
-        <INT> <OPEN_SQUARE_BRACKET> <IDENTIFIER> <CLOSE_SQUARE_BRACKET> |
+Type :  <INTBRACKETS> |
+        <IDENTIFIER> |
+        <INT>  |
         <BOOLEAN> |
         <STRING>
 ;
 
-MethodDeclaration : <PUBLIC> (CommonMethodHeader | MainMethodHeader) <OPENBRACKET> MethodBody <CLOSEBRACKET>
+MethodDeclaration : <PUBLIC> (CommonMethodHeader | MainMethodHeader) <OPEN_BRACKET> MethodBody <CLOSE_BRACKET>
 ;
 
-CommonMethodHeader : Type <IDENTIFIER> <OPEN_CURVE_BRACKET> [( Type <IDENTIFIER> (<COMMA> Type <IDENTIFIER>)* )] <CLOSE_CURVE_BRACKET>
+
+CommonMethodHeader : Type <IDENTIFIER> <OPEN_CURVE_BRACKET> (Type <IDENTIFIER> (<COMMA> Type <IDENTIFIER>)* )* <CLOSE_CURVE_BRACKET>
 ;
 
 MainMethodHeader : <STATIC> <VOID> <MAIN> <OPEN_CURVE_BRACKET> <STRING> <OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET> <IDENTIFIER> <CLOSE_CURVE_BRACKET>
 ;
 
-MethodBody : (VarDeclaration | Statement)* <RETURN> AndDeclaration <SEMICOLON>
+MethodBody : (SCAN 2 VarDeclaration)* (Statement)* (<RETURN> AndDeclaration <SEMICOLON>)?
 ;
 
-Statement : <OPENBRACKET> (Statement)* <CLOSEBRACKET> |
+Statement : <OPEN_BRACKET> (Statement)* <CLOSE_BRACKET> |
             IfStatement |
-            WhileStatement | 
-            SCAN 2 AndDeclaration <SEMICOLON> |
-            SCAN 2 Assignment
+            WhileStatement |
+            SCAN 2 Assignment |
+            SCAN 2 AndDeclaration <SEMICOLON>
+
 ;
 
 IfStatement : <IF> <OPEN_CURVE_BRACKET> AndDeclaration <CLOSE_CURVE_BRACKET> Statement <ELSE> Statement
@@ -104,28 +111,33 @@ IfStatement : <IF> <OPEN_CURVE_BRACKET> AndDeclaration <CLOSE_CURVE_BRACKET> Sta
 WhileStatement : <WHILE> <OPEN_CURVE_BRACKET> AndDeclaration <CLOSE_CURVE_BRACKET> Statement
 ;
 
-Assignment : VarAccess <EQUALS> AndDeclaration <SEMICOLON>      
+Assignment : VarAccess <EQUALS> AndDeclaration <SEMICOLON>
 ;
 
-VarAccess : SCAN 2 <IDENTIFIER> <OPEN_SQUARE_BRACKET> AndDeclaration <CLOSE_SQUARE_BRACKET> |
-            <IDENTIFIER>
+VarAccess : SCAN 2 <IDENTIFIER> <OPEN_SQUARE_BRACKET> AndDeclaration <CLOSE_SQUARE_BRACKET>|
+            SCAN 2 <IDENTIFIER>
 ;
-
 
 AndDeclaration : LessDeclaration (<AND> LessDeclaration)*
 ;
+
 LessDeclaration : AddSubDeclaration (<LESS> AddSubDeclaration)*
 ;
+
 AddSubDeclaration : MultDivDeclaration (<PLUS> MultDivDeclaration | <MINUS> MultDivDeclaration)*
 ;
+
 MultDivDeclaration : NotDeclaration (<TIMES> NotDeclaration | <DIVIDE> NotDeclaration)*
 ;
-NotDeclaration : DotArrayDeclaration | (<NOT> NotDeclaration)
+
+NotDeclaration : DotArrayDeclaration | <NOT> NotDeclaration
 ;
+
 DotArrayDeclaration : KeyWords (<DOT> DotDeclaration | <OPEN_SQUARE_BRACKET> AndDeclaration <CLOSE_SQUARE_BRACKET>)*
 ;
 
-DotDeclaration : <LENGTH> | <IDENTIFIER> <OPEN_CURVE_BRACKET> [(AndDeclaration (<COMMA> AndDeclaration)*)]  <CLOSE_CURVE_BRACKET>
+
+DotDeclaration : <LENGTH> | <IDENTIFIER> <OPEN_CURVE_BRACKET> (AndDeclaration (<COMMA> AndDeclaration)*)* <CLOSE_CURVE_BRACKET>
 ;
 
 KeyWords :  <TRUE>  | 
@@ -133,41 +145,10 @@ KeyWords :  <TRUE>  |
             <THIS>  |
             NewDeclaration |
             <OPEN_CURVE_BRACKET> AndDeclaration <CLOSE_CURVE_BRACKET> |
-            <IDENTIFIER> |
-            <INTEGERLITERAL> 
+            <INTEGERLITERAL> |
+            <IDENTIFIER>
 ;
 
 NewDeclaration : <NEW> (<INT> <OPEN_SQUARE_BRACKET> AndDeclaration <CLOSE_SQUARE_BRACKET> | <IDENTIFIER> <OPEN_CURVE_BRACKET> <CLOSE_CURVE_BRACKET>)
 ;          
 
-
-
-
-
-// Injections for the implementation of JmmNode
-// Since this is injected into BaseNode, it affects only non-terminals
-INJECT BaseNode :
-        import pt.up.fe.comp.jmm.ast.JmmNode;
-        import pt.up.fe.comp.jmm.ast.AJmmNode;
-        import pt.up.fe.specs.util.SpecsCollections;
-        extends AJmmNode
-{
-    @Override
-    public List<JmmNode> getChildren() {
-
-        return SpecsCollections.cast(children(), JmmNode.class);
-    }
-
-    @Override
-    public void add(JmmNode child, int index) {
-
-        if (child instanceof Node) {
-
-            addChild(index, (Node) child);
-        } else {
-
-            throw new RuntimeException("Node " + child + " is not a Node.");
-        }
-
-    }
-}
