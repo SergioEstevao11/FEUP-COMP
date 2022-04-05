@@ -74,7 +74,7 @@ ImportDeclaration : (<IMPORT> <IDENTIFIER> ( <DOT> <IDENTIFIER> )* <SEMICOLON>)*
 ClassDeclaration : <CLASS> <IDENTIFIER> ( <EXTENDS> <IDENTIFIER> )* <OPEN_BRACKET> ( VarDeclaration )* (MethodDeclaration)* <CLOSE_BRACKET>
 ;
 
-VarDeclaration : Type <IDENTIFIER> (<EQUALS> AndDeclaration)? <SEMICOLON>
+VarDeclaration : Type <IDENTIFIER> (<EQUALS> Expression)? <SEMICOLON>
 ;
 
 Type :  <INTBRACKETS> |
@@ -94,31 +94,30 @@ CommonMethodHeader : Type <IDENTIFIER> <OPEN_CURVE_BRACKET> (Type <IDENTIFIER> (
 MainMethodHeader : <STATIC> <VOID> <MAIN> <OPEN_CURVE_BRACKET> <STRING> <OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET> <IDENTIFIER> <CLOSE_CURVE_BRACKET>
 ;
 
-MethodBody : (SCAN 2 VarDeclaration)* (Statement)* (<RETURN> AndDeclaration <SEMICOLON>)?
+MethodBody : (SCAN 2 VarDeclaration)* (Statement)* (<RETURN> Expression <SEMICOLON>)?
 ;
 
 Statement : <OPEN_BRACKET> (Statement)* <CLOSE_BRACKET> |
             IfStatement |
             WhileStatement |
             SCAN 2 Assignment |
-            SCAN 2 AndDeclaration <SEMICOLON>
-
+            SCAN 2 Expression <SEMICOLON>
 ;
 
-IfStatement : <IF> <OPEN_CURVE_BRACKET> AndDeclaration <CLOSE_CURVE_BRACKET> Statement <ELSE> Statement
+IfStatement : <IF> <OPEN_CURVE_BRACKET> Expression <CLOSE_CURVE_BRACKET> Statement <ELSE> Statement
 ;
 
-WhileStatement : <WHILE> <OPEN_CURVE_BRACKET> AndDeclaration <CLOSE_CURVE_BRACKET> Statement
+WhileStatement : <WHILE> <OPEN_CURVE_BRACKET> Expression <CLOSE_CURVE_BRACKET> Statement
 ;
 
-Assignment : VarAccess <EQUALS> AndDeclaration <SEMICOLON>
+Assignment : VarAccess <EQUALS> Expression <SEMICOLON>
 ;
 
-VarAccess : SCAN 2 <IDENTIFIER> <OPEN_SQUARE_BRACKET> AndDeclaration <CLOSE_SQUARE_BRACKET>|
+VarAccess : SCAN 2 <IDENTIFIER> <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET>|
             SCAN 2 <IDENTIFIER>
 ;
 
-AndDeclaration : LessDeclaration (<AND> LessDeclaration)*
+Expression : LessDeclaration (<AND> LessDeclaration)*
 ;
 
 LessDeclaration : AddSubDeclaration (<LESS> AddSubDeclaration)*
@@ -133,22 +132,22 @@ MultDivDeclaration : NotDeclaration (<TIMES> NotDeclaration | <DIVIDE> NotDeclar
 NotDeclaration : DotArrayDeclaration | <NOT> NotDeclaration
 ;
 
-DotArrayDeclaration : KeyWords (<DOT> DotDeclaration | <OPEN_SQUARE_BRACKET> AndDeclaration <CLOSE_SQUARE_BRACKET>)*
+DotArrayDeclaration : KeyWords (<DOT> DotDeclaration | <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET>)*
 ;
 
 
-DotDeclaration : <LENGTH> | <IDENTIFIER> <OPEN_CURVE_BRACKET> (AndDeclaration (<COMMA> AndDeclaration)*)* <CLOSE_CURVE_BRACKET>
+DotDeclaration : <LENGTH> | <IDENTIFIER> <OPEN_CURVE_BRACKET> (Expression (<COMMA> Expression)*)* <CLOSE_CURVE_BRACKET>
 ;
 
 KeyWords :  <TRUE>  | 
             <FALSE> | 
             <THIS>  |
             NewDeclaration |
-            <OPEN_CURVE_BRACKET> AndDeclaration <CLOSE_CURVE_BRACKET> |
+            <OPEN_CURVE_BRACKET> Expression <CLOSE_CURVE_BRACKET> |
             <INTEGERLITERAL> |
             <IDENTIFIER>
 ;
 
-NewDeclaration : <NEW> (<INT> <OPEN_SQUARE_BRACKET> AndDeclaration <CLOSE_SQUARE_BRACKET> | <IDENTIFIER> <OPEN_CURVE_BRACKET> <CLOSE_CURVE_BRACKET>)
+NewDeclaration : <NEW> (<INT> <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET> | <IDENTIFIER> <OPEN_CURVE_BRACKET> <CLOSE_CURVE_BRACKET>)
 ;          
 
