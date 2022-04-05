@@ -22,6 +22,9 @@ public class GrammarTest {
     private static final String INSTANCE_METHOD = "";
     private static final String STATEMENT = "";
     private static final String EXPRESSION = "";
+    private static final String VarDeclaration = "";
+
+
 
     private static void noErrors(String code, String grammarRule) {
         if (grammarRule.isEmpty()) {
@@ -55,17 +58,17 @@ public class GrammarTest {
 
     @Test
     public void testClass() {
-        noErrors("class Foo extends Bar {}");
+        noErrors("class Foo extends Bar {}", MAIN_METHOD);
     }
 
     @Test
     public void testVarDecls() {
-        noErrors("class Foo {int a; int[] b; int c; boolean d; Bar e;}");
+        noErrors("class Foo {int a; int[] b; int c; boolean d; Bar e;}", VarDeclaration);
     }
 
     @Test
     public void testVarDeclString() {
-        noErrors("String aString;", "VarDecl");
+        noErrors("String aString;", VarDeclaration);
     }
 
     @Test
