@@ -58,12 +58,12 @@ public class GrammarTest {
 
     @Test
     public void testClass() {
-        noErrors("class Foo extends Bar {}", MAIN_METHOD);
+        noErrors("class Foo extends Bar {}", INSTANCE_METHOD);
     }
 
     @Test
     public void testVarDecls() {
-        noErrors("class Foo {int a; int[] b; int c; boolean d; Bar e;}", VarDeclaration);
+        noErrors("class Foo {int a; int[] b; int c; boolean d; Bar e;}", INSTANCE_METHOD);
     }
 
     @Test
