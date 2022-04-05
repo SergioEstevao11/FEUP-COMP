@@ -101,7 +101,7 @@ Statement : <OPEN_BRACKET> (Statement)* <CLOSE_BRACKET> |
             IfStatement |
             WhileStatement |
             SCAN 2 Assignment |
-            SCAN 2 Expression <SEMICOLON>
+            Expression <SEMICOLON>
 ;
 
 IfStatement : <IF> <OPEN_CURVE_BRACKET> Expression <CLOSE_CURVE_BRACKET> Statement <ELSE> Statement
@@ -114,7 +114,7 @@ Assignment : VarAccess <EQUALS> Expression <SEMICOLON>
 ;
 
 VarAccess : SCAN 2 <IDENTIFIER> <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET>|
-            SCAN 2 <IDENTIFIER>
+             <IDENTIFIER>
 ;
 
 Expression : LessDeclaration (<AND> LessDeclaration)*

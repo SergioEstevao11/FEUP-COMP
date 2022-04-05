@@ -30,7 +30,7 @@ public class SimpleParser implements JmmParser {
     public JmmParserResult parse(String jmmCode, Map<String, String> config) {
 
         try {
-
+            //use tokens' information on newError to get line
             JmmGrammarParser parser = new JmmGrammarParser(SpecsIo.toInputStream(jmmCode));
             parser.Start();
 
