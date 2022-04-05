@@ -49,13 +49,13 @@ class Life {
         return true;
     }
 
-    /* Change this! 
-     * (might want to write a script 
-     * to autogenerate every assignment...)
-     *
-     * lineLen is "pass by reference",
-     * and we modify it to return (e.g. time_t *time)
-     */
+    /* Change this!
+         * (might want to write a script
+         * to autogenerate every assignment...)
+         *
+         * lineLen is "pass by reference",
+         * and we modify it to return (e.g. time_t *time)
+         */
     public int[] field(int[] lineLen) {
         int[] field;
 

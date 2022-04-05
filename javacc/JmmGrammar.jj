@@ -2,6 +2,9 @@ PARSER_PACKAGE=pt.up.fe.comp;
 PARSER_CLASS=JmmGrammarParser;
 SMART_NODE_CREATION=false;
 
+SPECIAL_TOKEN : <SINGLE_LINE_COMMENT:"//" (~["\n","\r"])* ("\n"|"\r"|"\r\n") >
+                | < MULTI_LINE_COMMENT: "/*" (~["*"])* "*" (~["*","/"] (~["*"])* "*" | "*")* "/" >
+;
 
 SKIP : " " | "\t" | "\r" | "\n";
 
@@ -70,7 +73,7 @@ ImportDeclaration : (<IMPORT> <IDENTIFIER> ( <DOT> <IDENTIFIER> )* <SEMICOLON>)*
 ClassDeclaration : <CLASS> <IDENTIFIER> ( <EXTENDS> <IDENTIFIER> )* <OPEN_BRACKET> ( VarDeclaration )* (MethodDeclaration)* <CLOSE_BRACKET>
 ;
 
-VarDeclaration : Type <IDENTIFIER> <SEMICOLON>
+VarDeclaration : Type <IDENTIFIER> (<EQUALS> AndDeclaration)? <SEMICOLON>
 ;
 
 Type :  <INTBRACKETS> |
@@ -89,7 +92,7 @@ CommonMethodHeader : Type <IDENTIFIER> <OPEN_CURVE_BRACKET> (Type <IDENTIFIER> (
 MainMethodHeader : <STATIC> <VOID> <MAIN> <OPEN_CURVE_BRACKET> <STRING> <OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET> <IDENTIFIER> <CLOSE_CURVE_BRACKET>
 ;
 
-MethodBody : (SCAN 2 VarDeclaration)* (Statement)* (<RETURN> AndDeclaration <SEMICOLON>)*
+MethodBody : (SCAN 2 VarDeclaration)* (Statement)* (<RETURN> AndDeclaration <SEMICOLON>)?
 ;
 
 Statement : <OPEN_BRACKET> (Statement)* <CLOSE_BRACKET> |
@@ -146,30 +149,3 @@ KeyWords :  <TRUE>  |
 NewDeclaration : <NEW> (<INT> <OPEN_SQUARE_BRACKET> AndDeclaration <CLOSE_SQUARE_BRACKET> | <IDENTIFIER> <OPEN_CURVE_BRACKET> <CLOSE_CURVE_BRACKET>)
 ;          
 
-// Injections for the implementation of JmmNode
-// Since this is injected into BaseNode, it affects only non-terminals
-INJECT BaseNode :
-        import pt.up.fe.comp.jmm.ast.JmmNode;
-        import pt.up.fe.comp.jmm.ast.AJmmNode;
-        import pt.up.fe.specs.util.SpecsCollections;
-        extends AJmmNode
-{
-    @Override
-    public List<JmmNode> getChildren() {
-
-        return SpecsCollections.cast(children(), JmmNode.class);
-    }
-
-    @Override
-    public void add(JmmNode child, int index) {
-
-        if (child instanceof Node) {
-
-            addChild(index, (Node) child);
-        } else {
-
-            throw new RuntimeException("Node " + child + " is not a Node.");
-        }
-
-    }
-}
