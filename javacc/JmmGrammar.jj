@@ -122,7 +122,7 @@ Statement :
     IfStatement |
     WhileStatement |
     SCAN 2 Assignment |
-    SCAN 2 Expression <SEMICOLON>
+    Expression <SEMICOLON>
 ;
 
 IfStatement :
@@ -139,7 +139,7 @@ Assignment :
 ;
 
 VarAccess : SCAN 2 (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Id) <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET>|
-            SCAN 2 (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Id)
+            (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Id)
 ;
 
 Expression : LessDeclaration ((<AND> ({jjtThis.put("op", "and");}) #Op(2)) LessDeclaration )*
