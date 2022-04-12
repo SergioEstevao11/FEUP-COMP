@@ -1,6 +1,9 @@
 PARSER_PACKAGE=pt.up.fe.comp;
 PARSER_CLASS=JmmGrammarParser;
 SMART_NODE_CREATION=false;
+TOKENS_ARE_NODES=false;
+
+
 
 SPECIAL_TOKEN : <SINGLE_LINE_COMMENT:"//" (~["\n","\r"])* ("\n"|"\r"|"\r\n") >
                 | < MULTI_LINE_COMMENT: "/*" (~["*"])* "*" (~["*","/"] (~["*"])* "*" | "*")* "/" >
@@ -67,87 +70,136 @@ TOKEN :
 Start : ImportDeclaration ClassDeclaration <EOF>
 ;
 
-ImportDeclaration : (<IMPORT> <IDENTIFIER> ( <DOT> <IDENTIFIER> )* <SEMICOLON>)*
+
+
+ImportDeclaration :
+    (<IMPORT> (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Id)
+    (<DOT> (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Id))* <SEMICOLON>)*
 ;
 
 
-ClassDeclaration : <CLASS> <IDENTIFIER> ( <EXTENDS> <IDENTIFIER> )* <OPEN_BRACKET> ( VarDeclaration )* (MethodDeclaration)* <CLOSE_BRACKET>
+
+
+ClassDeclaration :
+    <CLASS> (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Id)
+    (<EXTENDS> (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Extend ))* <OPEN_BRACKET> ( VarDeclaration )* (MethodDeclaration)* <CLOSE_BRACKET>
 ;
 
-VarDeclaration : Type <IDENTIFIER> (<EQUALS> Expression)? <SEMICOLON>
+VarDeclaration :
+    (Type <IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Id) (<EQUALS> Expression)? <SEMICOLON>
 ;
 
-Type :  <INTBRACKETS> |
-        <IDENTIFIER> |
-        <INT>  |
-        <BOOLEAN> |
-        <STRING>
+Type :
+    <INTBRACKETS> |
+    (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Id)|
+    <INT>  |
+    <BOOLEAN> |
+    <STRING>
 ;
 
-MethodDeclaration : <PUBLIC> (CommonMethodHeader | MainMethodHeader) <OPEN_BRACKET> MethodBody <CLOSE_BRACKET>
-;
-
-
-CommonMethodHeader : Type <IDENTIFIER> <OPEN_CURVE_BRACKET> (Type <IDENTIFIER> (<COMMA> Type <IDENTIFIER>)* )* <CLOSE_CURVE_BRACKET>
-;
-
-MainMethodHeader : <STATIC> <VOID> <MAIN> <OPEN_CURVE_BRACKET> <STRING> <OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET> <IDENTIFIER> <CLOSE_CURVE_BRACKET>
-;
-
-MethodBody : (SCAN 2 VarDeclaration)* (Statement)* (<RETURN> Expression <SEMICOLON>)?
-;
-
-Statement : <OPEN_BRACKET> (Statement)* <CLOSE_BRACKET> |
-            IfStatement |
-            WhileStatement |
-            SCAN 2 Assignment |
-            Expression <SEMICOLON>
-;
-
-IfStatement : <IF> <OPEN_CURVE_BRACKET> Expression <CLOSE_CURVE_BRACKET> Statement <ELSE> Statement
-;
-
-WhileStatement : <WHILE> <OPEN_CURVE_BRACKET> Expression <CLOSE_CURVE_BRACKET> Statement
-;
-
-Assignment : VarAccess <EQUALS> Expression <SEMICOLON>
-;
-
-VarAccess : SCAN 2 <IDENTIFIER> <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET>|
-             <IDENTIFIER>
-;
-
-Expression : LessDeclaration (<AND> LessDeclaration)*
-;
-
-LessDeclaration : AddSubDeclaration (<LESS> AddSubDeclaration)*
-;
-
-AddSubDeclaration : MultDivDeclaration (<PLUS> MultDivDeclaration | <MINUS> MultDivDeclaration)*
-;
-
-MultDivDeclaration : NotDeclaration (<TIMES> NotDeclaration | <DIVIDE> NotDeclaration)*
-;
-
-NotDeclaration : DotArrayDeclaration | <NOT> NotDeclaration
-;
-
-DotArrayDeclaration : KeyWords (<DOT> DotDeclaration | <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET>)*
+MethodDeclaration :
+    <PUBLIC> (CommonMethodHeader | MainMethodHeader) <OPEN_BRACKET> MethodBody <CLOSE_BRACKET>
 ;
 
 
-DotDeclaration : <LENGTH> | <IDENTIFIER> <OPEN_CURVE_BRACKET> (Expression (<COMMA> Expression)*)* <CLOSE_CURVE_BRACKET>
+CommonMethodHeader :
+    (Type <IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Id) <OPEN_CURVE_BRACKET>
+    ((Type <IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Id)
+    (<COMMA> (Type <IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Id))* )* <CLOSE_CURVE_BRACKET>
 ;
 
-KeyWords :  <TRUE>  | 
-            <FALSE> | 
+MainMethodHeader :
+    <STATIC> <VOID> <MAIN> <OPEN_CURVE_BRACKET> <STRING> <OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET>
+    (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Id) <CLOSE_CURVE_BRACKET>
+;
+
+MethodBody :
+    (SCAN 2 VarDeclaration)* (Statement)* (<RETURN> Expression <SEMICOLON>)?
+;
+
+Statement :
+    <OPEN_BRACKET> (Statement)* <CLOSE_BRACKET> |
+    IfStatement |
+    WhileStatement |
+    SCAN 2 Assignment |
+    Expression <SEMICOLON>
+;
+
+IfStatement :
+    (<IF> <OPEN_CURVE_BRACKET> Expression <CLOSE_CURVE_BRACKET> ({jjtThis.put("name", lastConsumedToken.getImage());}) #IfStat) Statement
+    <ELSE> Statement
+;
+
+WhileStatement :
+    (<WHILE> <OPEN_CURVE_BRACKET> Expression <CLOSE_CURVE_BRACKET> ({jjtThis.put("name", lastConsumedToken.getImage());}) #WhileStat) Statement
+;
+
+Assignment :
+    VarAccess <EQUALS> Expression <SEMICOLON>
+;
+
+VarAccess : SCAN 2 (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Id) <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET>|
+            (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Id)
+;
+
+Expression : LessDeclaration ((<AND> ({jjtThis.put("op", "and");}) #Op(2)) LessDeclaration )*
+;
+
+LessDeclaration : AddSubDeclaration ((<LESS> ({jjtThis.put("op", "less");}) #Op(2)) AddSubDeclaration)*
+;
+
+AddSubDeclaration : MultDivDeclaration ((<PLUS> ({jjtThis.put("op", "add");}) #Op(2)) MultDivDeclaration | (<MINUS> ({jjtThis.put("op", "sub");}) #Op(2)) MultDivDeclaration)*
+;
+
+MultDivDeclaration : NotDeclaration ((<TIMES> ({jjtThis.put("op", "mul");}) #Op(2)) NotDeclaration | (<DIVIDE> ({jjtThis.put("op", "div");}) #Op(2)) NotDeclaration)*
+;
+
+NotDeclaration : DotArrayDeclaration | (<NOT> ({jjtThis.put("op", "not");}) #Op(1)) NotDeclaration
+;
+
+DotArrayDeclaration : KeyWords ((<DOT> ({jjtThis.put("op", "dot");}) #Op(2)) DotDeclaration | (<OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET> ({jjtThis.put("op", "array");}) #Op(2)))*
+;
+
+
+DotDeclaration : <LENGTH> | (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Id) <OPEN_CURVE_BRACKET> (Expression (<COMMA> Expression)*)* <CLOSE_CURVE_BRACKET>
+;
+
+KeyWords :  <TRUE>  |
+            <FALSE> |
             <THIS>  |
             NewDeclaration |
             <OPEN_CURVE_BRACKET> Expression <CLOSE_CURVE_BRACKET> |
-            <INTEGERLITERAL> |
-            <IDENTIFIER>
+            (<INTEGERLITERAL> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Number)|
+            (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Id)
 ;
 
-NewDeclaration : <NEW> (<INT> <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET> | <IDENTIFIER> <OPEN_CURVE_BRACKET> <CLOSE_CURVE_BRACKET>)
+NewDeclaration : <NEW> (<INT> <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET> | (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Id) <OPEN_CURVE_BRACKET> <CLOSE_CURVE_BRACKET>)
 ;          
+
+
+INJECT BaseNode :
+        import pt.up.fe.comp.jmm.ast.JmmNode;
+        import pt.up.fe.comp.jmm.ast.AJmmNode;
+        import pt.up.fe.specs.util.SpecsCollections;
+        extends AJmmNode
+{
+    @Override
+    public List<JmmNode> getChildren() {
+
+        return SpecsCollections.cast(children(), JmmNode.class);
+    }
+
+    @Override
+    public void add(JmmNode child, int index) {
+
+        if (child instanceof Node) {
+
+            addChild(index, (Node) child);
+        } else {
+
+            throw new RuntimeException("Node " + child + " is not a Node.");
+        }
+
+    }
+}
 
