@@ -117,12 +117,18 @@ MethodBody :
     (SCAN 2 VarDeclaration)* (Statement)* (<RETURN> Expression <SEMICOLON>)?
 ;
 
-Statement :
-    <OPEN_BRACKET> (Statement)* <CLOSE_BRACKET> |
+Statement #void:
+    CompoundStatement |
     IfStatement |
     WhileStatement |
     SCAN 2 Assignment |
-    Expression <SEMICOLON>
+    ExpressionStatement
+;
+
+CompoundStatement : <OPEN_BRACKET> (Statement)* <CLOSE_BRACKET>
+;
+
+ExpressionStatement : Expression <SEMICOLON>
 ;
 
 IfStatement :
@@ -151,13 +157,13 @@ LessDeclaration #void: AddSubDeclaration ((<LESS> ({jjtThis.put("op", "less");})
 AddSubDeclaration #void: MultDivDeclaration ((<PLUS> ({jjtThis.put("op", "add");}) #Plus(2)) MultDivDeclaration | (<MINUS> ({jjtThis.put("op", "sub");}) #Minus(2)) MultDivDeclaration)*
 ;
 
-MultDivDeclaration #void: NotDeclaration ((<TIMES> ({jjtThis.put("op", "mul");}) #Times(2)) NotDeclaration | (<DIVIDE> ({jjtThis.put("op", "div");}) #Divide(2)) NotDeclaration)*
+MultDivDeclaration #void: NotDeclaration ((<TIMES> ({jjtThis.put("op", "mul");}) NotDeclaration ) #Times(2)  | (<DIVIDE> ({jjtThis.put("op", "div");}) #Divide(2)) NotDeclaration)*
 ;
 
 NotDeclaration #void: DotArrayDeclaration | (<NOT> ({jjtThis.put("op", "not");}) #Not(1)) NotDeclaration
 ;
 
-DotArrayDeclaration #void: KeyWords ((<DOT> ({jjtThis.put("op", "dot");}) #Dot(2)) DotDeclaration | (<OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET> ({jjtThis.put("op", "array");}) #ArrayAccess(2)))*
+DotArrayDeclaration #void: KeyWords ((<DOT> ({jjtThis.put("op", "dot");}) DotDeclaration) #DotAccess(2) | (<OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET> ({jjtThis.put("op", "array");}) #ArrayAccess(2)))*
 ;
 
 
