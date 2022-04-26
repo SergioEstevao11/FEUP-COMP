@@ -151,7 +151,7 @@ VarAccess #void : SCAN 2 (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.g
 Expression #void: LessDeclaration ((<AND> ({jjtThis.put("op", "and");}) #And(2)) LessDeclaration )*
 ;
 
-LessDeclaration #void: AddSubDeclaration ((<LESS> ({jjtThis.put("op", "less");}) #Less(2)) AddSubDeclaration)*
+LessDeclaration #void: AddSubDeclaration ((<LESS> AddSubDeclaration ({jjtThis.put("op", "less");}))#Less(2))*
 ;
 
 AddSubDeclaration #void: MultDivDeclaration ((<PLUS> ({jjtThis.put("op", "add");}) #Plus(2)) MultDivDeclaration | (<MINUS> ({jjtThis.put("op", "sub");}) #Minus(2)) MultDivDeclaration)*
