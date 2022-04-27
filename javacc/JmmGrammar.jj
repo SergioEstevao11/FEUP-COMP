@@ -82,7 +82,7 @@ ImportDeclaration :
 
 ClassDeclaration :
     <CLASS> (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier)
-    (<EXTENDS> (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Extend ))* <OPEN_BRACKET> ( VarDeclaration )* (MethodDeclaration)* <CLOSE_BRACKET>
+    (<EXTENDS> (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());})) #Extend )* <OPEN_BRACKET> ( VarDeclaration )* (MethodDeclaration)* <CLOSE_BRACKET>
 ;
 
 VarDeclaration :
@@ -132,8 +132,8 @@ ExpressionStatement : Expression <SEMICOLON>
 ;
 
 IfStatement :
-    (<IF> <OPEN_CURVE_BRACKET> Expression <CLOSE_CURVE_BRACKET> ({jjtThis.put("name", lastConsumedToken.getImage());}) #IfStat) Statement
-    <ELSE> Statement
+    (<IF> <OPEN_CURVE_BRACKET> Expression <CLOSE_CURVE_BRACKET> ) Statement #IfScope
+    <ELSE> Statement  #ElseScope
 ;
 
 WhileStatement :
@@ -148,24 +148,26 @@ VarAccess #void : SCAN 2 (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.g
             (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier)
 ;
 
-Expression #void: LessDeclaration ((<AND> ({jjtThis.put("op", "and");}) #And(2)) LessDeclaration )*
+Expression #void: LessDeclaration ((<AND> LessDeclaration) #And(2) )*
 ;
 
-LessDeclaration #void: AddSubDeclaration ((<LESS> AddSubDeclaration ({jjtThis.put("op", "less");}))#Less(2))*
+LessDeclaration #void: AddSubDeclaration ((<LESS> AddSubDeclaration) #Less(2))*
 ;
 
 AddSubDeclaration #void: MultDivDeclaration ((<PLUS> ({jjtThis.put("op", "add");}) #Plus(2)) MultDivDeclaration | (<MINUS> ({jjtThis.put("op", "sub");}) #Minus(2)) MultDivDeclaration)*
 ;
 
-MultDivDeclaration #void: NotDeclaration ((<TIMES> ({jjtThis.put("op", "mul");}) NotDeclaration ) #Times(2)  | (<DIVIDE> ({jjtThis.put("op", "div");}) #Divide(2)) NotDeclaration)*
+MultDivDeclaration #void: NotDeclaration ( (<TIMES> NotDeclaration ) #Times(2)  | (<DIVIDE> NotDeclaration) #Divide(2))*
 ;
 
-NotDeclaration #void: DotArrayDeclaration | (<NOT> ({jjtThis.put("op", "not");}) #Not(1)) NotDeclaration
+NotDeclaration #void: DotArrayDeclaration | <NOT> NotDeclaration #Not(1)
 ;
 
-DotArrayDeclaration #void: KeyWords ((<DOT> ({jjtThis.put("op", "dot");}) DotDeclaration) #DotAccess(2) | (<OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET> ({jjtThis.put("op", "array");}) #ArrayAccess(2)))*
+DotArrayDeclaration #void: KeyWords ((<DOT> DotDeclaration) #DotAccess(2) | (ArrayAccess #ArrayAccess(2)))*
 ;
 
+ArrayAccess #void: <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET>
+;
 
 DotDeclaration #void: <LENGTH> #Length | (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier) <OPEN_CURVE_BRACKET> (Expression (<COMMA> Expression)*)* <CLOSE_CURVE_BRACKET>
 ;
