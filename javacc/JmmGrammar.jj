@@ -125,7 +125,7 @@ Statement #void:
     ExpressionStatement
 ;
 
-CompoundStatement : <OPEN_BRACKET> (Statement)* <CLOSE_BRACKET>
+CompoundStatement #void: <OPEN_BRACKET> (Statement)* <CLOSE_BRACKET>
 ;
 
 ExpressionStatement : Expression <SEMICOLON>
@@ -137,7 +137,7 @@ IfStatement :
 ;
 
 WhileStatement :
-    (<WHILE> <OPEN_CURVE_BRACKET> Expression <CLOSE_CURVE_BRACKET> ({jjtThis.put("name", lastConsumedToken.getImage());}) #WhileStat) Statement
+    (<WHILE> <OPEN_CURVE_BRACKET> Expression <CLOSE_CURVE_BRACKET> ({jjtThis.put("name", lastConsumedToken.getImage());}) ) Statement
 ;
 
 Assignment #void:
@@ -154,7 +154,7 @@ Expression #void: LessDeclaration ((<AND> LessDeclaration) #And(2) )*
 LessDeclaration #void: AddSubDeclaration ((<LESS> AddSubDeclaration) #Less(2))*
 ;
 
-AddSubDeclaration #void: MultDivDeclaration ((<PLUS> ({jjtThis.put("op", "add");}) #Plus(2)) MultDivDeclaration | (<MINUS> ({jjtThis.put("op", "sub");}) #Minus(2)) MultDivDeclaration)*
+AddSubDeclaration #void: MultDivDeclaration ( (<PLUS> MultDivDeclaration) #Plus(2) | (<MINUS> MultDivDeclaration) #Minus(2) )*
 ;
 
 MultDivDeclaration #void: NotDeclaration ( (<TIMES> NotDeclaration ) #Times(2)  | (<DIVIDE> NotDeclaration) #Divide(2))*
