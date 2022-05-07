@@ -18,9 +18,8 @@ public class Backend implements JasminBackend{
     private String className;
     private String extendsDef = null;
     private Method currMethod;
-    private int opLabel = 0;
-    private int instrCurrStackSize = 0;
-    private int instrMaxStackSize = 0;
+    private int StackSize = 0;
+    private int MaxStackSize = 0;
     private final List<Report> reports = new ArrayList<>();
 
     @Override
@@ -31,8 +30,8 @@ public class Backend implements JasminBackend{
         StringBuilder jasminCode = new StringBuilder();
 
 
-        jasminCode.append(this.generateClassDecl(ollirClass));
-        jasminCode.append(this.generateClassMethods(ollirClass));
+        jasminCode.append(this.generateClassDecl(ollirClass)); //feito
+        jasminCode.append(this.generateClassMethods(ollirClass)); //ainda tem erros
 
         try {
             File jasminFile = new File(this.className + ".j");
@@ -51,7 +50,7 @@ public class Backend implements JasminBackend{
             return new JasminResult(ollirResult, jasminCode.toString(), reports);
 
         }catch(IOException e){
-            System.out.println("An error occurred.");
+            System.out.println("ERROR");
             e.printStackTrace();
             return null;
         }
@@ -62,14 +61,10 @@ public class Backend implements JasminBackend{
         StringBuilder classCode = new StringBuilder();
 
         // Class: Definition
-        classCode.append(".class public ")
-                .append(ollirClass.getClassName())
-                .append("\n");
+        classCode.append(".class public ").append(ollirClass.getClassName()).append("\n");
 
         // Class: Extends
-        classCode.append(".super ")
-                .append(this.generateSuper())
-                .append("\n");
+        classCode.append(".super ").append(this.generateSuper()).append("\n");
 
         // Class: Fields
         classCode.append(this.generateClassFields(ollirClass));
@@ -92,7 +87,7 @@ public class Backend implements JasminBackend{
             classFieldsCode.append("\t.field private ")
                     .append(field.getFieldName())
                     .append(" ")
-                    .append(Backend.generateType(field.getFieldType()))
+                    .append(Backend.getJasminType(field.getFieldType()))
                     .append("\n");
         }
 
@@ -112,6 +107,7 @@ public class Backend implements JasminBackend{
 
             if(method.getMethodName().equals("main")) {
                 String body = this.generateClassMethodBody(method.getInstructions());
+
                 classMethodsCode.append("\t.method public static main([Ljava/lang/String;)V\n")
                         .append(this.generateStackLimits())
                         .append(this.generateLocalLimits())
@@ -124,13 +120,13 @@ public class Backend implements JasminBackend{
                 classMethodsCode.append(String.format("\t.method public %s(", method.getMethodName()));
 
                 for(Element param:  method.getParams()) {
-                    classMethodsCode.append(Backend.generateType(param.getType()));
+                    classMethodsCode.append(Backend.getJasminType(param.getType()));
                 }
 
                 String body = this.generateClassMethodBody(method.getInstructions());
 
                 classMethodsCode.append(")")
-                        .append(Backend.generateType(method.getReturnType()))
+                        .append(Backend.getJasminType(method.getReturnType()))
                         .append("\n")
                         .append(this.generateStackLimits())
                         .append(this.generateLocalLimits())
@@ -144,61 +140,146 @@ public class Backend implements JasminBackend{
             }
 
             classMethodsCode.append("\t.end method\n\n");
-            this.instrCurrStackSize = 0;
-            this.instrMaxStackSize = 0;
+            this.StackSize = 0;
+            this.MaxStackSize = 0;
         }
 
         return classMethodsCode.toString();
         
     }
 
-    private static String generateType(Type type) {
-        String jasminType = "";
+    private static String getJasminType(Type type){
+        if (type instanceof ArrayType){
+            return "[" + getJasminType(((ArrayType)type).getTypeOfElements());
+        }
+        else if(type.getTypeOfElement() == ElementType.OBJECTREF) {return "L" + ((ClassType) type).getName() + ";";}
+        else if(type.getTypeOfElement() == ElementType.CLASS) {return "L" + ((ClassType) type).getName() + ";";}
 
-        if(type.getTypeOfElement() == ElementType.ARRAYREF) {jasminType = "[I";}
-        else if(type.getTypeOfElement() == ElementType.ARRAYREF) {jasminType = "I";}
-        else if(type.getTypeOfElement() == ElementType.INT32) {jasminType = "Z";}
-        else if(type.getTypeOfElement() == ElementType.VOID) {jasminType = "V";}
-        else if(type.getTypeOfElement() == ElementType.STRING) {jasminType = "Ljava/lang/String;";}
-        else if(type.getTypeOfElement() == ElementType.OBJECTREF) {jasminType = "L" + ((ClassType) type).getName() + ";";}
-        else if(type.getTypeOfElement() == ElementType.CLASS) {jasminType = "L" + ((ClassType) type).getName() + ";";}
-        else{throw new IllegalStateException("Unexpected value: " + type.getTypeOfElement());}
-
-        return jasminType;
+        return getJasminType(type.getTypeOfElement());
     }
 
-    private String generateStackLimits() {
-        return "\t\t.limit stack " + (this.instrMaxStackSize + 2) + "\n";
+    private static String getJasminType(ElementType type) {
+        String jasminType = "";
+
+        if(type == ElementType.INT32) {jasminType = "I";}
+        else if(type == ElementType.BOOLEAN) {jasminType = "Z";}
+        else if(type == ElementType.VOID) {jasminType = "V";}
+        else if(type == ElementType.STRING) {jasminType = "Ljava/lang/String;";}
+        else{throw new IllegalStateException("Unexpected value: " + type);}
+
+        return jasminType;
     }
 
     private String generateClassMethodBody(ArrayList<Instruction> instructions) {
         StringBuilder methodInstCode = new StringBuilder();
 
-        for(Instruction instr: instructions) {
-            for(Map.Entry<String, Instruction> entry: this.currMethod.getLabels().entrySet()) {
-                if(entry.getValue().getId() == instr.getId()) {
-                    methodInstCode.append(this.generatePops())
-                            .append("\t")
-                            .append(entry.getKey())
-                            .append(":\n");
-                }
-            }
+        for(var instr: instructions) {
 
-            methodInstCode.append(this.generateOperation(instr));
+            methodInstCode.append(this.getJasminInst(instr));
         }
 
         return methodInstCode.toString();
     }
 
-    private String generateOperation(Instruction instr) {
+    private String getJasminInst(Instruction instr) {
 
+        if (instr instanceof SingleOpInstruction)
+            return this.generateSingleOp((SingleOpInstruction) instr);
+        if (instr instanceof AssignInstruction)
+            return this.generateAssignOp((AssignInstruction) instr);
+        if (instr instanceof BinaryOpInstruction)
+            return this.generateBinaryOp((BinaryOpInstruction) instr);
+        if (instr instanceof CallInstruction)
+            return this.generateCallOp((CallInstruction) instr);
+        if (instr instanceof GetFieldInstruction)
+            return this.generateGetFieldOp((GetFieldInstruction) instr);
+        if (instr instanceof PutFieldInstruction)
+            return this.generatePutFieldOp((PutFieldInstruction) instr);
+        if (instr instanceof GotoInstruction)
+            return this.generateGotoOp((GotoInstruction) instr);
+        if (instr instanceof ReturnInstruction)
+            return this.generateReturnOp((ReturnInstruction) instr);
+        if (instr instanceof CondBranchInstruction)
+            return this.generateBranchOp((CondBranchInstruction) instr);
         return "";
+
+    }
+
+    private String generateBranchOp(CondBranchInstruction instr) {
+        var jasminCode = new StringBuilder();
+
+        return jasminCode.toString();
+    }
+
+    private String generateReturnOp(ReturnInstruction instr) {
+        var jasminCode = new StringBuilder();
+
+        return jasminCode.toString();
+    }
+
+    private String generateGotoOp(GotoInstruction instr) {
+        var jasminCode = new StringBuilder();
+
+        return jasminCode.toString();
+    }
+
+    private String generatePutFieldOp(PutFieldInstruction instr) {
+        var jasminCode = new StringBuilder();
+
+        return jasminCode.toString();
+    }
+
+    private String generateGetFieldOp(GetFieldInstruction instr) {
+        var jasminCode = new StringBuilder();
+
+        return jasminCode.toString();
+    }
+
+    private String generateCallOp(CallInstruction instr) {
+        var jasminCode = new StringBuilder();
+
+        switch (instr.getInvocationType()){
+            case invokestatic:
+                jasminCode.append("invokestatic ");
+                break;
+
+            default:
+                throw new IllegalStateException("Error");
+        }
+
+        return jasminCode.toString();
+    }
+
+    private String generateBinaryOp(BinaryOpInstruction instr) {
+        var jasminCode = new StringBuilder();
+
+        return jasminCode.toString();
+    }
+
+    private String generateAssignOp(AssignInstruction instr) {
+        var jasminCode = new StringBuilder();
+
+        return jasminCode.toString();
+    }
+
+    private String generateSingleOp(SingleOpInstruction instr) {
+        var jasminCode = new StringBuilder();
+
+        return jasminCode.toString();
+    }
+
+
+
+    //Stack Functions
+    private String generateStackLimits()
+    {
+        return "\t\t.limit stack " + 99 + "\n";
     }
 
     private String generatePops() {
         StringBuilder pop = new StringBuilder();
 
-        for(int i = this.instrCurrStackSize; i > 0; i--) {
+        for(int i = this.StackSize; i > 0; i--) {
             if(i > 1) {
                 pop.append("\t\tpop2\n");
                 i--;
@@ -207,27 +288,13 @@ public class Backend implements JasminBackend{
             }
         }
 
-        this.instrCurrStackSize = 0;
+        this.StackSize = 0;
         return pop.toString();
     }
 
     private String generateLocalLimits() {
-        if(this.currMethod.isConstructMethod()) {
-            return "";
-        }
 
-        int locals = (int) this.currMethod.getVarTable()
-                .values()
-                .stream()
-                .map(Descriptor::getVirtualReg)
-                .distinct()
-                .count();
-
-        if(!this.currMethod.isStaticMethod()) {
-            locals++;
-        }
-
-        return "\t\t.limit locals " + locals + "\n";
+        return "\t\t.limit locals " + 99 + "\n";
 
     }
 
