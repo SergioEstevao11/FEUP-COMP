@@ -240,14 +240,25 @@ public class Backend implements JasminBackend{
 
         switch (instr.getInvocationType()){
             case invokestatic:
-                jasminCode.append("invokestatic ");
-                break;
+                return generateInvokeStatic(instr);
 
             default:
                 throw new IllegalStateException("Error");
         }
 
         return jasminCode.toString();
+    }
+
+    private String generateInvokeStatic(CallInstruction instr) {
+        var code = new StringBuilder();
+
+        code.append("invokestatic ");
+        var methodClass = ((Operand) instr.getFirstArg()).getName();
+
+        code.append(get())
+
+
+        return code.toString();
     }
 
     private String generateBinaryOp(BinaryOpInstruction instr) {
