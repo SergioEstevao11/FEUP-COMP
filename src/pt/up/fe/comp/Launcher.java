@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import pt.up.fe.comp.analysis.JmmAnalyser;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
@@ -43,7 +44,13 @@ public class Launcher {
         // Check if there are parsing errors
         TestUtils.noErrors(parserResult.getReports());
 
-        // ... add remaining stages
+        // Instantiate JmmmAnalysis
+        var analyser = new JmmAnalyser();
+        
+        // Analysis stage
+        var semanticsResult = analyser.semanticAnalysis(parserResult);
+
+        TestUtils.noErrors(semanticsResult);
     }
 
 }
