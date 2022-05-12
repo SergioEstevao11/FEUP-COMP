@@ -17,7 +17,7 @@ public class SymbolTableBuilder implements SymbolTable{
     private String superClass;
 
     private final List<String> methods;
-    private final Map<String,Type> returnType;
+    private final Map<String,Type> methodReturnType;
     private final Map<String,List<Symbol>> methodParams;
 
     public SymbolTableBuilder() {
@@ -25,7 +25,7 @@ public class SymbolTableBuilder implements SymbolTable{
         this.className = null;
         this.superClass = null;
         this.methods = new ArrayList<>();
-        this.returnType = new HashMap<>();
+        this.methodReturnType = new HashMap<>();
         this.methodParams = new HashMap<>();
     }
 
@@ -33,6 +33,10 @@ public class SymbolTableBuilder implements SymbolTable{
     @Override
     public List<String> getImports() {
         return imports;
+    }
+
+    public void addImport(String importString){
+        imports.add(importString);
     }
 
     @Override
@@ -57,8 +61,7 @@ public class SymbolTableBuilder implements SymbolTable{
 
     @Override
     public Type getReturnType(String methodSignature) {
-        // return meth.get(methodSignature);
-        return null;
+        return methodReturnType.get(methodSignature);
     }
 
     @Override
@@ -69,6 +72,29 @@ public class SymbolTableBuilder implements SymbolTable{
     @Override
     public List<Symbol> getLocalVariables(String methodSignature) {
         return Collections.emptyList();
+    }
+
+    public void addMethod(String methodSignature, Type returnType, List<Symbol> params){
+        methods.add(methodSignature);
+        methodReturnType.put(methodSignature, returnType);
+        methodParams.put(methodSignature, params);
+
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+
+    public Object setSuperClass(String superClass) {
+        this.superClass = superClass;
+
+        return this.superClass;
+    }
+
+
+    public boolean hasMethod(String methodName) {
+        return false;
     }
     
 }
