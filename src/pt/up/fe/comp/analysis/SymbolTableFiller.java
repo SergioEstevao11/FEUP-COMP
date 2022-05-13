@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import com.javacc.output.Translator.SymbolTable;
 
 import pt.up.fe.comp.ast.ASTNode;
+import pt.up.fe.comp.ast.ASTUtils;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
@@ -56,12 +57,16 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableBuilder,Int
             return -1;
         }
 
-        var returnType = methodDecl.getJmmChild(0);
-        var typeName = returnType.get("name");
-        var isArray = returnType.getOptional("isArray").map(isArrayString -> Boolean.valueOf(isArrayString)).orElse(false);
+        var returnTypeNode = methodDecl.getJmmChild(0);
 
-        var params = methodDecl.getChildren().subList(2, methodDecl.getNumChildren()-1);
-        symbolTable.addMethod(methodName,new Type(typeName, isArray), Collections.emptyList());
+        var returnType = ASTUtils.buildType(returnTypeNode);
+
+        // var params = methodDecl.getChildren().subList(2, methodDecl.getNumChildren()-1);
+        var params = methodDecl.getChildren().subList(2, methodDecl.getNumChildren()).stream().filter(node -> node.getKind().equals("Param")).collect(Collectors.toList());
+
+        var paramSymbols = params.stream().map(param -> new Symbol(ASTUtils.buildType(param.getJmmChild(0)), param.getJmmChild(1).get("name"))).collect(Collectors.toList())
+
+        symbolTable.addMethod(methodName,returnType, paramSymbols);
         
         return 0;
     }
