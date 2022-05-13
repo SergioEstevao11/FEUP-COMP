@@ -130,7 +130,9 @@ public class Backend implements JasminBackend{
             methodHeaderCode.append(" final");
 
         if (method.isConstructMethod())
-            methodHeaderCode.append(" <init>");
+            methodHeaderCode.append("<init>()\n\taload_0\n\tinvokenonvirtual ")
+                            .append(generateSuper())
+                            .append("/<init>()V\n\treturn\n.end method\n\n").toString();
         else
             methodHeaderCode.append(" ").append(method.getMethodName());
 
