@@ -64,7 +64,7 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableBuilder,Int
         // var params = methodDecl.getChildren().subList(2, methodDecl.getNumChildren()-1);
         var params = methodDecl.getChildren().subList(2, methodDecl.getNumChildren()).stream().filter(node -> node.getKind().equals("Param")).collect(Collectors.toList());
 
-        var paramSymbols = params.stream().map(param -> new Symbol(ASTUtils.buildType(param.getJmmChild(0)), param.getJmmChild(1).get("name"))).collect(Collectors.toList())
+        var paramSymbols = params.stream().map(param -> new Symbol(ASTUtils.buildType(param.getJmmChild(0)), param.getJmmChild(1).get("name"))).collect(Collectors.toList());
 
         symbolTable.addMethod(methodName,returnType, paramSymbols);
         
