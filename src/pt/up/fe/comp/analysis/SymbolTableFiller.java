@@ -22,11 +22,12 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableBuilder,Int
     private final List<Report> reports;
 
     public SymbolTableFiller(){
+        System.out.println("ESTOU DENTRO DO CONSTRUTOR SYMBOL TABLE FILLER");
         this.reports = new ArrayList<>();
 
-        addVisit(ASTNode.IMPORT_DECL, this::importDeclVisit);
-        addVisit(ASTNode.CLASS_DECL, this::classDeclVisit);
-        addVisit(ASTNode.METHOD_DECL, this::methodDeclVisit);
+        addVisit("ImportDeclaration", this::importDeclVisit);
+        addVisit("ClassDeclaration", this::classDeclVisit);
+        // addVisit("MethodDeclaration", this::methodDeclVisit);
     }
 
     public List<Report> getReports(){
@@ -34,6 +35,7 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableBuilder,Int
     }
 
     private Integer importDeclVisit(JmmNode importDecl, SymbolTableBuilder symbolTable){
+        System.out.println("DENTRO DOS IMPORTS");
         var importString = importDecl.getChildren().stream().map(id->id.get("name")).collect(Collectors.joining("."));
 
         symbolTable.addImport(importString);
@@ -41,18 +43,20 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableBuilder,Int
     }
     
     private Integer classDeclVisit(JmmNode classDecl, SymbolTableBuilder symbolTable){
-        symbolTable.setClassName(classDecl.get("name"));
+        System.out.println("DENTRO DE CLASS DECLT VISIT");
+        symbolTable.setClassName(classDecl.getChildren().get(0).get("name"));
+        System.out.println(" CLASSE NAME : " + symbolTable.getClassName());
         classDecl.getOptional("extends").ifPresent(superClass -> symbolTable.setSuperClass(superClass));
 
         return 0;
     }
 
     private Integer methodDeclVisit(JmmNode methodDecl, SymbolTableBuilder symbolTable){
-
-        var methodName = methodDecl.getJmmChild(1).get("name");
+        System.out.println("DENTRO DO METHOD DECL VISIT");
+        var methodName = methodDecl.getJmmChild(0).get("name");
         
         if(symbolTable.hasMethod(methodName)){
-            reports.add(Report.newError(Stage.SEMANTIC, Integer.valueOf(methodDecl.get("line")), Integer.valueOf(methodDecl.get("col")), "Found duplicated method with signature '" + "methodName" + "'", null));
+            reports.add(Report.newError(Stage.SEMANTIC, Integer.parseInt(methodDecl.get("line")), Integer.parseInt(methodDecl.get("col")), "Found duplicated method with signature '" + "methodName" + "'", null));
 
             return -1;
         }
@@ -61,7 +65,6 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableBuilder,Int
 
         var returnType = ASTUtils.buildType(returnTypeNode);
 
-        // var params = methodDecl.getChildren().subList(2, methodDecl.getNumChildren()-1);
         var params = methodDecl.getChildren().subList(2, methodDecl.getNumChildren()).stream().filter(node -> node.getKind().equals("Param")).collect(Collectors.toList());
 
         var paramSymbols = params.stream().map(param -> new Symbol(ASTUtils.buildType(param.getJmmChild(0)), param.getJmmChild(1).get("name"))).collect(Collectors.toList());

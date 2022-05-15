@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pt.up.fe.comp.analysis.JmmAnalyser;
+import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
@@ -41,16 +42,18 @@ public class Launcher {
         // Parse stage
         JmmParserResult parserResult = parser.parse(input, config);
 
+        System.out.println("AST:\n\n" + parserResult.getRootNode().toTree());
         // Check if there are parsing errors
         TestUtils.noErrors(parserResult.getReports());
 
-        // Instantiate JmmmAnalysis
-        var analyser = new JmmAnalyser();
-        
-        // Analysis stage
-        var semanticsResult = analyser.semanticAnalysis(parserResult);
+        // Instantiate JmmAnalysis
+        JmmAnalyser analyser = new JmmAnalyser();
 
-        TestUtils.noErrors(semanticsResult);
+        // Analysis stage
+        JmmSemanticsResult analysisResult = analyser.semanticAnalysis(parserResult);
+
+        // Check if there are parsing errors
+        TestUtils.noErrors(analysisResult.getReports());
     }
 
 }

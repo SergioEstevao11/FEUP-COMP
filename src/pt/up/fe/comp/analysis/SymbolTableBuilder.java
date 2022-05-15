@@ -29,7 +29,6 @@ public class SymbolTableBuilder implements SymbolTable{
         this.methodParams = new HashMap<>();
     }
 
-
     @Override
     public List<String> getImports() {
         return imports;

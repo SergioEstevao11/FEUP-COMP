@@ -8,6 +8,7 @@ public enum ASTNode {
     IMPORT_DECL,
     CLASS_DECL,
     METHOD_DECL,
+    CLASS_SCOPE,
     ID;
 
     private final String name;
