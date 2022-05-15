@@ -238,71 +238,69 @@ public class Backend implements JasminBackend{
     }
 
     private String generatePutFieldOp(PutFieldInstruction instr) {
-        String jasminCode = loadElement(instr.getFirstOperand()) +
-                loadElement(instr.getThirdOperand()) +
-                "\tputfield " +
-                getObjectName(((Operand) instr.getFirstOperand()).getName()) +
-                "/" + ((Operand) instr.getSecondOperand()).getName() +
-                " " + getJasminType(instr.getSecondOperand().getType()) + "\n";
 
+        return loadElement(instr.getFirstOperand())
+                + loadElement(instr.getThirdOperand()) + "\tputfield "
+                + getObjectName(((Operand) instr.getFirstOperand()).getName())
+                + "/" + ((Operand) instr.getSecondOperand()).getName()
+                + " " + getJasminType(instr.getSecondOperand().getType()) + "\n";
 
-        return jasminCode;
     }
 
     private String generateGetFieldOp(GetFieldInstruction instr) {
 
-        String jasminCode = loadElement(instr.getFirstOperand()) +
-                "\tgetfield " +
-                getObjectName(((Operand) instr.getFirstOperand()).getName()) +
-                "/" + ((Operand) instr.getSecondOperand()).getName() +
-                " " + getJasminType(instr.getFieldType()) + "\n";
+        Operand op = (Operand) instr.getSecondOperand();
+        Element elem = instr.getFirstOperand();
 
-        return jasminCode;
-
+        return loadElement(elem) + "\tgetfield "
+                + getObjectName(((Operand) elem).getName())
+                + "/" + op.getName()
+                + " " + getJasminType(instr.getFieldType()) + "\n";
     }
 
     private String generateBranchOp(CondBranchInstruction instr) {
 
         Element leftElem = instr.getOperands().get(0);
+        Element rightElem = instr.getOperands().get(1);
 
-        if (instr instanceof OpCondInstruction) {
+        OpCondInstruction opCondInstr = (OpCondInstruction) instr;
+        OperationType opCondType = opCondInstr.getCondition().getOperation().getOpType();
 
-            Element rightElem = instr.getOperands().get(1);
-            OpCondInstruction opCondInstr = (OpCondInstruction) instr;
-            if (opCondInstr.getCondition().getOperation().getOpType() == OperationType.ANDB) {
-                comparisons++;
+        if (opCondType == OperationType.AND || opCondType == OperationType.ANDB || opCondType == OperationType.ANDI32) {
+            comparisons++;
 
-                return loadElement(leftElem) +
-                        "\tifeq False" + comparisons + "\n" +
-                        loadElement(rightElem) +
-                        "\tifeq False" + comparisons + "\n" +
-                        "\tgoto " + opCondInstr.getLabel() + "\n" +
-                        "False" + comparisons + ":\n";
-            }
-
-            return loadElement(leftElem)
-                    + loadElement(rightElem)
-                    + "\t" + getComparison(opCondInstr.getCondition().getOperation()) + " " + instr.getLabel() + "\n";
+            return loadElement(leftElem) +
+                    "\tifeq False" + comparisons + "\n" +
+                    loadElement(rightElem) +
+                    "\tifeq False" + comparisons + "\n" +
+                    "\tgoto " + opCondInstr.getLabel() + "\n" +
+                    "False" + comparisons + ":\n";
         }
 
 
-
-        //SingleOpCondInstruction
-        return "";
+        return loadElement(leftElem)
+            + loadElement(rightElem)
+            + "\t" + getJasminBranchComparison(opCondInstr.getCondition().getOperation()) + " " + instr.getLabel() + "\n";
 
     }
 
     private String generateReturnOp(ReturnInstruction instr) {
+        StringBuilder returnOpCode = new StringBuilder();
+
         if (!instr.hasReturnValue())
             return "\treturn\n";
 
         ElementType returnType = instr.getOperand().getType().getTypeOfElement();
+        returnOpCode.append(loadElement(instr.getOperand())).append("\t");
 
-        String jasminCode = loadElement(instr.getOperand())
-                + "\t" + ((returnType == ElementType.INT32 || returnType == ElementType.BOOLEAN) ? "i" : "a") + "return\n";
+        if (returnType == ElementType.INT32 || returnType == ElementType.BOOLEAN){
+            returnOpCode.append("i");
+        }else{
+            returnOpCode.append("a");
+        }
 
-
-        return jasminCode;
+        returnOpCode.append("return\n");
+        return returnOpCode.toString();
     }
 
     private String generateGotoOp(GotoInstruction instr) {
@@ -388,9 +386,7 @@ public class Backend implements JasminBackend{
         return jasminCode.toString();
     }
 
-    private String generateInvokeInterface(CallInstruction instr) {
-        return "";
-    }
+
 
     private String generateInvokeVirtual(CallInstruction instr) {
         StringBuilder jasminCode = new StringBuilder();
@@ -447,7 +443,7 @@ public class Backend implements JasminBackend{
 
             } else {
                 jasminCode += loadElement(instr.getRightOperand()) +
-                        "\t" + getComparison(instr.getOperation());
+                        "\t" + getJasminBranchComparison(instr.getOperation());
             }
 
             return jasminCode + " True" + conditionals + "\n" +
@@ -466,7 +462,7 @@ public class Backend implements JasminBackend{
             conditionals++;
             String jasminCode = loadElement(instr.getLeftOperand()) +
                     loadElement(instr.getRightOperand()) +
-                    "\t" + getComparison(instr.getOperation()) + " True" + conditionals + "\n" +
+                    "\t" + getJasminBranchComparison(instr.getOperation()) + " True" + conditionals + "\n" +
                     "\ticonst_0\n" +
                     "\tgoto Store" + conditionals + "\n" +
                     "True" + conditionals + ":\n" +
@@ -506,6 +502,7 @@ public class Backend implements JasminBackend{
     }
 
     private String generateAssignOp(AssignInstruction instr) {
+
         StringBuilder jasminCode = new StringBuilder();
 
         Operand op = (Operand) instr.getDest();
@@ -644,7 +641,7 @@ public class Backend implements JasminBackend{
     }
 
 
-    private String getComparison(Operation operation) {
+    private String getJasminBranchComparison(Operation operation) {
         switch (operation.getOpType()) {
             case GTE:
                 return "if_icmpge";
@@ -652,6 +649,7 @@ public class Backend implements JasminBackend{
                 return "if_icmplt";
             case EQ:
                 return "if_icmpeq";
+
             case NOTB:
             case NEQ:
                 return "if_icmpne";
