@@ -158,7 +158,7 @@ public class Backend implements JasminBackend{
             Instruction instruction = method.getInstr(i);
             for (String key : labels.keySet()) {
 
-                if (labels.get(key) == instruction) {
+                if (labels.get(key).getId() == instruction.getId()) {
                     instructions.append(key).append(":\n");
                 }
             }
