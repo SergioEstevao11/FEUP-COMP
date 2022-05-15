@@ -29,12 +29,14 @@ public class Backend implements JasminBackend{
             this.className = ollirClass.getClassName();
             this.extendsDef = ollirClass.getSuperClass();
             this.imports = ollirClass.getImports();
+            this.conditionals = 0;
+            this.comparisons = 0;
 
             StringBuilder jasminCode = new StringBuilder();
 
 
-            jasminCode.append(this.generateClassDecl(ollirClass));
-            jasminCode.append(this.generateClassMethods(ollirClass));
+            jasminCode.append(this.generateClassDecl(ollirClass)); //builds the class declaration
+            jasminCode.append(this.generateClassMethods(ollirClass)); //builds the class methods
 
 
             List<Report> reports = new ArrayList<>();
@@ -43,7 +45,7 @@ public class Backend implements JasminBackend{
 
         } catch (OllirErrorException e) {
             return new JasminResult(ollirClass.getClassName(), null,
-                    Arrays.asList(Report.newError(Stage.GENERATION, -1, -1, "Exception during Jasmin generation", e)));
+                    Arrays.asList(Report.newError(Stage.GENERATION, -1, -1, "Error in Jasmin generation", e)));
         }
 
     }
@@ -161,7 +163,7 @@ public class Backend implements JasminBackend{
                 }
             }
 
-            //gets instr code
+            //gets instruction code
             instructions.append(getJasminInst(instruction));
 
             if (instruction.getInstType() == InstructionType.CALL) {
@@ -169,6 +171,8 @@ public class Backend implements JasminBackend{
                     instructions.append("\tpop\n");
                 }
             }
+
+
         }
 
         methodBodyCode.append(generateStackLimits());
@@ -216,23 +220,23 @@ public class Backend implements JasminBackend{
     private String getJasminInst(Instruction instr) {
 
         if (instr instanceof SingleOpInstruction)
-            return this.generateSingleOp((SingleOpInstruction) instr);//feito
+            return this.generateSingleOp((SingleOpInstruction) instr);
         if (instr instanceof AssignInstruction)
-            return this.generateAssignOp((AssignInstruction) instr);//feito
+            return this.generateAssignOp((AssignInstruction) instr);
         if (instr instanceof BinaryOpInstruction)
-            return this.generateBinaryOp((BinaryOpInstruction) instr); //feito?
+            return this.generateBinaryOp((BinaryOpInstruction) instr);
         if (instr instanceof CallInstruction)
-            return this.generateCallOp((CallInstruction) instr); //feito
+            return this.generateCallOp((CallInstruction) instr);
         if (instr instanceof GotoInstruction)
-            return this.generateGotoOp((GotoInstruction) instr); //feito
+            return this.generateGotoOp((GotoInstruction) instr);
         if (instr instanceof ReturnInstruction)
-            return this.generateReturnOp((ReturnInstruction) instr); //feito
+            return this.generateReturnOp((ReturnInstruction) instr);
         if (instr instanceof CondBranchInstruction)
-            return this.generateBranchOp((CondBranchInstruction) instr);//feito-ish
+            return this.generateBranchOp((CondBranchInstruction) instr);
         if (instr instanceof GetFieldInstruction)
-            return this.generateGetFieldOp((GetFieldInstruction) instr);//feito
+            return this.generateGetFieldOp((GetFieldInstruction) instr);
         if (instr instanceof PutFieldInstruction)
-            return this.generatePutFieldOp((PutFieldInstruction) instr); //feito
+            return this.generatePutFieldOp((PutFieldInstruction) instr);
         return "ERROR: instruction doesn't exist";
 
     }
@@ -345,26 +349,27 @@ public class Backend implements JasminBackend{
     private String generateNew(CallInstruction instr) {
         StringBuilder jasminCode = new StringBuilder();
 
+        for (Element e : instr.getListOfOperands()) {
+            jasminCode.append(loadElement(e));
+        }
+
         if (instr.getReturnType().getTypeOfElement() == ElementType.OBJECTREF) {
-            for (Element e : instr.getListOfOperands()) {
-                jasminCode.append(loadElement(e));
-            }
 
             jasminCode.append("\tnew ")
                     .append(((Operand) instr.getFirstArg()).getName()).append("\n")
                     .append("\tdup\n");
         } else if (instr.getReturnType().getTypeOfElement() == ElementType.ARRAYREF) {
-            for (Element e : instr.getListOfOperands()) {
-                jasminCode.append(loadElement(e));
-            }
 
             jasminCode.append("\tnewarray ");
+
             if (instr.getListOfOperands().get(0).getType().getTypeOfElement() == ElementType.INT32)
                 jasminCode.append("int\n");
+            else if (instr.getListOfOperands().get(0).getType().getTypeOfElement() == ElementType.STRING)
+                jasminCode.append("Ljava/lang/String\n");
             else
-                jasminCode.append("array type not implemented\n");
+                jasminCode.append("GENERATENEW TYPE NOT IMPLEMENTED\n");
         } else
-            jasminCode.append("\tnew (not implemented)\n");
+            jasminCode.append("GENERATENEW TYPE NOT IMPLEMENTED\n");
 
 
         return jasminCode.toString();
@@ -504,13 +509,13 @@ public class Backend implements JasminBackend{
     private String generateAssignOp(AssignInstruction instr) {
 
         StringBuilder jasminCode = new StringBuilder();
-
         Operand op = (Operand) instr.getDest();
         int reg = currVarTable.get(op.getName()).getVirtualReg();
 
         if (instr.getRhs().getInstType() == InstructionType.BINARYOPER) {
 
             BinaryOpInstruction binOp = (BinaryOpInstruction) instr.getRhs();
+
             if (binOp.getOperation().getOpType() == OperationType.ADD) {
 
                 if (!binOp.getLeftOperand().isLiteral() && binOp.getRightOperand().isLiteral()) {
@@ -537,14 +542,13 @@ public class Backend implements JasminBackend{
                     .append(loadElement(index));
         }
 
-        jasminCode.append(getJasminInst(instr.getRhs()));
 
+        jasminCode.append(getJasminInst(instr.getRhs()));
 
         if (op.getType().getTypeOfElement() == ElementType.INT32 || op.getType().getTypeOfElement() == ElementType.BOOLEAN)
 
             if (currVarTable.get(op.getName()).getVarType().getTypeOfElement() == ElementType.ARRAYREF) {
                 jasminCode.append("\tiastore\n");
-
                 return jasminCode.toString();
             } else
                 jasminCode.append("\tistore");
