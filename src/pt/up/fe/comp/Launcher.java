@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
+import pt.up.fe.comp.ollir.JmmOptimizer;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
@@ -42,6 +43,22 @@ public class Launcher {
 
         // Check if there are parsing errors
         TestUtils.noErrors(parserResult.getReports());
+
+            //var analyser = new JmmAnalyser();
+
+        // Analysis stage
+            //var semanticsResult = analyser.semanticAnalysis(parserResult);
+
+            //TestUtils.noErrors(semanticsResult);
+
+        // Instantiate JmmParser
+            //var optimizer = new JmmOptimizer();
+
+        // Parse stage
+            //var optimizationResult = optimizer.optimize(semanticsResult);
+
+        // Check if there are parsing errors
+            //TestUtils.noErrors(optimizationResult);
 
         // ... add remaining stages
     }
