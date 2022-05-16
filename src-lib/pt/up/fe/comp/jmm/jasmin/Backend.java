@@ -171,8 +171,6 @@ public class Backend implements JasminBackend{
                     instructions.append("\tpop\n");
                 }
             }
-
-
         }
 
         methodBodyCode.append(generateStackLimits());
@@ -264,8 +262,11 @@ public class Backend implements JasminBackend{
 
     private String generateBranchOp(CondBranchInstruction instr) {
 
+
         Element leftElem = instr.getOperands().get(0);
         Element rightElem = instr.getOperands().get(1);
+
+        String branchOpCode = loadElement(leftElem);
 
         OpCondInstruction opCondInstr = (OpCondInstruction) instr;
         OperationType opCondType = opCondInstr.getCondition().getOperation().getOpType();
@@ -273,19 +274,19 @@ public class Backend implements JasminBackend{
         if (opCondType == OperationType.AND || opCondType == OperationType.ANDB || opCondType == OperationType.ANDI32) {
             comparisons++;
 
-            return loadElement(leftElem) +
-                    "\tifeq False" + comparisons + "\n" +
-                    loadElement(rightElem) +
-                    "\tifeq False" + comparisons + "\n" +
-                    "\tgoto " + opCondInstr.getLabel() + "\n" +
-                    "False" + comparisons + ":\n";
+            branchOpCode += "\tifeq False" + comparisons + "\n" +
+                            loadElement(rightElem) +
+                            "\tifeq False" + comparisons + "\n" +
+                            "\tgoto " + opCondInstr.getLabel() + "\n" +
+                            "False" + comparisons + ":\n";
+
+        }
+        else{
+            branchOpCode+= loadElement(rightElem)
+                        + "\t" + getJasminBranchComparison(opCondInstr.getCondition().getOperation()) + " " + instr.getLabel() + "\n";
         }
 
-
-        return loadElement(leftElem)
-            + loadElement(rightElem)
-            + "\t" + getJasminBranchComparison(opCondInstr.getCondition().getOperation()) + " " + instr.getLabel() + "\n";
-
+        return branchOpCode;
     }
 
     private String generateReturnOp(ReturnInstruction instr) {
@@ -353,23 +354,28 @@ public class Backend implements JasminBackend{
             jasminCode.append(loadElement(e));
         }
 
-        if (instr.getReturnType().getTypeOfElement() == ElementType.OBJECTREF) {
+        if (instr.getReturnType().getTypeOfElement() == ElementType.ARRAYREF) {
+
+            jasminCode.append("\tnewarray ");
+
+            if (instr.getListOfOperands().get(0).getType().getTypeOfElement() == ElementType.INT32) {
+                jasminCode.append("int\n");
+            }
+            else if (instr.getListOfOperands().get(0).getType().getTypeOfElement() == ElementType.STRING) {
+                jasminCode.append("Ljava/lang/String\n");
+            } else {
+                jasminCode.append("GENERATENEW TYPE NOT IMPLEMENTED\n");
+            }
+
+        }
+        else if (instr.getReturnType().getTypeOfElement() == ElementType.OBJECTREF) {
 
             jasminCode.append("\tnew ")
                     .append(((Operand) instr.getFirstArg()).getName()).append("\n")
                     .append("\tdup\n");
-        } else if (instr.getReturnType().getTypeOfElement() == ElementType.ARRAYREF) {
-
-            jasminCode.append("\tnewarray ");
-
-            if (instr.getListOfOperands().get(0).getType().getTypeOfElement() == ElementType.INT32)
-                jasminCode.append("int\n");
-            else if (instr.getListOfOperands().get(0).getType().getTypeOfElement() == ElementType.STRING)
-                jasminCode.append("Ljava/lang/String\n");
-            else
-                jasminCode.append("GENERATENEW TYPE NOT IMPLEMENTED\n");
-        } else
+        } else {
             jasminCode.append("GENERATENEW TYPE NOT IMPLEMENTED\n");
+        }
 
 
         return jasminCode.toString();
@@ -431,6 +437,12 @@ public class Backend implements JasminBackend{
         jasminCode.append(")").append(getJasminType(instr.getReturnType())).append("\n");
 
         return jasminCode.toString();
+    }
+
+    private String getObjectName(String name) {
+        if (name.equals("this"))
+            return className;
+        return name;
     }
 
     private String generateBinaryOp(BinaryOpInstruction instr) {
@@ -515,44 +527,47 @@ public class Backend implements JasminBackend{
         if (instr.getRhs().getInstType() == InstructionType.BINARYOPER) {
 
             BinaryOpInstruction binOp = (BinaryOpInstruction) instr.getRhs();
+            Element leftOp = binOp.getLeftOperand();
+            Element rightOp = binOp.getRightOperand();
 
             if (binOp.getOperation().getOpType() == OperationType.ADD) {
 
-                if (!binOp.getLeftOperand().isLiteral() && binOp.getRightOperand().isLiteral()) {
-                    if (((Operand) binOp.getLeftOperand()).getName().equals(op.getName())
-                            && Integer.parseInt(((LiteralElement) binOp.getRightOperand()).getLiteral()) == 1) {
+                if (!leftOp.isLiteral() && rightOp.isLiteral()) {
+                    if (((Operand) leftOp).getName().equals(op.getName())
+                            && Integer.parseInt(((LiteralElement) rightOp).getLiteral()) == 1) {
                         return "\tiinc " + reg + " 1\n";
                     }
                 }
-                else if (binOp.getLeftOperand().isLiteral() && !binOp.getRightOperand().isLiteral()) {
-                    if (((Operand) binOp.getRightOperand()).getName().equals(op.getName())
-                            && Integer.parseInt(((LiteralElement) binOp.getLeftOperand()).getLiteral()) == 1) {
+                else if (leftOp.isLiteral() && !rightOp.isLiteral()) {
+                    if (((Operand) rightOp).getName().equals(op.getName())
+                            && Integer.parseInt(((LiteralElement) leftOp).getLiteral()) == 1) {
                         return "\tiinc " + reg + " 1\n";
                     }
                 }
             }
         }
 
-        if (currVarTable.get(op.getName()).getVarType().getTypeOfElement() == ElementType.ARRAYREF
-                && op.getType().getTypeOfElement() != ElementType.ARRAYREF) {
-            ArrayOperand arrayOp = (ArrayOperand) op;
-            Element index = arrayOp.getIndexOperands().get(0);
+        if (op.getType().getTypeOfElement() != ElementType.ARRAYREF){
+            if (currVarTable.get(op.getName()).getVarType().getTypeOfElement() == ElementType.ARRAYREF) {
+                ArrayOperand arrayOp = (ArrayOperand) op;
+                Element index = arrayOp.getIndexOperands().get(0);
 
-            jasminCode.append(loadDescriptor(currVarTable.get(op.getName())))
-                    .append(loadElement(index));
+                jasminCode.append(loadDescriptor(currVarTable.get(op.getName())))
+                        .append(loadElement(index));
+            }
         }
 
 
         jasminCode.append(getJasminInst(instr.getRhs()));
 
-        if (op.getType().getTypeOfElement() == ElementType.INT32 || op.getType().getTypeOfElement() == ElementType.BOOLEAN)
+        if (op.getType().getTypeOfElement() == ElementType.INT32 || op.getType().getTypeOfElement() == ElementType.BOOLEAN) {
 
             if (currVarTable.get(op.getName()).getVarType().getTypeOfElement() == ElementType.ARRAYREF) {
                 jasminCode.append("\tiastore\n");
                 return jasminCode.toString();
             } else
                 jasminCode.append("\tistore");
-        else {
+        } else {
             jasminCode.append("\tastore");
         }
 
@@ -588,8 +603,7 @@ public class Backend implements JasminBackend{
                 return loadDescriptor(descriptor) + loadElement(index) + "\tiaload\n";
             }
         } catch (NullPointerException | ClassCastException except) {
-            System.out.println(((Operand) elem).getName());
-            System.out.println(descriptor.getVirtualReg() + " " + descriptor.getVarType());
+            System.out.println(((Operand) elem).getName() + " is invalid");
         }
 
         return loadDescriptor(descriptor);
@@ -625,23 +639,24 @@ public class Backend implements JasminBackend{
 
     private String loadLiteral(LiteralElement elem) {
         String jasminCode = "\t";
-        int n = Integer.parseInt(elem.getLiteral());
-        if (elem.getType().getTypeOfElement() == ElementType.INT32 || elem.getType().getTypeOfElement() == ElementType.BOOLEAN) {
-            if (n <= 5 && n >= -1)
+        int elemValue = Integer.parseInt(elem.getLiteral());
+        ElementType elemType = elem.getType().getTypeOfElement();
+        if (elemType == ElementType.INT32 || elemType == ElementType.BOOLEAN) {
+            if (elemValue <= 5 && elemValue >= -1)
                 jasminCode += "iconst_";
-            else if (n > 255 || n < -1)
+            else if (elemValue > 255 || elemValue < -1)
                 jasminCode += "ldc ";
-            else if (n > 127)
+            else if (elemValue > 127)
                 jasminCode += "sipush ";
             else
                 jasminCode += "bipush ";
         } else
             jasminCode += "ldc ";
 
-        if (n == -1)
+        if (elemValue == -1)
             return jasminCode + "m1\n";
 
-        return jasminCode + n + "\n";
+        return jasminCode + elemValue + "\n";
     }
 
 
@@ -653,8 +668,8 @@ public class Backend implements JasminBackend{
                 return "if_icmplt";
             case EQ:
                 return "if_icmpeq";
-
             case NOTB:
+                return "if_icmpne";
             case NEQ:
                 return "if_icmpne";
             default:
@@ -674,13 +689,5 @@ public class Backend implements JasminBackend{
         return "\t.limit locals " + 99 + "\n";
 
     }
-
-    private String getObjectName(String name) {
-        if (name.equals("this"))
-            return className;
-        return name;
-    }
-
-
 
 }
