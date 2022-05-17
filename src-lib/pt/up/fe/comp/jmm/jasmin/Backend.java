@@ -532,16 +532,22 @@ public class Backend implements JasminBackend{
 
             if (binOp.getOperation().getOpType() == OperationType.ADD) {
 
+
                 if (!leftOp.isLiteral() && rightOp.isLiteral()) {
+
+                    Integer rightOpValue = Integer.parseInt(((LiteralElement) rightOp).getLiteral());
+
                     if (((Operand) leftOp).getName().equals(op.getName())
-                            && Integer.parseInt(((LiteralElement) rightOp).getLiteral()) == 1) {
-                        return "\tiinc " + reg + " 1\n";
+                            && rightOpValue <= Byte.MAX_VALUE && rightOpValue >= Byte.MIN_VALUE) {
+                        return "\tiinc " + reg + " " + rightOpValue + "\n";
                     }
                 }
                 else if (leftOp.isLiteral() && !rightOp.isLiteral()) {
+
+                    Integer leftOpValue = Integer.parseInt(((LiteralElement) leftOp).getLiteral());
                     if (((Operand) rightOp).getName().equals(op.getName())
-                            && Integer.parseInt(((LiteralElement) leftOp).getLiteral()) == 1) {
-                        return "\tiinc " + reg + " 1\n";
+                            && leftOpValue <= Byte.MAX_VALUE && leftOpValue >= Byte.MIN_VALUE) {
+                        return "\tiinc " + reg + " " + leftOpValue + "\n";
                     }
                 }
             }
