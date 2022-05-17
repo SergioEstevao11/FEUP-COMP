@@ -668,19 +668,17 @@ public class Backend implements JasminBackend{
 
     private String getJasminBranchComparison(Operation operation) {
         switch (operation.getOpType()) {
-            case LTE:
+            case LTE: case LTEI32:
                 return "if_icmple";
-            case LTH:
+            case LTH: case LTHI32:
                 return "if_icmplt";
-            case GTE:
+            case GTE: case GTEI32:
                 return "if_icmpge";
-            case GTH:
+            case GTH: case GTHI32:
                 return "if_icmpgt";
-            case EQ:
+            case EQ: case EQI32:
                 return "if_icmpeq";
-            case NOTB:
-                return "if_icmpne";
-            case NEQ:
+            case NOTB: case NEQ: case NEQI32:
                 return "if_icmpne";
             default:
                 System.out.println(operation.getOpType());
