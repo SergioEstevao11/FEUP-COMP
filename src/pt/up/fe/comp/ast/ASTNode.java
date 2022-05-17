@@ -14,7 +14,9 @@ public enum ASTNode {
     ARGUMENTS,
     IF_STMT,
     WHILE_STMT,
-    ASSIGNMENT;
+    ASSIGNMENT,
+    NEW,
+    INT;
 
     private final String name;
 

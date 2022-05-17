@@ -66,5 +66,4 @@ public class OllirUtils {
                 return "OPERATOR";
         }
     }
-
 }
