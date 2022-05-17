@@ -15,6 +15,7 @@ public class AnalyseTest {
          TestUtils.noErrors(results);
     }
 
+    /*
     @Test
     public void testVariableExistenceCorrect() {
         JmmSemanticsResult result = TestUtils.analyse("class ola {public int foo(int arg){arg = 0; return 0;}}");
@@ -23,5 +24,5 @@ public class AnalyseTest {
         TestUtils.noErrors(result.getReports());
         result = TestUtils.analyse("class ola {public int foo(){int a; a = 0; a = 2; return 0;}}");
         TestUtils.noErrors(result.getReports());
-    }
+    }*/
 }

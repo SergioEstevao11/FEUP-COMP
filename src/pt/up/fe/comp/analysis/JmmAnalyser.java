@@ -5,17 +5,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import pt.up.fe.comp.TestUtils;
-import pt.up.fe.comp.analysis.analyser.SingleMainMethodCheck;
-import pt.up.fe.comp.analysis.analyser.TypeAnalysis;
+import pt.up.fe.comp.analysis.analyser.ObjectAssignementCheck;
 import pt.up.fe.comp.analysis.analyser.VarNotDeclaredCheck;
 import pt.up.fe.comp.jmm.analysis.JmmAnalysis;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
-import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
-import pt.up.fe.comp.report.StyleReport;
 
 public class JmmAnalyser implements JmmAnalysis{
 
@@ -42,13 +39,14 @@ public class JmmAnalyser implements JmmAnalysis{
         symbolTableFiller.visit(rootNode, symbolTable);
         reports.addAll(symbolTableFiller.getReports());
 
-        System.out.println("antes");
-
         var varNotDeclared = new VarNotDeclaredCheck();
         varNotDeclared.visit(rootNode, symbolTable);
         reports.addAll(varNotDeclared.getReports());
 
-        System.out.println("depois");
+        /*
+        var objectAssignement = new ObjectAssignementCheck();
+        objectAssignement.visit(rootNode,symbolTable);
+        reports.addAll(objectAssignement.getReports());*/
 
         return new JmmSemanticsResult(parserResult, symbolTable, reports);
     }

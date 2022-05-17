@@ -16,7 +16,6 @@ public class VarNotDeclaredCheck extends PreorderJmmVisitor<SymbolTableBuilder, 
     private final List<Report> reports;
 
     public VarNotDeclaredCheck() {
-        System.out.println("DENTRO DO CONSTRUTOR");
         this.reports = new ArrayList<>();
         addVisit("Identifier", this::visitVarDeclaration);
 

@@ -1,17 +1,10 @@
 package pt.up.fe.comp.analysis;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
-import com.javacc.output.Translator.SymbolTable;
-
-import pt.up.fe.comp.ast.ASTNode;
 import pt.up.fe.comp.ast.ASTUtils;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
-import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 import pt.up.fe.comp.jmm.report.Report;
@@ -22,12 +15,11 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableBuilder,Int
     private final List<Report> reports;
 
     public SymbolTableFiller(){
-        System.out.println("ESTOU DENTRO DO CONSTRUTOR SYMBOL TABLE FILLER");
         this.reports = new ArrayList<>();
 
         addVisit("ImportDeclaration", this::importDeclVisit);
         addVisit("ClassDeclaration", this::classDeclVisit);
-        // addVisit("MethodDeclaration", this::methodDeclVisit);
+        addVisit("MethodDeclaration", this::methodDeclVisit);
     }
 
     public List<Report> getReports(){
@@ -35,7 +27,6 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableBuilder,Int
     }
 
     private Integer importDeclVisit(JmmNode importDecl, SymbolTableBuilder symbolTable){
-        System.out.println("DENTRO DOS IMPORTS");
         var importString = importDecl.getChildren().stream().map(id->id.get("name")).collect(Collectors.joining("."));
 
         symbolTable.addImport(importString);
@@ -43,18 +34,16 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableBuilder,Int
     }
     
     private Integer classDeclVisit(JmmNode classDecl, SymbolTableBuilder symbolTable){
-        System.out.println("DENTRO DE CLASS DECLT VISIT");
         symbolTable.setClassName(classDecl.getChildren().get(0).get("name"));
-        System.out.println(" CLASSE NAME : " + symbolTable.getClassName());
         classDecl.getOptional("extends").ifPresent(superClass -> symbolTable.setSuperClass(superClass));
 
         return 0;
     }
 
     private Integer methodDeclVisit(JmmNode methodDecl, SymbolTableBuilder symbolTable){
-        System.out.println("DENTRO DO METHOD DECL VISIT");
-        var methodName = methodDecl.getJmmChild(0).get("name");
-        
+        var methodName = methodDecl.getChildren().get(0).get("name");
+        System.out.println("methodDecl : " + methodName);
+
         if(symbolTable.hasMethod(methodName)){
             reports.add(Report.newError(Stage.SEMANTIC, Integer.parseInt(methodDecl.get("line")), Integer.parseInt(methodDecl.get("col")), "Found duplicated method with signature '" + "methodName" + "'", null));
 

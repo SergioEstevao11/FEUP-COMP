@@ -212,7 +212,6 @@ public class TestUtils {
      */
     public static JmmSemanticsResult analyse(String jmmCode, Map<String, String> config) {
         var parseResults = TestUtils.parse(jmmCode, config);
-        System.out.println("after pasre");
         noErrors(parseResults.getReports());
         return analyse(parseResults);
     }
