@@ -30,27 +30,22 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
             addVisit(ASTNode.IF_STMT, this::ifStmtVisit);
             addVisit(ASTNode.WHILE_STMT, this::whileStmtVisit);
             addVisit(ASTNode.ASSIGNMENT, this::assignmentVisit);
-
-        //     addVisit("CLASS_DECLARATION", this::dealWithClass);
-        // addVisit("VAR_DECLARATION", this::dealWithVar);
-        // addVisit("MAIN", this::dealWithMain);
-        // addVisit("METHOD_DECLARATION", this::dealWithMethodDeclaration);
-        // addVisit("OBJECT_METHOD", this::dealWithObjectMethod);
-        // addVisit("ASSIGNMENT", this::dealWithAssignment);
-        // addVisit("RETURN", this::dealWithReturn);
-        // addVisit("IDENTIFIER", this::dealWithIdentifier);
-        addVisit("INT", this::dealWithInt);
-        // addVisit("TRUE", this::dealWithBoolean);
-        // addVisit("FALSE", this::dealWithBoolean);
-        addVisit("NEW", this::dealWithNew);
-        // addVisit("OPERATION", this::dealWithOperation);
-        // addVisit("LESS", this::dealWithOperation);
-        // addVisit("AND", this::dealWithOperation);
-        // addVisit("EXCLAMATION", this::dealWithOperation);
-        // addVisit("IF", this::dealWithIf);
-        // addVisit("ELSE", this::dealWithElse);
-        // addVisit("WHILE", this::dealWithWhile);
-        // addVisit("ARRAY_ACCESS", this::dealWithArrayAccess);
+            addVisit(ASTNode.MAIN, this::dealWithMain);
+            addVisit(ASTNode.OBJECT_METHOD, this::dealWithObjectMethod);      
+            addVisit(ASTNode.RETURN, this::dealWithReturn);
+            addVisit(ASTNode.IDENTIFIER, this::dealWithIdentifier);
+            addVisit(ASTNode.INT, this::dealWithInt);
+            addVisit(ASTNode.TRUE, this::dealWithBoolean);
+            addVisit(ASTNode.FALSE, this::dealWithBoolean);
+            addVisit(ASTNode.NEW, this::dealWithNew);
+            addVisit(ASTNode.OPERATION, this::dealWithOperation);
+            addVisit(ASTNode.LESS, this::dealWithOperation);
+            addVisit(ASTNode.AND, this::dealWithOperation);
+            addVisit(ASTNode.EXCLAMATION, this::dealWithOperation);
+            addVisit(ASTNode.IF, this::dealWithIf);
+            addVisit(ASTNode.ELSE, this::dealWithElse);
+            addVisit(ASTNode.WHILE, this::dealWithWhile);
+            addVisit(ASTNode.ARRAY_ACCESS, this::dealWithArrayAccess);
     }
 
     public String getCode(){
