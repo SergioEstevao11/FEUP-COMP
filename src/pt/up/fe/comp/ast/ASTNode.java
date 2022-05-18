@@ -8,6 +8,7 @@ public enum ASTNode {
     IMPORT_DECL,
     CLASS_DECL,
     METHOD_DECL,
+<<<<<<< HEAD
     ID,
     EXPR_STMT,
     MEMBER_CALL,
@@ -15,6 +16,10 @@ public enum ASTNode {
     IF_STMT,
     WHILE_STMT,
     ASSIGNMENT;
+=======
+    CLASS_SCOPE,
+    ID;
+>>>>>>> origin/symbol_table
 
     private final String name;
 
