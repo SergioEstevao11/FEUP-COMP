@@ -22,12 +22,13 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
             addVisit(ASTNode.PROGRAM, this::programVisit);
             addVisit(ASTNode.CLASS_DECL, this::classDeclVisit);
             addVisit(ASTNode.METHOD_DECL, this::methodDeclVisit);
-            addVisit(ASTNode.EXPR_STMT, this::exprStmtVisit);
+            addVisit(ASTNode.EXPR, this::exprStmtVisit);
             addVisit(ASTNode.MEMBER_CALL, this::memberCallVisit);
             addVisit(ASTNode.ARGUMENTS, this::argumentsVisit);
             addVisit(ASTNode.ID, this::idVisit);
-            addVisit(ASTNode.IF_STMT, this::ifStmtVisit);
-            addVisit(ASTNode.WHILE_STMT, this::whileStmtVisit);
+            addVisit(ASTNode.IF, this::ifStmtVisit);
+            addVisit(ASTNode.ELSE, this::ifStmtVisit);
+            addVisit(ASTNode.WHILE, this::whileStmtVisit);
             addVisit(ASTNode.ASSIGNMENT, this::assignmentVisit);
     }
 
@@ -183,41 +184,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
         return 0;
     }
 
-    private String visitExpression(String methodName, JmmNode node){
-        String kind = node.getKind();
 
-        // Math and Boolean Expressions
-        if(Utils.isMathExpression(kind))
-            return ollirMathBooleanExpression(methodName, node, ".i32");
-        if(Utils.isBooleanExpression(kind))
-            return ollirMathBooleanExpression(methodName, node, ".bool");
-
-        switch(kind){
-            case "Identifier":
-                return ollirFromIdentifierNode(methodName, node);
-            case "True":
-                return "1.bool";
-            case "False":
-                return "0.bool";
-            case "Number":
-                return node.get("value") + ".i32";
-            case "This":
-                return "$0.this." + symbolTable.getClassName();
-            case "ArrayAccess":
-                JmmNode accessedNode = node.getChildren().get(0); // Array accessed
-                JmmNode indexNode = node.getChildren().get(1); // Array Index
-                return ollirArrayAccess(methodName,accessedNode,indexNode);
-            case "Dot":
-                return ollirDotMethod(methodName, node, null);
-            case "NewObject":
-                return ollirNewObject(node);
-            case "NewIntArray":
-                return ollirNewIntArray(methodName, node);
-            default:
-                MyOllirUtils.warning(node,"Unknown expression");
-                return "INVALID EXPRESSION";
-        }
-    }
 
     private Integer argumentsVisit(JmmNode arguments, Integer dummy){
         for (var child: arguments.getChildren()){
@@ -243,11 +210,11 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
     }
 
     private int getCondition(String methodName, JmmNode node){
-        if(isField(node) || node.getKind().equals("Dot")){
-            String type = ".bool";
-            code.append(newAuxiliarVar(type, methodName, node));
-            code.append("t").append(varCounter).append(type).append(" &&.bool 1.bool");
-        }
+        //if(isField(node) || node.getKind().equals("Dot")){
+            //String type = ".bool";
+            //code.append(newAuxiliarVar(type, methodName, node));
+            //code.append("t").append(varCounter).append(type).append(" &&.bool 1.bool");
+        //}
 
         visit(node);
         //String condition = ollirExpression(methodName, node);
@@ -257,15 +224,17 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
         return 0;
     }
 
-    private String newAuxiliarVar(String type, String methodName, JmmNode node){
-        String value;
-        if(node.getKind().equals("Dot"))
-            value = ollirDotMethod(methodName, node, type);
-        else value = ollirExpression(methodName, node);
-        varCounter++;
-        return "t" + varCounter + type + " :=" + type +" " + value + ";\n";
-    }
+    // private String newAuxiliarVar(String type, String methodName, JmmNode node){
+    //     String value;
+    //     if(node.getKind().equals("Dot"))
+    //         value = ollirDotMethod(methodName, node, type);
+    //     else value = ollirExpression(methodName, node);
+    //     varCounter++;
+    //     return "t" + varCounter + type + " :=" + type +" " + value + ";\n";
+    // }
 
      //compound
      //Var decl
 };
+
+

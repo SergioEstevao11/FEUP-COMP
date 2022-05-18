@@ -60,7 +60,7 @@ public class Launcher {
         var optimizer = new JmmOptimizer();
 
         // Optimization stage
-        var optimizationResult = optimizer.optimize(semanticsResult);
+        var optimizationResult = optimizer.optimize(analysisResult);
 
         // Check if there are parsing errors
         TestUtils.noErrors(optimizationResult);

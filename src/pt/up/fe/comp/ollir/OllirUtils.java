@@ -8,7 +8,7 @@ public class OllirUtils {
 
     public static String getCode(Symbol symbol){
 
-        return symbol.getName() + "." + getCode(symbol.getType());
+        return symbol.getName() + "." + getOllirType(symbol.getType());
     }
 
     public static String getOllirType(Type type){
