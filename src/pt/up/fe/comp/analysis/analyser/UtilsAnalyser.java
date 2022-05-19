@@ -8,6 +8,15 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import java.util.List;
 public class UtilsAnalyser {
 
+    public static String getParentMethodName(JmmNode node) {
+        JmmNode currentNode = node;
+        while (!currentNode.getKind().equals("MethodDeclaration")) {
+            //currentNode = currentNode.getParent();
+        }
+        System.out.println(currentNode.getChildren().get(0).getChildren().get(1).get("name"));
+        return currentNode.getChildren().get(0).getChildren().get(1).get("name");
+    }
+
     public static String getVariableType(JmmNode node, SymbolTable symbolTable) {
         //System.out.println(symbolTable.getLocalVariables(node.getJmmParent()));
         if (node.getKind().equals("Number")) return "int";

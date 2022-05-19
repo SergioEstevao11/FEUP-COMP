@@ -121,5 +121,4 @@ public interface SymbolTable {
 
         return builder.toString();
     }
-
 }
