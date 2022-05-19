@@ -50,7 +50,7 @@ public class SymbolTableBuilder implements SymbolTable {
 
     @Override
     public String getSuper() {
-        return null;
+        return superClass;
     }
 
     @Override
