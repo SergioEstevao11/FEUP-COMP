@@ -1,5 +1,6 @@
 package pt.up.fe.comp.analysis;
 
+import jdk.swing.interop.SwingInterOpUtils;
 import pt.up.fe.comp.ImportDeclaration;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
@@ -28,9 +29,10 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
         addVisit("ClassDeclaration", this::visitClassDelcaration);
         addVisit("CommonMethodHeader", this::visitCommonMethodDeclaration);
         addVisit("MainMethodHeader", this::visitMainMethodDeclaration);
+        addVisit("VarDeclaration", this::visitVarDeclaration);
         //addVisit("MethodDeclaration", this::visitParameter);
-    //    addVisit("VarDeclaration", this::visitLocalVariables);
-      //  addVisit("MethodBody", this::visitParameter); children -> são as variáveis locais
+        //  addVisit("VarDeclaration", this::visitLocalVariables);
+        //  addVisit("MethodBody", this::visitParameter); children -> são as variáveis locais
 
         setDefaultVisit(this::defaultVisit);
     }
@@ -66,13 +68,14 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
 
         List<Symbol> parameters = new ArrayList<>();
 
+        // visit common method parameters
         for(int counter = 2 ; counter < node.getNumChildren() ; counter++){
             Symbol parameter = new Symbol(SymbolTableBuilder.getType( node.getJmmChild(counter), "type"), node.getJmmChild(counter+1).get("name"));
             parameters.add(parameter);
             counter++;
         }
 
-
+        //visit common method name
         table.addMethod(node.getJmmChild(1).get("name"), SymbolTableBuilder.getType(node.getJmmChild(0), "type"), parameters);
 
         return node.toString();
@@ -81,7 +84,16 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
     private String visitMainMethodDeclaration(JmmNode node, String space) {
         scope = "MAIN";
 
-        table.addMethod("main", new Type("void", false), Collections.emptyList());
+        List<Symbol> parameters = new ArrayList<>();
+
+       /*for(int counter = 0 ; counter < node.getNumChildren() ; counter++){
+            var type = new Type("String", true);
+            Symbol parameter = new Symbol(type, node.getJmmChild(counter+1).get("name"));
+            parameters.add(parameter);
+            counter++;
+        }*/
+        //visit main method name
+        table.addMethod("main", new Type("void", false), parameters);
 
         //node.put("params", "");
 
@@ -91,10 +103,12 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
     /*
     PARA PASSSAR NO TESTE: VarNotDeclared
      */
-    private String visitLocalVariables(JmmNode node, String space) {
-        Symbol field = new Symbol(SymbolTableBuilder.getType(node, "type"), node.get("identifier"));
+    private String visitVarDeclaration(JmmNode node, String space) {
+        Symbol field = new Symbol(SymbolTableBuilder.getType(node.getJmmChild(0), "type"), node.getJmmChild(1).get("name"));
 
+        //class variables
         if (scope.equals("CLASS")) {
+            System.out.println("scope e class");
             if (table.hasField(field.getName())) {
                 this.reports.add(new Report(
                         ReportType.ERROR, Stage.SEMANTIC,
@@ -104,7 +118,10 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
                 return space + "ERROR";
             }
             table.addField(field);
+
+        // local variable
         } else {
+            System.out.println("local variable");
             if (table.hasField(field.getName())) {
                 this.reports.add(new Report(
                         ReportType.ERROR,
@@ -114,41 +131,10 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
                         "Variable already declared: " + field.getName()));
                 return space + "ERROR";
             }
-            table.addField(field);
         }
-
         return space + "VARDECLARATION";
     }
 
-    /*
-
-    private String dealWithParameter(JmmNode node, String space) {
-        if (scope.equals("METHOD")) {
-            Symbol field = new Symbol(SymbolTableBuilder.getType(node, "type"), node.get("value"));
-            table.getMe.addParameter(field);
-
-            String paramType = field.getType().getName() + ((field.getType().isArray()) ? " []" : "");
-            node.getJmmParent().put("params", node.getJmmParent().get("params") + paramType + ",");
-        } else if (scope.equals("MAIN")) {
-            Symbol field = new Symbol(new Type("String", true), node.get("value"));
-            table.getCurrentMethod().addParameter(field);
-
-            String paramType = field.getType().getName() + ((field.getType().isArray()) ? " []" : "");
-            node.getJmmParent().put("params", node.getJmmParent().get("params") + paramType + ",");
-        }
-
-        return space + "PARAM";
-    }
-
-    private String dealWithMainDeclaration(JmmNode node, String space) {
-        scope = "MAIN";
-
-        table.addMethod("main", new Type("void", false));
-
-        node.put("params", "");
-
-        return node.toString();
-    }*/
 
     /**
      * Prints node information and appends space
