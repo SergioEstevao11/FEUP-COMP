@@ -10,7 +10,8 @@ import static org.junit.Assert.*;
 public class AnalyseTest {
     @Test
     public void test(){
-        var results = TestUtils.analyse(SpecsIo.getResource("cp2lecture/HelloWorld.jmm"));
+         var results = TestUtils.analyse(SpecsIo.getResource("cp2lecture/HelloWorld.jmm"));
+        // var results = TestUtils.analyse(SpecsIo.getResource("/home/sofia/Desktop/MIEIC-2semestre/C/comp2022-9g/test/fixtures/public/cp2/SymbolTable.jmm));
          System.out.println("Symbol Table: " + results.getSymbolTable().print());
          TestUtils.noErrors(results);
     }
