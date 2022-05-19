@@ -5,9 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import pt.up.fe.comp.TestUtils;
-import pt.up.fe.comp.analysis.analyser.SingleMainMethodCheck;
-import pt.up.fe.comp.analysis.analyser.TypeAnalysis;
-import pt.up.fe.comp.analysis.analyser.VarNotDeclaredCheck;
+import pt.up.fe.comp.analysis.analyser.*;
 import pt.up.fe.comp.jmm.analysis.JmmAnalysis;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.ast.JmmNode;
@@ -44,11 +42,11 @@ public class JmmAnalyser implements JmmAnalysis{
 
         System.out.println("antes");
 
-        var varNotDeclared = new VarNotDeclaredCheck();
-        varNotDeclared.visit(rootNode, symbolTable);
-        reports.addAll(varNotDeclared.getReports());
+        var BoolTimesInt = new BoolTimesIntCheck();
+        BoolTimesInt.visit(rootNode, symbolTable);
+        reports.addAll(BoolTimesInt.getReports());
 
-        System.out.println("depois");
+        System.out.println(reports);
 
         return new JmmSemanticsResult(parserResult, symbolTable, reports);
     }

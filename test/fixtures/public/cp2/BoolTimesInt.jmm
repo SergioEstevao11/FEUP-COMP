@@ -10,7 +10,7 @@ class Test {
 		int a;
 		boolean b;
 		
-		a = 10;
+		a = false;
 		b = true;
 		return b * a;
 	}
