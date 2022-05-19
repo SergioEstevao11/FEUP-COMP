@@ -69,7 +69,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
         var isStatic = Boolean.valueOf(methodDecl.get("isStatic"));
         var isMain = Boolean.valueOf(methodDecl.getKind().equals("MainMethod"));
 
-        code.append(" .method public ");
+        code.append(" .method public "); // TODO VALE PRIVATES?
         if (isStatic)
             code.append("static ");
 
