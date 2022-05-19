@@ -39,17 +39,9 @@ public class JmmAnalyser implements JmmAnalysis{
         System.out.println("Filling Symbol Table");
         var symbolTableFiller = new SymbolTableFiller(symbolTable, reports);
         symbolTableFiller.visit(rootNode, "");
+
         reports.addAll(reports);
-        System.out.println("Symbol Table Filler");
 
-        /*
-        var varNotDeclared = new VarNotDeclaredCheck();
-        varNotDeclared.visit(rootNode, symbolTable);
-        reports.addAll(varNotDeclared.getReports());
-
-        var objectAssignement = new ObjectAssignementCheck();
-        objectAssignement.visit(rootNode,symbolTable);
-        reports.addAll(objectAssignement.getReports());*/
         return new JmmSemanticsResult(parserResult, symbolTable, reports);
     }
 }
