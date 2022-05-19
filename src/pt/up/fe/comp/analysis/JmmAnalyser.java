@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import pt.up.fe.comp.TestUtils;
+import pt.up.fe.comp.analysis.analyser.ClassNotImportedCheck;
 import pt.up.fe.comp.jmm.analysis.JmmAnalysis;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
@@ -37,11 +38,13 @@ public class JmmAnalyser implements JmmAnalysis{
         System.out.println("Filling Symbol Table");
         var symbolTableFiller = new SymbolTableFiller(symbolTable, reports);
         symbolTableFiller.visit(rootNode, "");
-
         reports.addAll(reports);
 
-        var ClassNotImportedCheck = new ClassNotImportedCheck(symbolTable,reports);
 
+        /*
+        var classNotImportedCheck = new ClassNotImportedCheck(symbolTable,reports);
+        classNotImportedCheck.visit(rootNode,null);
+        reports.addAll(reports);*/
 
         return new JmmSemanticsResult(parserResult, symbolTable, reports);
     }

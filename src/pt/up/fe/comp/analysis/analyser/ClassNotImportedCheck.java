@@ -32,6 +32,7 @@ public class ClassNotImportedCheck extends PreorderJmmVisitor<SymbolTableBuilder
         }
 
         String typeStr = node.getKind();
+        System.out.println("node type : " + typeStr);
 
         if (!isClassInstance(typeStr)) return 1;
 
