@@ -26,10 +26,36 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
             addVisit(ASTNode.MEMBER_CALL, this::memberCallVisit);
             addVisit(ASTNode.ARGUMENTS, this::argumentsVisit);
             addVisit(ASTNode.ID, this::idVisit);
+            addVisit(ASTNode.INT, this::intVisit);
+            addVisit(ASTNode.TRUE, this::boolVisit);
+            addVisit(ASTNode.FALSE, this::boolVisit);
+            addVisit(ASTNode.NEW, this::newVisit);
             addVisit(ASTNode.IF, this::ifStmtVisit);
             addVisit(ASTNode.ELSE, this::ifStmtVisit);
             addVisit(ASTNode.WHILE, this::whileStmtVisit);
             addVisit(ASTNode.ASSIGNMENT, this::assignmentVisit);
+
+        //addVisit("CLASS_DECLARATION", this::dealWithClass);
+        //addVisit("VAR_DECLARATION", this::dealWithVar);
+        //addVisit("MAIN", this::dealWithMain);
+        //addVisit("METHOD_DECLARATION", this::dealWithMethodDeclaration);
+        //addVisit("OBJECT_METHOD", this::dealWithObjectMethod);
+        //addVisit("ASSIGNMENT", this::dealWithAssignment);
+        //addVisit("RETURN", this::dealWithReturn);
+        //addVisit("IDENTIFIER", this::dealWithIdentifier);
+        //addVisit("INT", this::dealWithInt);
+        //addVisit("TRUE", this::dealWithBoolean);
+        //addVisit("FALSE", this::dealWithBoolean);
+        //addVisit("NEW", this::dealWithNew);
+        //addVisit("OPERATION", this::dealWithOperation);
+        //addVisit("LESS", this::dealWithOperation);
+        //addVisit("AND", this::dealWithOperation);
+        //addVisit("EXCLAMATION", this::dealWithOperation);
+        //addVisit("IF", this::dealWithIf);
+        //addVisit("ELSE", this::dealWithElse);
+        //addVisit("WHILE", this::dealWithWhile);
+        //addVisit("ARRAY_ACCESS", this::dealWithArrayAccess);
+        //setDefaultVisit(this::defaultVisit);
     }
 
     public String getCode(){
@@ -66,8 +92,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
 
     private Integer methodDeclVisit(JmmNode methodDecl, Integer dummy){
         var methodSignature = methodDecl.getJmmChild(1).get("name");
-        var isStatic = Boolean.valueOf(methodDecl.get("isStatic"));
-        var isMain = Boolean.valueOf(methodDecl.getKind().equals("MainMethod"));
+        Boolean isStatic = Boolean.valueOf(methodDecl.get("isStatic"));
+        Boolean isMain = Boolean.valueOf(methodDecl.getKind().equals("MainMethod"));
 
         code.append(" .method public "); // TODO VALE PRIVATES?
         if (isStatic)
@@ -200,6 +226,69 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
 
         return 0;
     }
+
+    private Integer intVisit(JmmNode value, Integer dummy){
+        code.append(value.get("value")).append(".i32");
+
+        return 0;
+    }
+
+    private Integer boolVisit(JmmNode value, Integer dummy){
+        code.append(value.get("value")).append(".bool");
+
+        return 0;
+    }
+
+    private Integer newVisit(JmmNode newNode, Integer dummy){String str = "";
+        JmmNode child = newNode.getChildren().get(0);
+        if (child.getKind().equals("ARRAY")) {
+            JmmNode grandChild = child.getChildren().get(0);
+            code.append("new(array, ");
+            visit(grandChild);
+            code.append(").array.i32");
+           // if (grandchild.getKind().equals("OBJECT_METHOD")) {
+           //     str += grandchildVisit + "\n";
+           //     grandchildVisit = grandchildVisit.substring(0, grandchildVisit.indexOf(" "));
+           // }
+        } else code.append("new(").append(child.get("name")).append(").").append(child.get("name"));
+
+        return 0;
+    }
+
+  // visitBinOp(JmmNode node){
+
+
+
+  //     Code lhs = visit(node.getChild(0));
+
+  //     Code rhs = visit(node.getChild(1));
+
+  //     String op = node.getAttribute("op");
+
+
+
+  //     Code thisCode = new Code();
+
+  //     thisCode.prefix = lhs.prefix;
+
+  //     thisCode.prefix += rhs.prefix;
+
+
+
+  //     //here you can decide if the temporary variable is necessary or not
+
+  //     //I am considering that I always need a new temp
+
+  //     String temp = createTemp();
+
+  //     thisCode.prefix += temp + "=" + lhs.code + op + rhs.code;
+
+  //     thisCode.code = temp;
+
+  //     return thisCode;
+
+  // }
+
      
     private Type getFieldType(String name){
         for (Symbol symbol: symbolTable.getFields()){

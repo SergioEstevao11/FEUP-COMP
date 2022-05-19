@@ -9,12 +9,17 @@ public enum ASTNode {
     CLASS_DECL,
     METHOD_DECL,
     ID,
+    INT,
+    TRUE,
+    FALSE,
+    NEW,
     EXPR,
     MEMBER_CALL,
     ARGUMENTS,
     IF,
     ELSE,
     WHILE,
+
     ASSIGNMENT;
 
 
