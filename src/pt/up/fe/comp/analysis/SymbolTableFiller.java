@@ -86,16 +86,17 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
 
         List<Symbol> parameters = new ArrayList<>();
 
-       /*for(int counter = 0 ; counter < node.getNumChildren() ; counter++){
+        //visit main method params
+       for(int counter = 0 ; counter < node.getNumChildren(); counter++){
             var type = new Type("String", true);
-            Symbol parameter = new Symbol(type, node.getJmmChild(counter+1).get("name"));
+            Symbol parameter = new Symbol(type, node.getJmmChild(counter).get("name"));
             parameters.add(parameter);
-            counter++;
-        }*/
+        }
+
+        System.out.println("parameters: " + parameters);
+
         //visit main method name
         table.addMethod("main", new Type("void", false), parameters);
-
-        //node.put("params", "");
 
         return node.toString();
     }

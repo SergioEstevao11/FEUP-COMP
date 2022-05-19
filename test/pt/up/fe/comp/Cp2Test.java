@@ -85,9 +85,7 @@ public class Cp2Test {
         // .getRootNode().toTree());
 
         var result = TestUtils.analyse(SpecsIo.getResource("fixtures/public/cp2/SymbolTable.jmm"));
-        System.out.println("antes de imprimir symbol table");
         System.out.println("Symbol Table:\n" + result.getSymbolTable().print());
-        System.out.println("depois");
     }
 
     @Test
