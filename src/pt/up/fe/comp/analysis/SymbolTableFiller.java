@@ -30,9 +30,6 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
         addVisit("CommonMethodHeader", this::visitCommonMethodDeclaration);
         addVisit("MainMethodHeader", this::visitMainMethodDeclaration);
         addVisit("VarDeclaration", this::visitVarDeclaration);
-        //addVisit("MethodDeclaration", this::visitParameter);
-        //  addVisit("VarDeclaration", this::visitLocalVariables);
-        //  addVisit("MethodBody", this::visitParameter); children -> são as variáveis locais
 
         setDefaultVisit(this::defaultVisit);
     }

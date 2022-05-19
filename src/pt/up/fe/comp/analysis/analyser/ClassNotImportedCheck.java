@@ -12,12 +12,12 @@ import java.util.List;
 public class ClassNotImportedCheck extends PreorderJmmVisitor<SymbolTableBuilder, Integer> {
 
     private final List<Report> reports;
+    private final SymbolTableBuilder symbolTable;
 
-    public ClassNotImportedCheck() {
-        System.out.println("DENTRO DO CONSTRUTOR");
-        this.reports = new ArrayList<>();
+    public ClassNotImportedCheck(SymbolTableBuilder symbolTable, List<Report> reports) {
+        this.reports = reports;
+        this.symbolTable = symbolTable;
         addVisit("Identifier", this::visitVarDeclaration);
-
         setDefaultVisit((node, oi) -> 0);
     }
 
