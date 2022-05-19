@@ -24,30 +24,32 @@ public class JmmAnalyser implements JmmAnalysis{
             return new JmmSemanticsResult(parserResult, null, Arrays.asList(errorReport));
         }
 
-        List<Report> reports = new ArrayList<>();
-        var symbolTable = new SymbolTableBuilder();
-
         var rootNode = parserResult.getRootNode();
 
-        if (rootNode == null) {
+        if (rootNode == null  || rootNode.getJmmParent() != null ) {
             var errorReport = new Report(ReportType.ERROR, Stage.SEMANTIC, -1,
-                    "Started semantic analysis but AST root node is null");
+                    "Started semantic analysis but AST root node is null or had a parent");
             return new JmmSemanticsResult(parserResult, null, Arrays.asList(errorReport));
         }
 
-        var symbolTableFiller = new SymbolTableFiller();
-        symbolTableFiller.visit(rootNode, symbolTable);
-        reports.addAll(symbolTableFiller.getReports());
+        List<Report> reports = new ArrayList<>();
+        var symbolTable = new SymbolTableBuilder();
+        System.out.println("Symbol Table Created");
 
+        System.out.println("Filling Symbol Table");
+        var symbolTableFiller = new SymbolTableFiller(symbolTable, reports);
+        symbolTableFiller.visit(rootNode, "");
+        reports.addAll(reports);
+        System.out.println("Symbol Table Filler");
+
+        /*
         var varNotDeclared = new VarNotDeclaredCheck();
         varNotDeclared.visit(rootNode, symbolTable);
         reports.addAll(varNotDeclared.getReports());
 
-        /*
         var objectAssignement = new ObjectAssignementCheck();
         objectAssignement.visit(rootNode,symbolTable);
         reports.addAll(objectAssignement.getReports());*/
-
         return new JmmSemanticsResult(parserResult, symbolTable, reports);
     }
 }

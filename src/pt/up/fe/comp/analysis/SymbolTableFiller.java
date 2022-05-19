@@ -1,65 +1,224 @@
 package pt.up.fe.comp.analysis;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import pt.up.fe.comp.ast.ASTUtils;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
+import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
 
-public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableBuilder,Integer> {
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
+public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
+    private final SymbolTableBuilder table;
+    private String scope;
     private final List<Report> reports;
 
-    public SymbolTableFiller(){
-        this.reports = new ArrayList<>();
+    public SymbolTableFiller(SymbolTableBuilder symbolTable, List<Report> reports) {
+        // super(SymbolTableFiller::reduce);
+        this.table = symbolTable;
+        this.reports = reports;
 
-        addVisit("ImportDeclaration", this::importDeclVisit);
-        addVisit("ClassDeclaration", this::classDeclVisit);
-        addVisit("MethodDeclaration", this::methodDeclVisit);
+        addVisit("ImportDeclaration", this::visitImports);
+        addVisit("ClassDeclaration", this::visitClassDelcaration);
+        addVisit("MethodDeclaration", this::visitMethodDeclaration);
+        addVisit("MainMethodHeader", this::visitMainMethodDeclaration);
+        addVisit("VarDeclaration", this::visitLocalVariables);
+        addVisit("MethodDeclaration", this::visitParameter);
+
+        setDefaultVisit(this::defaultVisit);
     }
 
-    public List<Report> getReports(){
-        return reports;
-    }
+    private String visitImports(JmmNode node, String space) {
+        List<String> imports = table.getImports();
 
-    private Integer importDeclVisit(JmmNode importDecl, SymbolTableBuilder symbolTable){
-        var importString = importDecl.getChildren().stream().map(id->id.get("name")).collect(Collectors.joining("."));
-
-        symbolTable.addImport(importString);
-        return 0;
-    }
-    
-    private Integer classDeclVisit(JmmNode classDecl, SymbolTableBuilder symbolTable){
-        symbolTable.setClassName(classDecl.getChildren().get(0).get("name"));
-        classDecl.getOptional("extends").ifPresent(superClass -> symbolTable.setSuperClass(superClass));
-
-        return 0;
-    }
-
-    private Integer methodDeclVisit(JmmNode methodDecl, SymbolTableBuilder symbolTable){
-        var methodName = methodDecl.getChildren().get(0).get("name");
-        System.out.println("methodDecl : " + methodName);
-
-        if(symbolTable.hasMethod(methodName)){
-            reports.add(Report.newError(Stage.SEMANTIC, Integer.parseInt(methodDecl.get("line")), Integer.parseInt(methodDecl.get("col")), "Found duplicated method with signature '" + "methodName" + "'", null));
-
-            return -1;
+        var counter = 0;
+        for (JmmNode ignored : node.getChildren()){
+            String newImport = node.getJmmChild(counter).get("name");
+            imports.add(newImport);
+            counter++;
         }
 
-        var returnTypeNode = methodDecl.getJmmChild(0);
-
-        var returnType = ASTUtils.buildType(returnTypeNode);
-
-        var params = methodDecl.getChildren().subList(2, methodDecl.getNumChildren()).stream().filter(node -> node.getKind().equals("Param")).collect(Collectors.toList());
-
-        var paramSymbols = params.stream().map(param -> new Symbol(ASTUtils.buildType(param.getJmmChild(0)), param.getJmmChild(1).get("name"))).collect(Collectors.toList());
-
-        symbolTable.addMethod(methodName,returnType, paramSymbols);
-        
-        return 0;
+        return space + "IMPORT";
     }
+
+    private String visitClassDelcaration(JmmNode node, String space) {
+        table.setClassName(node.getJmmChild(0).get("name"));
+        try {
+            table.setSuperClass(node.getJmmChild(1).get("name"));
+        } catch (NullPointerException ignored) {
+
+        }
+
+        scope = "CLASS";
+        return space + "CLASS";
+    }
+
+    private String visitMethodDeclaration(JmmNode node, String space) {
+       // System.out.println("inisde method delcaration");
+        scope = "METHOD";
+
+       // table.addMethod(node.getJmmChild(0).get("name"), SymbolTableBuilder.getType(node, "return"), Collections.emptyList());
+
+        /*
+        System.out.println("Method Attributes: " + node.getAttributes());
+        System.out.println("type: " + node.getKind());
+        System.out.println("children's  0 type: " + node.getJmmChild(0).getKind());
+        System.out.println("children's  1 type: " + node.getJmmChild(1).getKind());
+        System.out.println("all children: " + node.getChildren());*/
+        //System.out.println("inside method delcaration, name: " + node.getJmmChild(0).get("name") );
+
+        node.put("params", "");
+
+        return node.toString();
+    }
+
+    private String visitMainMethodDeclaration(JmmNode node, String space) {
+     //   System.out.println("inside main method declaration");
+        scope = "MAIN";
+
+        table.addMethod("main", new Type("void", false), Collections.emptyList());
+
+        node.put("params", "");
+
+        return node.toString();
+    }
+
+
+    /*
+    PARA PASSSAR NO TESTE: VarNotDeclared
+     */
+    private String visitLocalVariables(JmmNode node, String space) {
+        System.out.println("inside visit local variables");
+        System.out.println("scope: " + scope);
+
+        Symbol field = new Symbol(SymbolTableBuilder.getType(node, "type"), node.get("identifier"));
+
+        if (scope.equals("CLASS")) {
+            if (table.hasField(field.getName())) {
+                this.reports.add(new Report(
+                        ReportType.ERROR, Stage.SEMANTIC,
+                        Integer.parseInt(node.get("line")),
+                        Integer.parseInt(node.get("col")),
+                        "Variable already declared: " + field.getName()));
+                return space + "ERROR";
+            }
+            table.addField(field);
+        } else {
+            if (table.hasField(field.getName())) {
+                this.reports.add(new Report(
+                        ReportType.ERROR,
+                        Stage.SEMANTIC,
+                        Integer.parseInt(node.get("line")),
+                        Integer.parseInt(node.get("col")),
+                        "Variable already declared: " + field.getName()));
+                return space + "ERROR";
+            }
+            table.addField(field);
+        }
+
+        return space + "VARDECLARATION";
+    }
+
+    private String visitParameter(JmmNode node, String space) {
+        System.out.println("VISIT MainMethodHeader");
+
+
+        //Quando passo methodBody
+      /*  System.out.println("node kind: " + node.getKind());
+        System.out.println("children's 0 kind: " + node.getJmmChild(0).getKind());*/
+
+        //Quando passo MethodDeclaration para o visit
+        /*System.out.println("node kind: " + node.getKind());
+        System.out.println("children's 0 kind: " + node.getJmmChild(0).getKind());
+        System.out.println("children's 0 attributes: " + node.getJmmChild(0).getJmmChild(0).getAttributes());
+        //System.out.println("children's 0 name: " + node.getJmmChild(0).get("name"));
+        System.out.println("children's 1 kind: " + node.getJmmChild(1).getKind());
+        System.out.println("children's 1 , children 0 , attributes: " + node.getJmmChild(1).getJmmChild(0).getKind());*/
+
+        /*
+        QUANDO PASSO PARA O VISIT :
+
+        System.out.println("node kind: " + node.getKind());
+        System.out.println("children's 0 kind: " + node.getJmmChild(0).getKind());
+        System.out.println("children's 1 kind: " + node.getJmmChild(1).getKind());
+        System.out.println("arguments do node" + node.getAttributes());
+        System.out.println("children's 0 attributes: " + node.getJmmChild(0).getAttributes());
+        System.out.println("children's 1 attributes: " + node.getJmmChild(1).getAttributes());
+        System.out.println("children's name: " + node.getJmmChild(0).get("name"));*/
+        //System.out.println("node type: " + SymbolTableBuilder.getType(node,"t"));
+       // System.out.println("scope : " + scope);
+        if (scope.equals("METHOD")) {
+            System.out.println("dentro da scope method");
+            Symbol field = new Symbol(SymbolTableBuilder.getType(node, "type"), node.get("value"));
+            table.addField(field);
+
+            String paramType = field.getType().getName() + ((field.getType().isArray()) ? " []" : "");
+            node.getJmmParent().put("params", node.getJmmParent().get("params") + paramType + ",");
+        } else if (scope.equals("MAIN")) {
+            System.out.println("dentro da scope main");;
+            Symbol field = new Symbol(new Type("String", true), node.get("value"));
+            table.addField(field);
+
+            String paramType = field.getType().getName() + ((field.getType().isArray()) ? " []" : "");
+            node.getJmmParent().put("params", node.getJmmParent().get("params") + paramType + ",");
+        }
+
+        return space + "PARAM";
+    }
+
+    /*
+
+    private String dealWithParameter(JmmNode node, String space) {
+        if (scope.equals("METHOD")) {
+            Symbol field = new Symbol(SymbolTableBuilder.getType(node, "type"), node.get("value"));
+            table.getMe.addParameter(field);
+
+            String paramType = field.getType().getName() + ((field.getType().isArray()) ? " []" : "");
+            node.getJmmParent().put("params", node.getJmmParent().get("params") + paramType + ",");
+        } else if (scope.equals("MAIN")) {
+            Symbol field = new Symbol(new Type("String", true), node.get("value"));
+            table.getCurrentMethod().addParameter(field);
+
+            String paramType = field.getType().getName() + ((field.getType().isArray()) ? " []" : "");
+            node.getJmmParent().put("params", node.getJmmParent().get("params") + paramType + ",");
+        }
+
+        return space + "PARAM";
+    }
+
+    private String dealWithMainDeclaration(JmmNode node, String space) {
+        scope = "MAIN";
+
+        table.addMethod("main", new Type("void", false));
+
+        node.put("params", "");
+
+        return node.toString();
+    }*/
+
+    /**
+     * Prints node information and appends space
+     *
+     * @param node  Node to be visited
+     * @param space Info passed down from other nodes
+     * @return New info to be returned
+     */
+    private String defaultVisit(JmmNode node, String space) {
+        String content = space + node.getKind();
+        String attrs = node.getAttributes()
+                .stream()
+                .filter(a -> !a.equals("line"))
+                .map(a -> a + "=" + node.get(a))
+                .collect(Collectors.joining(", ", "[", "]"));
+
+        content += ((attrs.length() > 2) ? attrs : "");
+
+        return content;
+    }
+
+
 }

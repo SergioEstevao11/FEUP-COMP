@@ -43,6 +43,35 @@ public class VarNotDeclaredCheck extends PreorderJmmVisitor<SymbolTableBuilder, 
         reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Type \"" + typeStr + "\" is missing.", null));
         return 0;
     }
+    /*
+    private String dealWithVarDeclaration(JmmNode node, String space) {
+        Symbol field = new Symbol(SymbolTableBuilder.getType(node, "type"), node.get("identifier"));
+
+        if (scope.equals("CLASS")) {
+            if (table.hasField(field.getName())) {
+                this.reports.add(new Report(
+                        ReportType.ERROR, Stage.SEMANTIC,
+                        Integer.parseInt(node.get("line")),
+                        Integer.parseInt(node.get("col")),
+                        "Variable already declared: " + field.getName()));
+                return space + "ERROR";
+            }
+            table.addField(field);
+        } else {
+            if (table.getCurrentMethod().fieldExists(field.getName())) {
+                this.reports.add(new Report(
+                        ReportType.ERROR,
+                        Stage.SEMANTIC,
+                        Integer.parseInt(node.get("line")),
+                        Integer.parseInt(node.get("col")),
+                        "Variable already declared: " + field.getName()));
+                return space + "ERROR";
+            }
+            table.getCurrentMethod().addLocalVariable(field);
+        }
+
+        return space + "VARDECLARATION";
+    }*/
     public List<Report> getReports(){
         return reports;
     }

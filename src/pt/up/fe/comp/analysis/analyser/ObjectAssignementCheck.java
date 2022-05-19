@@ -15,7 +15,7 @@ public class ObjectAssignementCheck extends PreorderJmmVisitor<SymbolTableBuilde
 
     public ObjectAssignementCheck() {
         this.reports = new ArrayList<>();
-        addVisit("Identifier", this::visitObjectAssignement);
+        addVisit("Identifier", this::visitObjectAssignementFail);
 
         setDefaultVisit((node, oi) -> 0);
     }
@@ -24,9 +24,8 @@ public class ObjectAssignementCheck extends PreorderJmmVisitor<SymbolTableBuilde
         return !typeStr.equals("int") && !typeStr.equals("int[]") && !typeStr.equals("String") && !typeStr.equals("boolean");
     }
 
-    public Integer visitObjectAssignement(JmmNode node, SymbolTableBuilder symbolTable) {
-        JmmNode objectNode = node.getChildren().get(0);
-        String objectName = objectNode.get("name");
+    public Integer visitObjectAssignementFail(JmmNode node, SymbolTableBuilder symbolTable) {
+        String objectName = node.getChildren().get(0).get("name");
         System.out.println("name: " + objectName);
 
         // Check if the object is an instance of the actual class
@@ -42,6 +41,14 @@ public class ObjectAssignementCheck extends PreorderJmmVisitor<SymbolTableBuilde
         System.out.println("node : " + node.getAttributes().get(Integer.parseInt("line")));
 
         reports.add(Report.newError(Stage.SEMANTIC, Integer.parseInt(node.get("line")), Integer.parseInt(node.get("col")), "\"" + objectName + "\" is not an import nor an object",null));
+        return 0;
+    }
+
+    public Integer visitObjectAssignementPassExtends(JmmNode node, SymbolTableBuilder symbolTable){
+        return 0;
+    }
+
+    public Integer visitObjectAssignementPassImports(JmmNode node, SymbolTableBuilder symbolTable){
         return 0;
     }
     public List<Report> getReports(){
