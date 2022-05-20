@@ -49,17 +49,14 @@ public class Launcher {
 
          // Instantiate JmmAnalysis
         JmmAnalyser analyser = new JmmAnalyser();
-        System.out.println("After Creating Jmm Analyser");
 
         // Analysis stage
         JmmSemanticsResult analysisResult = analyser.semanticAnalysis(parserResult);
-        System.out.println("After creating Analysis result -> ou seja, semantic analysis");
-
         // Check if there are parsing errors
         TestUtils.noErrors(analysisResult.getReports());
-        System.out.println("Testar se não há erros para avançarmos para ollir");
 
         System.out.println("Entrar ollir\n");
+
          // Instantiate JmmOptimizer
         var optimizer = new JmmOptimizer();
 

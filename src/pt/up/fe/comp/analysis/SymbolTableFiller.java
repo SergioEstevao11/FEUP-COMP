@@ -147,13 +147,6 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
                 table.addLocalVariable("main", field);
 
             }
-            /*
-            var parent = node.getJmmParent().getJmmParent();
-            var common_method_header = parent.getJmmChild(0);
-            System.out.println("common method header kind: " + common_method_header.getKind());
-            var method_name = common_method_header.getJmmChild(1).get("name");
-
-            table.addLocalVariable(method_name, field);*/
         }
         return space + "VARDECLARATION";
     }
