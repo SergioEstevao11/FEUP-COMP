@@ -13,14 +13,18 @@ public enum ASTNode {
     TRUE,
     FALSE,
     NEW,
+    OPERATION,
+    LESS,
+    AND,
+    NOT,
     EXPR,
     MEMBER_CALL,
     ARGUMENTS,
     IF,
     ELSE,
     WHILE,
-
-    ASSIGNMENT;
+    ASSIGNMENT,
+    RETURN;
 
 
 

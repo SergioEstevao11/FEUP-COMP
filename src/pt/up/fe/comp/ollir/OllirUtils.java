@@ -16,26 +16,20 @@ public class OllirUtils {
         code.append(".");
 
         if (type.isArray())
-            code.append("array.");
+            return "array.";
 
         String jmmType = type.getName();
 
         switch(jmmType){
             case "int":
-                code.append("i32");
-                break;
+                return "i32";
             case "boolean":
-                code.append("bool");
-                break;
+                return "bool";
             case "void":
-                code.append("V");
-                break;
-            default:
-                code.append(jmmType);
-                break;
+                return "V";
         }
 
-        return code.toString();
+        return jmmType;
     }
 
     public static String getOllirVar(String jmmVar, Type type){
