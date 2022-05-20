@@ -16,7 +16,7 @@ public class OllirUtils {
         code.append(".");
 
         if (type.isArray())
-            return "array.";
+            return "array." + type.getName();
 
         String jmmType = type.getName();
 
@@ -40,12 +40,19 @@ public class OllirUtils {
         return "$" + position + "." + jmmParameter;
     }
 
-    public static String getOllirOperator(JmmNode jmmOperator){
+    public static String getOllirOperator(JmmNode jmmOperator, StringBuilder code){
+        if (jmmOperator.getKind().equals("Assignment")){
+            String substring = code.substring(code.lastIndexOf(":=."), code.length() - 1);
+            substring = substring.substring(0, substring.indexOf(" "));
+
+        }
+
+
         switch (jmmOperator.getKind()){
             case "Add":
                 return " +.i32 ";
             case "Less":
-                return " <.i32 ";
+                return " <.bool ";
             case "Sub":
                 return " -.i32 ";
             case "Mult":
@@ -57,7 +64,7 @@ public class OllirUtils {
             case "Not":
                 return " !.bool ";
             default:
-                return "OPERATOR";
+                return ".V";
         }
     }
 

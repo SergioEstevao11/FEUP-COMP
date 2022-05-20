@@ -1,5 +1,6 @@
 package pt.up.fe.comp.analysis;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -98,7 +99,6 @@ public class SymbolTableBuilder implements SymbolTable {
 
         return type;
     }
-
 
     public void addField(Symbol field) {
         fields.put(field, false);
