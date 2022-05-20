@@ -42,7 +42,7 @@ public class JmmAnalyser implements JmmAnalysis{
 
         System.out.println("Semantic Analysis");
 
-        // test_1_02_ClassNotImported
+       /* // test_1_02_ClassNotImported
         var classNotImported = new ClassNotImportedCheck(symbolTable,reports);
         classNotImported.visit(rootNode,0);
 
@@ -52,18 +52,56 @@ public class JmmAnalyser implements JmmAnalysis{
 
         // test_1_04_BoolTimesInt
         var boolTimesIntCheck = new BoolTimesIntCheck(symbolTable,reports);
-        boolTimesIntCheck.visit(rootNode,null);
+        boolTimesIntCheck.visit(rootNode,null);*/
 
+
+        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_05_ArrayPlusInt
-        var arrayAccessOnInt = new ArrayPlusIntCheck(symbolTable,reports);
-        arrayAccessOnInt.visit(rootNode,null);
+        /*var arrayPlusIntCheck = new ArrayPlusIntCheck(symbolTable,reports);
+        arrayPlusIntCheck.visit(rootNode,null);*/
 
+        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
+       /* // test_1_06_ArrayAccessOnInt
+        var arrayAccessOnInt = new ArrayAccessOnIntCheck(symbolTable,reports);
+        arrayAccessOnInt.visit(rootNode,null);*/
+
+        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
+        // test_1_07_ArrayAccessOnInt
+        /*var arrayIndexNotIntCheck = new ArrayIndexNotIntCheck(symbolTable,reports);
+        arrayIndexNotIntCheck.visit(rootNode,null);*/
+
+        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
+        // test_1_08_AssignIntToBool
+        /*var assignIntToBoolCheck = new AssignIntToBoolCheck(symbolTable,reports);
+        assignIntToBoolCheck.visit(rootNode,null);*/
+
+        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
+        // test_1_09_ObjectAssignmentFail
+        /*var objectAssignementCheck = new ObjectAssignmentCheck(symbolTable,reports);
+        objectAssignementCheck.visit(rootNode,null);*/
+
+        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
+        // test_1_10_ObjectAssignmentPassExtends
+        /*var objectAssignementCheck = new ObjectAssignmentCheck(symbolTable,reports);
+        objectAssignementCheck.visit(rootNode,null);*/
+
+        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
+        // test_1_11_ObjectAssignmentPassImports
+        /*var objectAssignementCheck = new ObjectAssignmentCheck(symbolTable,reports);
+        objectAssignementCheck.visit(rootNode,null);*/
+
+        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
+        // test_1_12_ObjectAssignmentPassImports
+        var intInIfConditionCheck = new IntInIfConditionCheck(symbolTable,reports);
+        intInIfConditionCheck.visit(rootNode,null);
+
+        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_14_CallToUndeclaredMethod
-        var callToUndeclaredMethodCheck = new CallToUndeclaredMethodCheck(symbolTable,reports);
-        callToUndeclaredMethodCheck.visit(rootNode,null);
+        /*var callToUndeclaredMethodCheck = new CallToUndeclaredMethodCheck(symbolTable,reports);
+        callToUndeclaredMethodCheck.visit(rootNode,null);*/
 
-        // test_1_15_CallToUndeclaredMethod
-
+        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
+        // test_1_15_CallToMethodAssumedInExtends
         /*var callToMethodAssumedInExtends = new CallToMethodAssumedInExtends(symbolTable,reports);
         callToMethodAssumedInExtends.visit(rootNode,null);*/
 

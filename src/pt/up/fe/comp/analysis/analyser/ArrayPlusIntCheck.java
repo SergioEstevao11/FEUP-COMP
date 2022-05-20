@@ -30,29 +30,13 @@ public class ArrayPlusIntCheck  extends PreorderJmmVisitor<Integer, Integer> {
         String left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
         String right_node_name = right_node.get("name");
         String right_node_type = symbolTable.getVariableType(method_name,right_node_name).getName();
-        System.out.println("method name: " + method_name);
-        System.out.println("left node kind : " + left_node.getKind());
-        System.out.println("right node kind : " + right_node.getKind());
-        System.out.println("left node type : " + left_node_type);
-        System.out.println("right node type : " + right_node_type);
-        System.out.println("left node children : " + left_node.getAttributes());
-        System.out.println("right node children : " + right_node.getAttributes());
-        System.out.println("node left is array: " + symbolTable.isArray(method_name, left_node_name));
-        System.out.println("node right is array: " + symbolTable.isArray(method_name, right_node_name));
 
-        /*
-        if (left_node_type.equals("boolean") && right_node_type.equals("int")){
-            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + left_node_type + "\" invalid type: expecting an boolean.", null));
+        if (symbolTable.isArray(method_name, left_node_name) && (right_node_type.equals("int") || right_node.getKind().equals("Number"))){
+            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + left_node_type + "\" invalid type: can't add an int to an array", null));
         }
-        else if (UtilsAnalyser.getVariableType(rightNode, symbolTable).equals("object") && leftNode.getKind().equals("Number")){
-            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + leftNode + "\" invalid type: expecting an boolean.", null));
+        else if (symbolTable.isArray(method_name, right_node_name) && (left_node_type.equals("int") || left_node.getKind().equals("Number"))){
+            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + right_node_name + "\" invalid type: can't add an int to an array", null));
         }
-        else if (UtilsAnalyser.getVariableType(leftNode, symbolTable).equals("int") && UtilsAnalyser.getVariableType(rightNode, symbolTable).equals("object")){
-            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + rightNode + "\" invalid type: expecting an boolean.", null));
-        }
-        else if (UtilsAnalyser.getVariableType(rightNode, symbolTable).equals("int") && UtilsAnalyser.getVariableType(leftNode, symbolTable).equals("object")){
-            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + rightNode + "\" invalid type: expecting an boolean.", null));
-        }*/
         return 0;
     }
 
