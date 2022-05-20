@@ -39,8 +39,10 @@ public class IncompatibleReturnCheck extends PreorderJmmVisitor<Integer, Integer
         else if (isBooleanExpression){
             if(!methodReturnType.equals("boolean")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + left_node + "\" invalid return type", null));
         }
-        else if(!symbolTable.getVariableType(method_name,left_node.get("name")).getName().equals(methodReturnType)) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + left_node + "\" invalid return type", null));
-
+       else if(left_node.getJmmChild(0).getKind().equals("Identifier")) {
+            if (!symbolTable.getVariableType(method_name, left_node.getJmmChild(0).get("name")).getName().equals(methodReturnType))
+                reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + left_node + "\" invalid return type", null));
+        }
         return 1;
     }
     public List<Report> getReports(){
