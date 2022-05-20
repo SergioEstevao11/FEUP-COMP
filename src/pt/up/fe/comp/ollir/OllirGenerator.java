@@ -46,7 +46,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
             addVisit(ASTNode.WHILE, this::whileVisit);
             addVisit(ASTNode.ASSIGNMENT, this::assignmentVisit);
             addVisit(ASTNode.RETURN, this::returnVisit);
-            addVisit(AST)
+            addVisit(ASTNode.ARRAY_ACCESS, this::arrayAccessVisit);
             setDefaultVisit(this::defaultVisit);
 
 
@@ -195,7 +195,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
      }
 
      public Integer arrayAccessVisit(JmmNode arrayAccess, Integer dummy){
-        if ()
+
 
         return 0;
      }

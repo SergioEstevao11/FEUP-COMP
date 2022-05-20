@@ -25,7 +25,8 @@ public enum ASTNode {
     ELSE,
     WHILE,
     ASSIGNMENT,
-    RETURN;
+    RETURN,
+    ARRAY_ACCESS;
 
 
 
