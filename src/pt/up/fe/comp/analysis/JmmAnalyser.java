@@ -43,9 +43,14 @@ public class JmmAnalyser implements JmmAnalysis{
 
         System.out.println("Semantic Analysis");
 
+        //Pass test_1_02_ClassNotImported
+        var classNotImported = new ClassNotImportedCheck(symbolTable,reports);
+        classNotImported.visitClassNotImported(rootNode,0);
+
         //Pass test_1_04_BoolTimesInt
         var boolTimesIntCheck = new BoolTimesIntCheck(symbolTable,reports);
         boolTimesIntCheck.visit(rootNode,null);
+
 
 
         System.out.println(reports);

@@ -9,15 +9,14 @@ import pt.up.fe.comp.jmm.report.Stage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClassNotImportedCheck extends PreorderJmmVisitor<SymbolTableBuilder, Integer> {
-
-    private final List<Report> reports;
+public class ClassNotImportedCheck extends PreorderJmmVisitor<Integer, Integer> {
     private final SymbolTableBuilder symbolTable;
+    private final List<Report> reports;
 
     public ClassNotImportedCheck(SymbolTableBuilder symbolTable, List<Report> reports) {
         this.reports = reports;
         this.symbolTable = symbolTable;
-        addVisit("Identifier", this::visitVarDeclaration);
+        addVisit("Identifier", this::visitClassNotImported);
         setDefaultVisit((node, oi) -> 0);
     }
 
@@ -25,14 +24,12 @@ public class ClassNotImportedCheck extends PreorderJmmVisitor<SymbolTableBuilder
         return !typeStr.equals("int") && !typeStr.equals("int[]") && !typeStr.equals("String") && !typeStr.equals("boolean");
     }
 
-    public Integer visitVarDeclaration(JmmNode node, SymbolTableBuilder symbolTable) {
-
+    public Integer visitClassNotImported(JmmNode node, Integer ret) {
         if (!node.getAncestor("MethodBody").isEmpty()) {
             return 1;
         }
 
         String typeStr = node.getKind();
-        System.out.println("node type : " + typeStr);
 
         if (!isClassInstance(typeStr)) return 1;
 
