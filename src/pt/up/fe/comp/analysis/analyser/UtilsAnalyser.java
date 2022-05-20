@@ -70,9 +70,6 @@ public class UtilsAnalyser {
 
     }
 
-
-
-
     public static boolean isMathExpression(String kind) {
         return kind.equals("Mult") || kind.equals("Add") || kind.equals("Sub") || kind.equals("Div");
     }

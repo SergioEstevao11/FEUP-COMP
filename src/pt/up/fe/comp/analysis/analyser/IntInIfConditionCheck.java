@@ -24,11 +24,25 @@ public class IntInIfConditionCheck extends PreorderJmmVisitor<Integer, Integer> 
         JmmNode left_node = ifStatementNode.getJmmChild(0);
         JmmNode right_node  = ifStatementNode.getJmmChild(1);
         String method_name = ifStatementNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
-        String left_node_name = left_node.get("name");
-        String left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
-        String right_node_name = right_node.get("name");
-        String right_node_type = symbolTable.getVariableType(method_name,right_node_name).getName();
+        //String left_node_name = left_node.get("name");
+       // String left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
+       // String right_node_name = right_node.get("name");
+     //   String right_node_type = symbolTable.getVariableType(method_name,right_node_name).getName();
 
+        System.out.println("method name : " + method_name);
+        System.out.println("left node kind:" + left_node.getKind());
+        System.out.println("right node kind: " + right_node.getKind());
+
+        boolean isMathExpression = symbolTable.isMathExpression(left_node.getKind());
+        System.out.println("is math expression: " + isMathExpression);
+
+        boolean isBooleanExpression = symbolTable.isBooleanExpression(left_node.getKind());
+        System.out.println("is boolean expression: " + isBooleanExpression);
+
+     //   System.out.println("left node name: " + left_node_name);
+     //   System.out.println("left node type : " + left_node_type);
+     //   System.out.println("right node name: " + right_node_name);
+     //   System.out.println("right node type : " + right_node_type);
 
 
         return 0;

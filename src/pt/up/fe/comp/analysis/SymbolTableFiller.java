@@ -136,7 +136,6 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
         return space + "VARDECLARATION";
     }
 
-
     /**
      * Prints node information and appends space
      *
@@ -156,6 +155,8 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
 
         return content;
     }
+
+
 
 
 }
