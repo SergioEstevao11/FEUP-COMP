@@ -109,8 +109,6 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
                         Integer.parseInt(node.get("line")),
                         Integer.parseInt(node.get("col")),
                         "Variable already declared: " + field.getName()));
-                System.out.println("AQUIIIIIIIIIIIIII 111111111111111111111");
-                System.out.println(reports);
                 table.addField(field);
                 return space + "ERROR";
             }
@@ -124,8 +122,6 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
                         Integer.parseInt(node.get("line")),
                         Integer.parseInt(node.get("col")),
                         "Variable already declared: " + field.getName()));
-
-                System.out.println("AQUIIIIIIIIIIIIII 222222222222222222222222222222");
                 System.out.println(reports);
                 table.addField(field);
                 return space + "ERROR";

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jdk.swing.interop.SwingInterOpUtils;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
@@ -162,6 +163,24 @@ public class SymbolTableBuilder implements SymbolTable {
             }
         }
         return false;
+    }
+
+    /*
+    public boolean isArray(JmmNode node, String attribute){
+        System.out.println(getType(node, attribute).getName());
+
+        if(getType(node,attribute).isArray()){
+            System.out.println("ARAY CARALHO");
+            return true;
+        }
+        return false;
+    }*/
+
+    public boolean isArray(String methodName, String variable){
+        Type type = getVariableType(methodName,variable);
+
+        return type.isArray();
+
     }
 
 }
