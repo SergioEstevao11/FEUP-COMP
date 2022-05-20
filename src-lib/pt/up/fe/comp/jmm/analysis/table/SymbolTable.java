@@ -104,6 +104,7 @@ public interface SymbolTable {
             /**
              * Print of local variables with contribution from group comp2022-2c
              */
+
             var localVariables = getLocalVariables(method);
             builder.append("; local vars: ");
 
@@ -121,5 +122,4 @@ public interface SymbolTable {
 
         return builder.toString();
     }
-
 }

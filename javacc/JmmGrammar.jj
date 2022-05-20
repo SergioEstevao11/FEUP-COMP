@@ -114,7 +114,11 @@ MainMethodHeader :
 ;
 
 MethodBody :
-    (SCAN 2 VarDeclaration)* (Statement)* (<RETURN> Expression <SEMICOLON>)?
+        (SCAN 2 VarDeclaration)* (Statement)* (Return)?
+;
+
+Return :
+    <RETURN> Expression <SEMICOLON>
 ;
 
 Statement #void:
@@ -128,7 +132,7 @@ Statement #void:
 CompoundStatement #void: <OPEN_BRACKET> (Statement)* <CLOSE_BRACKET>
 ;
 
-ExpressionStatement : Expression <SEMICOLON>
+ExpressionStatement #void: Expression <SEMICOLON>
 ;
 
 IfStatement :
