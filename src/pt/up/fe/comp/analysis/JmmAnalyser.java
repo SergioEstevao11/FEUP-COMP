@@ -58,6 +58,16 @@ public class JmmAnalyser implements JmmAnalysis{
         var arrayAccessOnInt = new ArrayPlusIntCheck(symbolTable,reports);
         arrayAccessOnInt.visit(rootNode,null);
 
+        // test_1_14_CallToUndeclaredMethod
+        var callToUndeclaredMethodCheck = new CallToUndeclaredMethodCheck(symbolTable,reports);
+        callToUndeclaredMethodCheck.visit(rootNode,null);
+
+        // test_1_15_CallToUndeclaredMethod
+
+        /*var callToMethodAssumedInExtends = new CallToMethodAssumedInExtends(symbolTable,reports);
+        callToMethodAssumedInExtends.visit(rootNode,null);*/
+
+
 
         System.out.println(reports);
 
