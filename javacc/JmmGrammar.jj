@@ -118,7 +118,7 @@ MethodBody :
 ;
 
 Return :
-    <RETURN> Expression <SEMICOLON>
+    <RETURN> ExpressionStatement
 ;
 
 Statement #void:
@@ -167,13 +167,16 @@ MultDivDeclaration #void: NotDeclaration ( (<TIMES> NotDeclaration ) #Times(2)  
 NotDeclaration #void: DotArrayDeclaration | <NOT> NotDeclaration #Not(1)
 ;
 
-DotArrayDeclaration #void: KeyWords ((<DOT> DotDeclaration) #DotAccess(2) | (ArrayAccess #ArrayAccess(2)))*
+DotArrayDeclaration #void: KeyWords (<DOT> DotDeclaration #DotAccess(2) | (ArrayAccess #ArrayAccess(2)))*
 ;
 
 ArrayAccess #void: <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET>
 ;
 
-DotDeclaration #void: <LENGTH> #Length | (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier) <OPEN_CURVE_BRACKET> (Expression (<COMMA> Expression)*)* <CLOSE_CURVE_BRACKET>
+DotDeclaration #void: <LENGTH> #Length | (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier) <OPEN_CURVE_BRACKET> DotDeclarationArgs <CLOSE_CURVE_BRACKET>
+;
+
+DotDeclarationArgs : (Expression (<COMMA> Expression)*)?
 ;
 
 KeyWords #void:  <TRUE> #True |

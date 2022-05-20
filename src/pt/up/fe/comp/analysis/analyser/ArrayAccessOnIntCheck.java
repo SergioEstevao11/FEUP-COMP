@@ -10,23 +10,24 @@ import pt.up.fe.comp.jmm.report.Stage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArrayAccessOnIntCheck extends PreorderJmmVisitor<SymbolTableBuilder, Integer> {
+public class ArrayAccessOnIntCheck extends PreorderJmmVisitor<Integer, Integer>  {
+    private final SymbolTableBuilder symbolTable;
     private final List<Report> reports;
 
-    public ArrayAccessOnIntCheck() {
-        this.reports = new ArrayList<>();
+    public ArrayAccessOnIntCheck(SymbolTableBuilder symbolTable, List<Report> reports) {
+        this.reports = reports;
+        this.symbolTable = symbolTable;
         addVisit("ArrayAccess", this::visitArrayAccess);
-
         setDefaultVisit((node, oi) -> 0);
     }
-    public Integer visitArrayAccess(JmmNode plusNode, SymbolTableBuilder symbolTable){
-        JmmNode leftNode = plusNode.getChildren().get(0);
+    public Integer visitArrayAccess(JmmNode arrayAccessNode, Integer ret){
 
-        Type leftNodeType = symbolTable.getType(leftNode,"type");
+        JmmNode left_node = arrayAccessNode.getJmmChild(0);
+        String method_name = arrayAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
+        String left_node_name = left_node.get("name");
+        String left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
 
-        if (!leftNodeType.equals("array")){
-            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + leftNodeType + "\" invalid type: expecting an array.", null));
-        }
+        if(!symbolTable.isArray(method_name, left_node_name) || left_node_type.equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + left_node_type + "\" invalid type: can't access on a int, expected an array", null));
 
         return 0;
     }

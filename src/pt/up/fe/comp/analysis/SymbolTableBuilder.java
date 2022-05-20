@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jdk.swing.interop.SwingInterOpUtils;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
@@ -138,4 +139,44 @@ public class SymbolTableBuilder implements SymbolTable {
     public boolean hasMethod(String methodName) {
         return false;
     }
+
+    public Type getVariableType(String methodName,String variable){
+
+        if(getLocalVariables(methodName).isEmpty()){
+            return new Type("impossible",false);
+        }
+        for (Symbol symbol : getLocalVariables(methodName)){
+            if(symbol.getName().equals(variable)){
+                return symbol.getType();
+            }
+        }
+        return new Type("impossible",false);
+    }
+
+    public boolean isObject(String methodName, String variable){
+        if(getLocalVariables(methodName).isEmpty()){
+            return false;
+        }
+        for (Symbol symbol : getLocalVariables(methodName)){
+            if(symbol.getName().equals(variable)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isArray(String methodName, String variable){
+        Type type = getVariableType(methodName,variable);
+
+        return type.isArray();
+    }
+
+    public boolean isMathExpression(String kind) {
+        return kind.equals("Times") || kind.equals("Plus") || kind.equals("Minus") || kind.equals("Divide");
+    }
+
+    public boolean isBooleanExpression(String kind) {
+        return kind.equals("Less") || kind.equals("And") || kind.equals("Not");
+    }
+
 }
