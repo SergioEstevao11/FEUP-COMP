@@ -29,7 +29,6 @@ public class ArrayPlusIntCheck  extends PreorderJmmVisitor<Integer, Integer> {
         String right_node_type = symbolTable.getVariableType(method_name,right_node_name).getName();
         System.out.println("Type left: " + left_node_type);
         System.out.println("Name left: " + left_node_name);
-
         System.out.println("Type right: " + left_node_type);
 
 

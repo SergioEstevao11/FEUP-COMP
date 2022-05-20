@@ -5,10 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import pt.up.fe.comp.TestUtils;
-import pt.up.fe.comp.analysis.analyser.ArrayPlusIntCheck;
-import pt.up.fe.comp.analysis.analyser.AssignIntToBoolCheck;
-import pt.up.fe.comp.analysis.analyser.BoolTimesIntCheck;
-import pt.up.fe.comp.analysis.analyser.ClassNotImportedCheck;
+import pt.up.fe.comp.analysis.analyser.*;
 import pt.up.fe.comp.jmm.analysis.JmmAnalysis;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
@@ -60,6 +57,11 @@ public class JmmAnalyser implements JmmAnalysis{
         //Pass test_1_08_AssignIntToBool
         var assignIntToBoolCheck = new AssignIntToBoolCheck(symbolTable,reports);
         assignIntToBoolCheck.visit(rootNode,null);
+
+        //Pass test_1_14_CallToUndeclaredMethod
+        var callToUndeclaredMethodCheck = new CallToUndeclaredMethodCheck(symbolTable,reports);
+        callToUndeclaredMethodCheck.visit(rootNode,null);
+
 
 
 

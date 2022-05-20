@@ -20,24 +20,18 @@ public class ClassNotImportedCheck extends PreorderJmmVisitor<Integer, Integer> 
         setDefaultVisit((node, oi) -> 0);
     }
 
-    public Boolean isClassInstance(String typeStr) {
-        return !typeStr.equals("int") && !typeStr.equals("int[]") && !typeStr.equals("String") && !typeStr.equals("boolean");
-    }
-
     public Integer visitClassNotImported(JmmNode node, Integer ret) {
-        if (!node.getAncestor("MethodBody").isEmpty()) {
-            return 1;
-        }
 
-        String typeStr = node.getKind();
+        /*System.out.println(node.getKind());
+        String method_name = node.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
+        String left_node_name = node.getJmmChild(0).get("name");
+        String left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
+        String right_node_name = node.getJmmChild(1).get("name");
+        String right_node_type = symbolTable.getVariableType(method_name,right_node_name).getName();
 
-        if (!isClassInstance(typeStr)) return 1;
+        node.getKind();
 
-        if (UtilsAnalyser.hasImport(typeStr, symbolTable) || symbolTable.getClassName().equals(typeStr)) {
-            return 1;
-        }
-
-        reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Type \"" + typeStr + "\" is missing.", null));
+        reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Type \"" + node + "\" is missing.", null));*/
         return 0;
     }
     public List<Report> getReports(){
