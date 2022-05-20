@@ -22,6 +22,7 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
     private final List<Report> reports;
 
     public SymbolTableFiller(SymbolTableBuilder symbolTable, List<Report> reports) {
+        System.out.println("dentro do construtor de symbol table filler");
         this.table = symbolTable;
         this.reports = reports;
 
@@ -31,10 +32,12 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
         addVisit("MainMethodHeader", this::visitMainMethodDeclaration);
         addVisit("VarDeclaration", this::visitVarDeclaration);
 
+        System.out.println("após visitar tudo o que tinha a visitar");
         setDefaultVisit(this::defaultVisit);
     }
 
     private String visitImports(JmmNode node, String space) {
+        System.out.println("visit imports");
         List<String> imports = table.getImports();
 
         var counter = 0;
@@ -48,6 +51,7 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
     }
 
     private String visitClassDelcaration(JmmNode node, String space) {
+        System.out.println("visit class declaration");
 
         table.setClassName(node.getJmmChild(0).get("name"));
         try {
@@ -61,6 +65,7 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
     }
 
     private String visitCommonMethodDeclaration(JmmNode node, String space) {
+        System.out.println("visit common method declaration");
         scope = "METHOD";
 
         List<Symbol> parameters = new ArrayList<>();
@@ -79,6 +84,7 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
     }
 
     private String visitMainMethodDeclaration(JmmNode node, String space) {
+        System.out.println("visit main method declaration");
         scope = "MAIN";
 
         List<Symbol> parameters = new ArrayList<>();
@@ -102,6 +108,8 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
     PARA PASSSAR NO TESTE: VarNotDeclared
      */
     private String visitVarDeclaration(JmmNode node, String space) {
+        System.out.println("visit var declaration");
+
         Symbol field = new Symbol(SymbolTableBuilder.getType(node.getJmmChild(0), "type"), node.getJmmChild(1).get("name"));
         //class variables
         if (scope.equals("CLASS")) {
@@ -127,11 +135,25 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
                 return space + "ERROR";
             }
 
+            if(scope == "METHOD"){
+                var parent = node.getJmmParent().getJmmParent();
+                var common_method_header = parent.getJmmChild(0);
+                var method_name = common_method_header.getJmmChild(1).get("name");
+                table.addLocalVariable(method_name, field);
+            }
+            if(scope == "MAIN"){
+                var parent = node.getJmmParent().getJmmParent();
+                var main_method_header = parent.getJmmChild(0);
+                table.addLocalVariable("main", field);
+
+            }
+            /*
             var parent = node.getJmmParent().getJmmParent();
             var common_method_header = parent.getJmmChild(0);
+            System.out.println("common method header kind: " + common_method_header.getKind());
             var method_name = common_method_header.getJmmChild(1).get("name");
 
-            table.addLocalVariable(method_name, field);
+            table.addLocalVariable(method_name, field);*/
         }
         return space + "VARDECLARATION";
     }

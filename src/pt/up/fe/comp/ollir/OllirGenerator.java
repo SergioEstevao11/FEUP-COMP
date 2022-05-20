@@ -20,10 +20,13 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
     private final SymbolTable symbolTable;
 
     public OllirGenerator(SymbolTable symbolTable){
+            System.out.println("dentro do ollir generator");
             this.varCounter = 0;
             this.code = new StringBuilder();
             this.symbolTable = symbolTable;
 
+            addVisit(ASTNode.CLASS_DECLARATION, this::classDeclVisit);
+            /*
             addVisit(ASTNode.START, this::programVisit);
             addVisit(ASTNode.IMPORT_DECLARATION, this::importDeclVisit);
             addVisit(ASTNode.CLASS_DECLARATION, this::classDeclVisit);
@@ -47,7 +50,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
             addVisit(ASTNode.ASSIGNMENT, this::assignmentVisit);
             addVisit(ASTNode.RETURN, this::returnVisit);
             addVisit(ASTNode.ARRAY_ACCESS, this::arrayAccessVisit);
-            setDefaultVisit(this::defaultVisit);
+            setDefaultVisit(this::defaultVisit);*/
 
 
         //addVisit("VAR_DECLARATION", this::dealWithVar);
@@ -82,10 +85,10 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
     }
 
     private Integer classDeclVisit(JmmNode classDecl, Integer dummy){
+        System.out.println("visitar classe dentro do ollir");
         code.append(symbolTable.getClassName());
-
-
-
+        System.out.println("classe name : " + symbolTable.getClassName());
+        System.out.println("code após: " + code);
         var superClass = symbolTable.getSuper();
         if (superClass != null)
             code.append(" extends ").append(superClass);
