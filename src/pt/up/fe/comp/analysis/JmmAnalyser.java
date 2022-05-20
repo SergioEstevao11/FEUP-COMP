@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import pt.up.fe.comp.TestUtils;
+import pt.up.fe.comp.analysis.analyser.BoolTimesIntCheck;
 import pt.up.fe.comp.analysis.analyser.ClassNotImportedCheck;
 import pt.up.fe.comp.jmm.analysis.JmmAnalysis;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
@@ -41,10 +42,15 @@ public class JmmAnalyser implements JmmAnalysis{
         reports.addAll(reports);
 
 
-        /*
-        var classNotImportedCheck = new ClassNotImportedCheck(symbolTable,reports);
-        classNotImportedCheck.visit(rootNode,null);
-        reports.addAll(reports);*/
+        System.out.println("Reports antes :)");
+        System.out.println(reports);
+        var boolTimesIntCheck = new BoolTimesIntCheck(symbolTable,reports);
+        boolTimesIntCheck.visit(rootNode,null);
+        reports.addAll(reports);
+        System.out.println("Reports depois :(");
+
+        System.out.println(reports);
+
 
         return new JmmSemanticsResult(parserResult, symbolTable, reports);
     }
