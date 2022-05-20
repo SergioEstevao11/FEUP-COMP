@@ -38,8 +38,9 @@ public class JmmAnalyser implements JmmAnalysis{
 
         System.out.println("Filling Symbol Table");
         var symbolTableFiller = new SymbolTableFiller(symbolTable, reports);
-        symbolTableFiller.visit(rootNode, "");
+        symbolTableFiller.visit(rootNode, null);
         reports.addAll(reports);
+        System.out.println("Symbol Table Filled");
 
 
         System.out.println("Reports antes :)");
