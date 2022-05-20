@@ -8,10 +8,9 @@ class Test {
 	
 	public int foo() {
 		int a;
-		int a;
 		boolean b;
 		
-		a = false;
+		a = 10;
 		b = true;
 		return b * a;
 	}

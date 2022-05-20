@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import pt.up.fe.comp.TestUtils;
+import pt.up.fe.comp.analysis.analyser.ArrayPlusIntCheck;
+import pt.up.fe.comp.analysis.analyser.AssignIntToBoolCheck;
 import pt.up.fe.comp.analysis.analyser.BoolTimesIntCheck;
 import pt.up.fe.comp.analysis.analyser.ClassNotImportedCheck;
 import pt.up.fe.comp.jmm.analysis.JmmAnalysis;
@@ -50,6 +52,17 @@ public class JmmAnalyser implements JmmAnalysis{
         //Pass test_1_04_BoolTimesInt
         var boolTimesIntCheck = new BoolTimesIntCheck(symbolTable,reports);
         boolTimesIntCheck.visit(rootNode,null);
+
+        //Pass test_1_05_ArrayPlusInt
+        var arrayPlusInt = new ArrayPlusIntCheck(symbolTable,reports);
+        arrayPlusInt.visit(rootNode,null);
+
+        //Pass test_1_08_AssignIntToBool
+        var assignIntToBoolCheck = new AssignIntToBoolCheck(symbolTable,reports);
+        assignIntToBoolCheck.visit(rootNode,null);
+
+
+
 
 
 
