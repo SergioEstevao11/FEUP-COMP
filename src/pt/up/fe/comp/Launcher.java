@@ -36,13 +36,13 @@ public class Launcher {
         config.put("optimize", "false");
         config.put("registerAllocation", "-1");
         config.put("debug", "false");
-
+        System.out.println("first");
         // Instantiate JmmParser
         SimpleParser parser = new SimpleParser();
-
+        System.out.println("asasa");
         // Parse stage
         JmmParserResult parserResult = parser.parse(input, config);
-
+        System.out.println("aaa");
         System.out.println("AST:\n\n" + parserResult.getRootNode().toTree());
         // Check if there are parsing errors
         TestUtils.noErrors(parserResult.getReports());
@@ -55,12 +55,14 @@ public class Launcher {
 
         // Check if there are parsing errors
         TestUtils.noErrors(analysisResult.getReports());
-            
+
+        System.out.println("Entrar ollir\n");
          // Instantiate JmmOptimizer
         var optimizer = new JmmOptimizer();
 
         // Optimization stage
         var optimizationResult = optimizer.optimize(analysisResult);
+
 
         // Check if there are parsing errors
         TestUtils.noErrors(optimizationResult);

@@ -1,5 +1,6 @@
 package pt.up.fe.comp.ollir;
 import pt.up.fe.comp.IDENTIFIER;
+import pt.up.fe.comp.INTEGERLITERAL;
 import pt.up.fe.comp.ast.ASTNode;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
@@ -21,13 +22,14 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
             this.code = new StringBuilder();
             this.symbolTable = symbolTable;
 
-            addVisit(ASTNode.PROGRAM, this::programVisit);
-            addVisit(ASTNode.CLASS_DECL, this::classDeclVisit);
-            addVisit(ASTNode.METHOD_DECL, this::methodDeclVisit);
+            addVisit(ASTNode.START, this::programVisit);
+            addVisit(ASTNode.IMPORT_DECLARATION, this::programVisit);
+            addVisit(ASTNode.CLASS_DECLARATION, this::classDeclVisit);
+            addVisit(ASTNode.METHOD_DECLARATION, this::methodDeclVisit);
             addVisit(ASTNode.EXPR, this::exprStmtVisit);
             addVisit(ASTNode.MEMBER_CALL, this::memberCallVisit);
             addVisit(ASTNode.ARGUMENTS, this::argumentsVisit);
-            addVisit(ASTNode.ID, this::idVisit);
+            addVisit(ASTNode.IDENTIFIER, this::idVisit);
             addVisit(ASTNode.INT, this::intVisit);
             addVisit(ASTNode.TRUE, this::boolVisit);
             addVisit(ASTNode.FALSE, this::boolVisit);
@@ -37,10 +39,11 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
             addVisit(ASTNode.NOT, this::operationVisit);
             addVisit(ASTNode.NEW, this::newVisit);
             addVisit(ASTNode.IF, this::ifVisit);
-            addVisit(ASTNode.ELSE, this::elseVisit);
+            //addVisit(ASTNode.ELSE, this::elseVisit);
             addVisit(ASTNode.WHILE, this::whileVisit);
             addVisit(ASTNode.ASSIGNMENT, this::assignmentVisit);
             addVisit(ASTNode.RETURN, this::returnVisit);
+            setDefaultVisit(this::defaultVisit);
 
         //addVisit("CLASS_DECLARATION", this::dealWithClass);
         //addVisit("MAIN", this::dealWithMain);
@@ -75,7 +78,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
     private Integer programVisit(JmmNode program, Integer dummy){
         for (var importString : symbolTable.getImports())
             code.append("import ").append(importString).append(";\n");
-        
+
+        System.out.println(code);
 
         for (var child: program.getChildren())
             visit(child);
@@ -90,6 +94,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
             code.append(" extends ").append(superClass);
 
         code.append(" {\n");
+
+        System.out.println(code);
 
         for (var child: classDecl.getChildren())
             visit(child);
@@ -330,6 +336,14 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
     private String parseOp(String op){
         if (op.equals("AND") || op.equals("LESS") || op.equals("NOT")) return "bool";
         return "int";
+    }
+
+    private Integer defaultVisit(JmmNode defaultNode, Integer dummy) {
+        StringBuilder visitStr = new StringBuilder();
+        for (JmmNode child : defaultNode.getChildren()) {
+            visit(child, dummy);
+        }
+        return 0;
     }
 
     private Integer operationVisit(JmmNode operation, Integer dummy) {

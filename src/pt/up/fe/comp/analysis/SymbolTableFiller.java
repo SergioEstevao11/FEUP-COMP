@@ -1,7 +1,7 @@
 package pt.up.fe.comp.analysis;
 
 import jdk.swing.interop.SwingInterOpUtils;
-import pt.up.fe.comp.ImportDeclaration;
+import pt.up.fe.comp.Import_Declaration;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;

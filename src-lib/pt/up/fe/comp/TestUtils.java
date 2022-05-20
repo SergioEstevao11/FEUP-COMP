@@ -72,10 +72,11 @@ public class TestUtils {
     }
 
     public static JmmParser getJmmParser() {
-
+        System.out.println("boas1");
         SpecsSystem.programStandardInit();
         // Get Parser class
         String parserClassName = getClassFromConfig("ParserClass");
+
         try {
             // Get class with main
             Class<?> parserClass = Class.forName(parserClassName);
@@ -209,6 +210,7 @@ public class TestUtils {
      * @return
      */
     public static JmmSemanticsResult analyse(String jmmCode, Map<String, String> config) {
+        System.out.println(jmmCode);
         var parseResults = TestUtils.parse(jmmCode, config);
         noErrors(parseResults.getReports());
         return analyse(parseResults);
@@ -243,7 +245,9 @@ public class TestUtils {
      * @return
      */
     public static OllirResult optimize(String jmmCode, Map<String, String> config) {
+        System.out.println("boas");
         var semanticsResult = analyse(jmmCode, config);
+        System.out.println("boas");
         noErrors(semanticsResult.getReports());
         return optimize(semanticsResult);
     }

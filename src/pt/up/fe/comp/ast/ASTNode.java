@@ -4,11 +4,11 @@ import pt.up.fe.specs.util.SpecsStrings;
 
 public enum ASTNode {
 
-    PROGRAM,
-    IMPORT_DECL,
-    CLASS_DECL,
-    METHOD_DECL,
-    ID,
+    START,
+    IMPORT_DECLARATION,
+    CLASS_DECLARATION,
+    METHOD_DECLARATION,
+    IDENTIFIER,
     INT,
     TRUE,
     FALSE,
