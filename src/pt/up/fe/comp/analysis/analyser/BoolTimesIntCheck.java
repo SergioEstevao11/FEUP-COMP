@@ -23,7 +23,7 @@ public class BoolTimesIntCheck extends PreorderJmmVisitor<Integer, Integer> {
     }
 
     public Integer visitTimes(JmmNode timesNode,Integer ret){
-        System.out.println("im inside visit times");
+
 
         String method_name = timesNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
         String left_node_name = timesNode.getJmmChild(0).get("name");
@@ -31,32 +31,15 @@ public class BoolTimesIntCheck extends PreorderJmmVisitor<Integer, Integer> {
         String right_node_name = timesNode.getJmmChild(1).get("name");
         String right_node_type = symbolTable.getVariableType(method_name,right_node_name).getName();
 
-        String type_deles_left = symbolTable.getType(timesNode.getJmmChild(0), "name").getName();
-        String type_deles_right = symbolTable.getType(timesNode.getJmmChild(1), "name").getName();
-        System.out.println("type deles left: " + type_deles_left);
-        System.out.println("type deles right: " + type_deles_right);
 
-
-        if (left_node_type.equals("boolean") && right_node_type.equals("int")){
-            System.out.println("1");
+        if (left_node_type.equals("boolean") && (right_node_type.equals("int") || timesNode.getJmmChild(1).getKind().equals("Number"))){
             reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + timesNode.getJmmChild(1) + "\" invalid type: expecting an boolean.", null));
         }
-        else if (left_node_type.equals("int") && right_node_type.equals("boolean")){
-            System.out.println("2");
-
+        else if ((left_node_type.equals("int") || timesNode.getJmmChild(0).getKind().equals("Number")) && right_node_type.equals("boolean")){
             reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + timesNode.getJmmChild(1) + "\" invalid type: expecting an boolean.", null));
         }
-        else if (timesNode.getJmmChild(0).getKind().equals("Number") && right_node_type.equals("boolean")){
-            System.out.println("3");
 
-            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + timesNode.getJmmChild(1) + "\" invalid type: expecting an boolean.", null));
-        }
-        else if (left_node_type.equals("int") && right_node_type.equals("boolean")){
-            System.out.println("4");
-
-            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + timesNode.getJmmChild(1) + "\" invalid type: expecting an boolean.", null));
-        }
-        return 0;
+        return 1;
     }
 
     public List<Report> getReports(){

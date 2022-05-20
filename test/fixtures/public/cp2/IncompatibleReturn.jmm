@@ -16,6 +16,6 @@ class A {
 		a = new A();
 		b = 0;
 		
-		return a.foo(b);
+		return b;
 	}
 }

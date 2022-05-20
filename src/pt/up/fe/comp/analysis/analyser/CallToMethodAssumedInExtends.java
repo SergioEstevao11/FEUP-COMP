@@ -23,18 +23,8 @@ public class CallToMethodAssumedInExtends extends PreorderJmmVisitor<Integer, In
     public Integer visitExpressionStatement(JmmNode expressionNode, Integer ret){
 
         JmmNode callNode = expressionNode.getChildren().get(0);
-        String method_name = expressionNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
-
-        String left_node_name = callNode.getJmmChild(0).get("name");
-        String left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
 
         String method_node_name = callNode.getJmmChild(1).get("name");
-        String method_node_type = symbolTable.getVariableType(method_name,method_node_name).getName();
-
-        System.out.println("Left type: " + left_node_type);
-        System.out.println("Left name: " + left_node_name);
-        System.out.println("Right type: " + method_node_type);
-        System.out.println("Right name: " + method_node_name);
 
         for(int i = 0; i < symbolTable.getMethods().size(); i++){
             System.out.println(symbolTable.getMethods().get(i));
@@ -42,6 +32,7 @@ public class CallToMethodAssumedInExtends extends PreorderJmmVisitor<Integer, In
                 return 1;
             }
         }
+
         System.out.println(!symbolTable.getSuper().isEmpty());
         if(!symbolTable.getSuper().isEmpty()) return 1;
 

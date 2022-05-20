@@ -22,30 +22,20 @@ public class IntInIfConditionCheck extends PreorderJmmVisitor<Integer, Integer> 
 
     public Integer visitIfCondition(JmmNode ifStatementNode, Integer ret) {
         JmmNode left_node = ifStatementNode.getJmmChild(0);
-        JmmNode right_node  = ifStatementNode.getJmmChild(1);
         String method_name = ifStatementNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
-        //String left_node_name = left_node.get("name");
-       // String left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
-       // String right_node_name = right_node.get("name");
-     //   String right_node_type = symbolTable.getVariableType(method_name,right_node_name).getName();
-
-        System.out.println("method name : " + method_name);
-        System.out.println("left node kind:" + left_node.getKind());
-        System.out.println("right node kind: " + right_node.getKind());
 
         boolean isMathExpression = symbolTable.isMathExpression(left_node.getKind());
-        System.out.println("is math expression: " + isMathExpression);
-
         boolean isBooleanExpression = symbolTable.isBooleanExpression(left_node.getKind());
-        System.out.println("is boolean expression: " + isBooleanExpression);
 
-     //   System.out.println("left node name: " + left_node_name);
-     //   System.out.println("left node type : " + left_node_type);
-     //   System.out.println("right node name: " + right_node_name);
-     //   System.out.println("right node type : " + right_node_type);
-
-
-        return 0;
+        if(isMathExpression || left_node.getKind().equals("Number"))  reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + left_node + "\" invalid type: can't have an int on a If statement", null));
+        else if(isBooleanExpression) return 1;
+        else if(left_node.getKind().equals("DotAccess")){
+            String left_node_name = left_node.get("name");
+            String returnMethodType = symbolTable.getReturnType(left_node_name).getName();
+            if(!returnMethodType.equals("boolean")) return 1;
+        }
+        else if(!symbolTable.getVariableType(method_name,left_node.get("name")).getName().equals("boolean")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + left_node + "\" invalid type: has to be a boolean", null));
+        return 1;
     }
 
     public List<Report> getReports(){

@@ -42,36 +42,38 @@ public class JmmAnalyser implements JmmAnalysis{
 
         System.out.println("Semantic Analysis");
 
-       /* // test_1_02_ClassNotImported
-        var classNotImported = new ClassNotImportedCheck(symbolTable,reports);
-        classNotImported.visit(rootNode,0);
-
-        // test_1_03_IntPlusObject
-        var intPlusObject = new IntPlusObjectCheck(symbolTable,reports);
-        intPlusObject.visit(rootNode,null);
-
-        // test_1_04_BoolTimesInt
-        var boolTimesIntCheck = new BoolTimesIntCheck(symbolTable,reports);
-        boolTimesIntCheck.visit(rootNode,null);*/
-
+        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
+        // test_1_02_ClassNotImported
+        /*var classNotImported = new ClassNotImportedCheck(symbolTable,reports);
+        classNotImported.visit(rootNode,0);*/
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_05_ArrayPlusInt
+        // test_1_03_IntPlusObject  //falta dot access
+        /*var intPlusObject = new IntPlusObjectCheck(symbolTable,reports);
+        intPlusObject.visit(rootNode,null);*/
+
+        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
+        // test_1_04_BoolTimesInt  //falta dot access
+        /*var boolTimesIntCheck = new BoolTimesIntCheck(symbolTable,reports);
+        boolTimesIntCheck.visit(rootNode,null);*/
+
+        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
+        // test_1_05_ArrayPlusInt //falta dot access
         /*var arrayPlusIntCheck = new ArrayPlusIntCheck(symbolTable,reports);
         arrayPlusIntCheck.visit(rootNode,null);*/
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-       /* // test_1_06_ArrayAccessOnInt
-        var arrayAccessOnInt = new ArrayAccessOnIntCheck(symbolTable,reports);
+        // test_1_06_ArrayAccessOnInt
+        /*var arrayAccessOnInt = new ArrayAccessOnIntCheck(symbolTable,reports);
         arrayAccessOnInt.visit(rootNode,null);*/
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_07_ArrayAccessOnInt
+        // test_1_07_ArrayIndexNotInt  //falta dot access
         /*var arrayIndexNotIntCheck = new ArrayIndexNotIntCheck(symbolTable,reports);
         arrayIndexNotIntCheck.visit(rootNode,null);*/
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_08_AssignIntToBool
+        // test_1_08_AssignIntToBool   //AST PARTIDA NO CASO DE DOT ACCESS
         /*var assignIntToBoolCheck = new AssignIntToBoolCheck(symbolTable,reports);
         assignIntToBoolCheck.visit(rootNode,null);*/
 
@@ -92,8 +94,13 @@ public class JmmAnalyser implements JmmAnalysis{
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_12_ObjectAssignmentPassImports
-        var intInIfConditionCheck = new IntInIfConditionCheck(symbolTable,reports);
-        intInIfConditionCheck.visit(rootNode,null);
+        /*var intInIfConditionCheck = new IntInIfConditionCheck(symbolTable,reports);
+        intInIfConditionCheck.visit(rootNode,null);*/
+
+        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
+        // test_1_13_ArrayInWhileCondition
+        /*var arrayInWhileCondition = new ArrayInWhileCondition(symbolTable,reports);
+        arrayInWhileCondition.visit(rootNode,null);*/
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_14_CallToUndeclaredMethod
@@ -102,8 +109,23 @@ public class JmmAnalyser implements JmmAnalysis{
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_15_CallToMethodAssumedInExtends
-        /*var callToMethodAssumedInExtends = new CallToMethodAssumedInExtends(symbolTable,reports);
+        /*var callToMethodAssumedInExtends = new CallToMethodAssumedInExtends(symbolTable,reports);   /VERIFICAR AGAIN
         callToMethodAssumedInExtends.visit(rootNode,null);*/
+
+        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
+        // test_1_16_CallToMethodAssumedInImport
+        /*var callToMethodAssumedInExtends = new CallToMethodAssumedInExtends(symbolTable,reports);    /VERIFICAR AGAIN
+        callToMethodAssumedInExtends.visit(rootNode,null);*/
+
+        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
+        // test_1_17_IncompatibleArguments
+        /*var incompatibleArguments = new IncompatibleArgumentsCheck(symbolTable,reports);
+        incompatibleArguments.visit(rootNode,null);*/
+
+        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
+        // test_1_18_IncompatibleReturn
+        var incompatibleReturnCheck = new IncompatibleReturnCheck(symbolTable,reports);
+        incompatibleReturnCheck.visit(rootNode,null);
 
 
 

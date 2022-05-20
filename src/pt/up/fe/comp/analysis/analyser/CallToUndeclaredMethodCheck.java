@@ -22,30 +22,19 @@ public class CallToUndeclaredMethodCheck  extends PreorderJmmVisitor<Integer, In
     }
     public Integer visitExpressionStatement(JmmNode expressionNode,Integer ret){
 
-        JmmNode callNode = expressionNode.getChildren().get(0);
-        String method_name = expressionNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
-
-        String left_node_name = callNode.getJmmChild(0).get("name");
-        String left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
-
-        String method_node_name = callNode.getJmmChild(1).get("name");
-        String method_node_type = symbolTable.getVariableType(method_name,method_node_name).getName();
-
-        System.out.println("Left type: " + left_node_type);
-        System.out.println("Left name: " + left_node_name);
-
-        System.out.println("Right type: " + method_node_type);
-        System.out.println("Right name: " + method_node_name);
-
-        for(int i = 0; i < symbolTable.getMethods().size(); i++){
-            System.out.println(symbolTable.getMethods().get(i));
-            if(symbolTable.getMethods().get(i).equals(method_node_name)){
-                return 1;
+        if(expressionNode.getChildren().get(1) != null) {
+            System.out.println(expressionNode.getChildren().get(1));
+            JmmNode right_node = expressionNode.getChildren().get(1);
+            if (right_node.getKind().equals("DotAccess")) {
+                String method_node_name = right_node.getJmmChild(0).get("name");
+                System.out.println(method_node_name);
+                System.out.println(symbolTable.getMethods());
+                if(symbolTable.getMethods().contains(method_node_name)) return 1;
             }
         }
         if(symbolTable.getSuper() != null) return 1;
 
-        reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Method \"" + method_node_name+ "\" is missing.", null));
+        reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Method \"" + "\" is missing.", null));
         return 0;
     }
 

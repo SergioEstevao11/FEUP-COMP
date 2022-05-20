@@ -197,7 +197,7 @@ public class Cp2Test {
     public void test_1_18_IncompatibleReturn() {
         var result = TestUtils
                 .analyse(SpecsIo.getResource("fixtures/public/cp2/IncompatibleReturn.jmm"));
-        TestUtils.mustFail(result);
+        TestUtils.noErrors(result);
     }
 
     @Test

@@ -28,8 +28,8 @@ public class IntPlusObjectCheck extends PreorderJmmVisitor<Integer, Integer> {
         String right_node_name = plusNode.getJmmChild(1).get("name");
         String right_node_type = symbolTable.getVariableType(method_name,right_node_name).getName();
 
-        JmmNode rightNode = plusNode.getJmmChild(0);
-        JmmNode leftNode = plusNode.getJmmChild(1);
+        JmmNode rightNode = plusNode.getJmmChild(1);
+        JmmNode leftNode = plusNode.getJmmChild(0);
 
         if (symbolTable.isObject(method_name,left_node_name) && rightNode.getKind().equals("Number")){
             reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + leftNode + "\" invalid type: expecting an boolean.", null));

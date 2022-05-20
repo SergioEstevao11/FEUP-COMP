@@ -16,22 +16,20 @@ public class ClassNotImportedCheck extends PreorderJmmVisitor<Integer, Integer> 
     public ClassNotImportedCheck(SymbolTableBuilder symbolTable, List<Report> reports) {
         this.reports = reports;
         this.symbolTable = symbolTable;
-        addVisit("Identifier", this::visitClassNotImported);
+        addVisit("ExpressionStatement", this::visitExpressionStatement);
         setDefaultVisit((node, oi) -> 0);
     }
 
-    public Integer visitClassNotImported(JmmNode node, Integer ret) {
+    public Integer visitExpressionStatement(JmmNode node, Integer ret) {
 
-        /*System.out.println(node.getKind());
-        String method_name = node.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
         String left_node_name = node.getJmmChild(0).get("name");
-        String left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
-        String right_node_name = node.getJmmChild(1).get("name");
-        String right_node_type = symbolTable.getVariableType(method_name,right_node_name).getName();
 
-        node.getKind();
-
-        reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Type \"" + node + "\" is missing.", null));*/
+        if(node.getChildren().get(1) != null){
+            JmmNode right_node = node.getChildren().get(1);
+            if(right_node.getKind().equals("DotAccess")){
+                if(!symbolTable.getImports().contains(left_node_name)) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Method \"" + right_node + "\" is missing.", null));
+            }
+        }
         return 0;
     }
     public List<Report> getReports(){

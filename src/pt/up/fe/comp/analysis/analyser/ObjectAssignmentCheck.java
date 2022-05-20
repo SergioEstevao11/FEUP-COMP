@@ -32,10 +32,18 @@ public class ObjectAssignmentCheck extends PreorderJmmVisitor<Integer, Integer> 
         if(symbolTable.isObject(method_name, left_node_name) && right_node.getKind().equals("Identifier")) {
             String right_node_name = right_node.get("name");
             if(symbolTable.isObject(method_name, right_node_name)){
-                if(symbolTable.getImports().contains(right_node_name) && symbolTable.getImports().contains(left_node_name)) return 1;
-                else if(symbolTable.getSuper() == null) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + left_node_name + "\" invalid assignment: doens't extend " + "\"" + right_node_name + "\"", null));
-                else if(symbolTable.getSuper().equals(right_node_name)) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + right_node_name + "\" invalid assignment: can't assign to father class", null));
-                else if(symbolTable.getSuper().equals(left_node_name)) return 1;
+                if(symbolTable.getImports().contains(symbolTable.getVariableType(method_name,right_node_name).getName()) && symbolTable.getImports().contains(symbolTable.getVariableType(method_name,left_node_name).getName())) {
+                    return 1;
+                }
+                else if(symbolTable.getSuper() == null){
+                    reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + left_node_name + "\" invalid assignment: doens't extend " + "\"" + right_node_name + "\"", null));
+                }
+                else if(symbolTable.getSuper().equals(right_node_name)){
+                    reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + right_node_name + "\" invalid assignment: can't assign to father class", null));
+                }
+                else if(symbolTable.getSuper().equals(left_node_name)){
+                    return 1;
+                }
             }
         }
         return 0;

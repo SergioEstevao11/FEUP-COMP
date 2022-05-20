@@ -28,7 +28,6 @@ public class ArrayIndexNotIntCheck extends PreorderJmmVisitor<Integer, Integer> 
 
         String method_name = arrayAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
         String left_node_name = left_node.get("name");
-        String left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
         String right_node_name = right_node.get("name");
         String right_node_type = symbolTable.getVariableType(method_name,right_node_name).getName();
 
