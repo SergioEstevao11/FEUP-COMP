@@ -31,6 +31,11 @@ public class BoolTimesIntCheck extends PreorderJmmVisitor<Integer, Integer> {
         String right_node_name = timesNode.getJmmChild(1).get("name");
         String right_node_type = symbolTable.getVariableType(method_name,right_node_name).getName();
 
+        String type_deles_left = symbolTable.getType(timesNode.getJmmChild(0), "name").getName();
+        String type_deles_right = symbolTable.getType(timesNode.getJmmChild(1), "name").getName();
+        System.out.println("type deles left: " + type_deles_left);
+        System.out.println("type deles right: " + type_deles_right);
+
 
         if (left_node_type.equals("boolean") && right_node_type.equals("int")){
             reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + timesNode.getJmmChild(1) + "\" invalid type: expecting an boolean.", null));

@@ -5,8 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import pt.up.fe.comp.TestUtils;
-import pt.up.fe.comp.analysis.analyser.BoolTimesIntCheck;
-import pt.up.fe.comp.analysis.analyser.ClassNotImportedCheck;
+import pt.up.fe.comp.analysis.analyser.*;
 import pt.up.fe.comp.jmm.analysis.JmmAnalysis;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
@@ -43,14 +42,21 @@ public class JmmAnalyser implements JmmAnalysis{
 
         System.out.println("Semantic Analysis");
 
-        //Pass test_1_02_ClassNotImported
+        // test_1_02_ClassNotImported
         var classNotImported = new ClassNotImportedCheck(symbolTable,reports);
-        classNotImported.visitClassNotImported(rootNode,0);
+        classNotImported.visit(rootNode,0);
 
-        //Pass test_1_04_BoolTimesInt
+        // test_1_03_IntPlusObject
+        var intPlusObject = new IntPlusObjectCheck(symbolTable,reports);
+        intPlusObject.visit(rootNode,null);
+
+        // test_1_04_BoolTimesInt
         var boolTimesIntCheck = new BoolTimesIntCheck(symbolTable,reports);
         boolTimesIntCheck.visit(rootNode,null);
 
+        // test_1_05_ArrayPlusInt
+        var arrayAccessOnInt = new ArrayPlusIntCheck(symbolTable,reports);
+        arrayAccessOnInt.visit(rootNode,null);
 
 
         System.out.println(reports);

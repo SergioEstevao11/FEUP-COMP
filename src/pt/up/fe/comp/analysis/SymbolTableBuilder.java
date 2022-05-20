@@ -140,6 +140,7 @@ public class SymbolTableBuilder implements SymbolTable {
     }
 
     public Type getVariableType(String methodName,String variable){
+
         if(getLocalVariables(methodName).isEmpty()){
             return new Type("impossible",false);
         }
@@ -150,4 +151,17 @@ public class SymbolTableBuilder implements SymbolTable {
         }
         return new Type("impossible",false);
     }
+
+    public boolean isObject(String methodName, String variable){
+        if(getLocalVariables(methodName).isEmpty()){
+            return false;
+        }
+        for (Symbol symbol : getLocalVariables(methodName)){
+            if(symbol.getName().equals(variable)){
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
