@@ -9,16 +9,19 @@ import java.util.Map;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
+import pt.up.fe.comp.jmm.ast.JmmNode;
 
-public class SymbolTableBuilder implements SymbolTable{
+public class SymbolTableBuilder implements SymbolTable {
 
     private final List<String> imports;
     private String className;
     private String superClass;
 
     private final List<String> methods;
-    private final Map<String,Type> methodReturnType;
-    private final Map<String,List<Symbol>> methodParams;
+    private final Map<String, Type> methodReturnType;
+    private final Map<String, List<Symbol>> methodParams;
+    private final Map<String, List<Symbol>> methodLocalVariables;
+    private final Map<Symbol, Boolean> fields;
 
     public SymbolTableBuilder() {
         this.imports = new ArrayList<>();
@@ -27,6 +30,8 @@ public class SymbolTableBuilder implements SymbolTable{
         this.methods = new ArrayList<>();
         this.methodReturnType = new HashMap<>();
         this.methodParams = new HashMap<>();
+        this.fields = new HashMap<>();
+        this.methodLocalVariables = new HashMap<>();
     }
 
     @Override
@@ -34,7 +39,7 @@ public class SymbolTableBuilder implements SymbolTable{
         return imports;
     }
 
-    public void addImport(String importString){
+    public void addImport(String importString) {
         imports.add(importString);
     }
 
@@ -45,12 +50,12 @@ public class SymbolTableBuilder implements SymbolTable{
 
     @Override
     public String getSuper() {
-        return null;
+        return superClass;
     }
 
     @Override
     public List<Symbol> getFields() {
-        return Collections.emptyList();
+        return new ArrayList<>(this.fields.keySet());
     }
 
     @Override
@@ -65,19 +70,50 @@ public class SymbolTableBuilder implements SymbolTable{
 
     @Override
     public List<Symbol> getParameters(String methodSignature) {
-        return methodParams.get(methodSignature);
+        for (String method : this.methods){
+            if (method.equals(methodSignature)){
+                return methodParams.get(methodSignature);
+            }
+        }
+        return null;
     }
 
     @Override
-    public List<Symbol> getLocalVariables(String methodSignature) {
-        return Collections.emptyList();
+    public List<Symbol> getLocalVariables(String methodSignature){
+        var localVariables = methodLocalVariables.get(methodSignature);
+        if(localVariables == null){
+            localVariables = new ArrayList<>();
+        }
+        return localVariables;
     }
 
-    public void addMethod(String methodSignature, Type returnType, List<Symbol> params){
+    public static Type getType(JmmNode node, String attribute) {
+        Type type;
+        if (node.get(attribute).equals("int[]"))
+            type = new Type("int", true);
+        else if (node.get(attribute).equals("int"))
+            type = new Type("int", false);
+        else
+            type = new Type(node.get(attribute), false);
+
+        return type;
+    }
+
+
+    public void addField(Symbol field) {
+        fields.put(field, false);
+    }
+
+    public void addLocalVariable(String methodName, Symbol symbol) {
+        var localVariables = getLocalVariables(methodName);
+        localVariables.add(symbol);
+        methodLocalVariables.put(methodName, localVariables);
+    }
+
+    public void addMethod(String methodSignature, Type returnType, List<Symbol> params) {
         methods.add(methodSignature);
         methodReturnType.put(methodSignature, returnType);
         methodParams.put(methodSignature, params);
-
     }
 
     public void setClassName(String className) {
@@ -91,9 +127,15 @@ public class SymbolTableBuilder implements SymbolTable{
         return this.superClass;
     }
 
+    public boolean hasField(String name) {
+        for (Symbol field : this.fields.keySet()) {
+            if (field.getName().equals(name))
+                return true;
+        }
+        return false;
+    }
 
     public boolean hasMethod(String methodName) {
         return false;
     }
-    
 }

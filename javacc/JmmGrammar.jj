@@ -114,7 +114,11 @@ MainMethodHeader :
 ;
 
 MethodBody :
-    (SCAN 2 VarDeclaration)* (Statement)* (<RETURN> Expression <SEMICOLON>)?
+        (SCAN 2 VarDeclaration)* (Statement)* (Return)?
+;
+
+Return :
+    <RETURN> Expression <SEMICOLON>
 ;
 
 Statement #void:

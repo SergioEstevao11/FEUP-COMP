@@ -84,7 +84,6 @@ public class TestUtils {
             return (JmmParser) parserClass.getConstructor().newInstance();
 
         } catch (Exception e) {
-            System.out.println("5");
             throw new RuntimeException("Could not instantiate JmmParser from class '" + parserClassName + "'", e);
         }
     }
@@ -186,7 +185,6 @@ public class TestUtils {
      * @return
      */
     public static JmmSemanticsResult analyse(JmmParserResult parserResult) {
-        System.out.println(1);
         JmmAnalysis analysis = getJmmAnalysis();
 
         return analysis.semanticAnalysis(parserResult);
@@ -212,7 +210,6 @@ public class TestUtils {
      */
     public static JmmSemanticsResult analyse(String jmmCode, Map<String, String> config) {
         var parseResults = TestUtils.parse(jmmCode, config);
-        System.out.println("after pasre");
         noErrors(parseResults.getReports());
         return analyse(parseResults);
     }

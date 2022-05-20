@@ -1,76 +1,161 @@
 package pt.up.fe.comp.analysis;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-
-import com.javacc.output.Translator.SymbolTable;
-
-import pt.up.fe.comp.ast.ASTNode;
-import pt.up.fe.comp.ast.ASTUtils;
+import jdk.swing.interop.SwingInterOpUtils;
+import pt.up.fe.comp.ImportDeclaration;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
 
-public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableBuilder,Integer> {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
+public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
+    private final SymbolTableBuilder table;
+    private String scope;
     private final List<Report> reports;
 
-    public SymbolTableFiller(){
-        System.out.println("ESTOU DENTRO DO CONSTRUTOR SYMBOL TABLE FILLER");
-        this.reports = new ArrayList<>();
+    public SymbolTableFiller(SymbolTableBuilder symbolTable, List<Report> reports) {
+        this.table = symbolTable;
+        this.reports = reports;
 
-        addVisit("ImportDeclaration", this::importDeclVisit);
-        addVisit("ClassDeclaration", this::classDeclVisit);
-        // addVisit("MethodDeclaration", this::methodDeclVisit);
+        addVisit("ImportDeclaration", this::visitImports);
+        addVisit("ClassDeclaration", this::visitClassDelcaration);
+        addVisit("CommonMethodHeader", this::visitCommonMethodDeclaration);
+        addVisit("MainMethodHeader", this::visitMainMethodDeclaration);
+        addVisit("VarDeclaration", this::visitVarDeclaration);
+
+        setDefaultVisit(this::defaultVisit);
     }
 
-    public List<Report> getReports(){
-        return reports;
-    }
+    private String visitImports(JmmNode node, String space) {
+        List<String> imports = table.getImports();
 
-    private Integer importDeclVisit(JmmNode importDecl, SymbolTableBuilder symbolTable){
-        System.out.println("DENTRO DOS IMPORTS");
-        var importString = importDecl.getChildren().stream().map(id->id.get("name")).collect(Collectors.joining("."));
-
-        symbolTable.addImport(importString);
-        return 0;
-    }
-    
-    private Integer classDeclVisit(JmmNode classDecl, SymbolTableBuilder symbolTable){
-        System.out.println("DENTRO DE CLASS DECLT VISIT");
-        symbolTable.setClassName(classDecl.getChildren().get(0).get("name"));
-        System.out.println(" CLASSE NAME : " + symbolTable.getClassName());
-        classDecl.getOptional("extends").ifPresent(superClass -> symbolTable.setSuperClass(superClass));
-
-        return 0;
-    }
-
-    private Integer methodDeclVisit(JmmNode methodDecl, SymbolTableBuilder symbolTable){
-        System.out.println("DENTRO DO METHOD DECL VISIT");
-        var methodName = methodDecl.getJmmChild(0).get("name");
-        
-        if(symbolTable.hasMethod(methodName)){
-            reports.add(Report.newError(Stage.SEMANTIC, Integer.parseInt(methodDecl.get("line")), Integer.parseInt(methodDecl.get("col")), "Found duplicated method with signature '" + "methodName" + "'", null));
-
-            return -1;
+        var counter = 0;
+        for (JmmNode ignored : node.getChildren()){
+            String newImport = node.getJmmChild(counter).get("name");
+            imports.add(newImport);
+            counter++;
         }
 
-        var returnTypeNode = methodDecl.getJmmChild(0);
-
-        var returnType = ASTUtils.buildType(returnTypeNode);
-
-        var params = methodDecl.getChildren().subList(2, methodDecl.getNumChildren()).stream().filter(node -> node.getKind().equals("Param")).collect(Collectors.toList());
-
-        var paramSymbols = params.stream().map(param -> new Symbol(ASTUtils.buildType(param.getJmmChild(0)), param.getJmmChild(1).get("name"))).collect(Collectors.toList());
-
-        symbolTable.addMethod(methodName,returnType, paramSymbols);
-        
-        return 0;
+        return space + "IMPORT";
     }
+
+    private String visitClassDelcaration(JmmNode node, String space) {
+
+        table.setClassName(node.getJmmChild(0).get("name"));
+        try {
+            table.setSuperClass(node.getJmmChild(1).get("name"));
+        } catch (NullPointerException ignored) {
+
+        }
+
+        scope = "CLASS";
+        return space + "CLASS";
+    }
+
+    private String visitCommonMethodDeclaration(JmmNode node, String space) {
+        scope = "METHOD";
+
+        List<Symbol> parameters = new ArrayList<>();
+
+        // visit common method parameters
+        for(int counter = 2 ; counter < node.getNumChildren() ; counter++){
+            Symbol parameter = new Symbol(SymbolTableBuilder.getType( node.getJmmChild(counter), "type"), node.getJmmChild(counter+1).get("name"));
+            parameters.add(parameter);
+            counter++;
+        }
+
+        //visit common method name
+        table.addMethod(node.getJmmChild(1).get("name"), SymbolTableBuilder.getType(node.getJmmChild(0), "type"), parameters);
+
+        return node.toString();
+    }
+
+    private String visitMainMethodDeclaration(JmmNode node, String space) {
+        scope = "MAIN";
+
+        List<Symbol> parameters = new ArrayList<>();
+
+        //visit main method params
+       for(int counter = 0 ; counter < node.getNumChildren(); counter++){
+            var type = new Type("String", true);
+            Symbol parameter = new Symbol(type, node.getJmmChild(counter).get("name"));
+            parameters.add(parameter);
+        }
+
+        System.out.println("parameters: " + parameters);
+
+        //visit main method name
+        table.addMethod("main", new Type("void", false), parameters);
+
+        return node.toString();
+    }
+
+    /*
+    PARA PASSSAR NO TESTE: VarNotDeclared
+     */
+    private String visitVarDeclaration(JmmNode node, String space) {
+        Symbol field = new Symbol(SymbolTableBuilder.getType(node.getJmmChild(0), "type"), node.getJmmChild(1).get("name"));
+        //class variables
+        if (scope.equals("CLASS")) {
+            if (table.hasField(field.getName())) {
+                this.reports.add(new Report(
+                        ReportType.ERROR, Stage.SEMANTIC,
+                        Integer.parseInt(node.get("line")),
+                        Integer.parseInt(node.get("col")),
+                        "Variable already declared: " + field.getName()));
+                return space + "ERROR";
+            }
+            table.addField(field);
+
+        // local variable
+        } else {
+            if (table.hasField(field.getName())) {
+                this.reports.add(new Report(
+                        ReportType.ERROR,
+                        Stage.SEMANTIC,
+                        Integer.parseInt(node.get("line")),
+                        Integer.parseInt(node.get("col")),
+                        "Variable already declared: " + field.getName()));
+                return space + "ERROR";
+            }
+
+            var parent = node.getJmmParent().getJmmParent();
+            var common_method_header = parent.getJmmChild(0);
+            var method_name = common_method_header.getJmmChild(1).get("name");
+
+            table.addLocalVariable(method_name, field);
+        }
+        return space + "VARDECLARATION";
+    }
+
+
+    /**
+     * Prints node information and appends space
+     *
+     * @param node  Node to be visited
+     * @param space Info passed down from other nodes
+     * @return New info to be returned
+     */
+    private String defaultVisit(JmmNode node, String space) {
+        String content = space + node.getKind();
+        String attrs = node.getAttributes()
+                .stream()
+                .filter(a -> !a.equals("line"))
+                .map(a -> a + "=" + node.get(a))
+                .collect(Collectors.joining(", ", "[", "]"));
+
+        content += ((attrs.length() > 2) ? attrs : "");
+
+        return content;
+    }
+
+
 }
