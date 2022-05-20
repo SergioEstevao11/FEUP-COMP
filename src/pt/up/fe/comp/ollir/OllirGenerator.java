@@ -46,22 +46,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
             addVisit(ASTNode.WHILE, this::whileVisit);
             addVisit(ASTNode.ASSIGNMENT, this::assignmentVisit);
             addVisit(ASTNode.RETURN, this::returnVisit);
+            addVisit(AST)
             setDefaultVisit(this::defaultVisit);
-
-        //addVisit("CLASS_DECLARATION", this::dealWithClass);
-        //addVisit("MAIN", this::dealWithMain);
-        //addVisit("METHOD_DECLARATION", this::dealWithMethodDeclaration);
-        //addVisit("IDENTIFIER", this::dealWithIdentifier);
-        //addVisit("INT", this::dealWithInt);
-        //addVisit("TRUE", this::dealWithBoolean);
-        //addVisit("FALSE", this::dealWithBoolean);
-        //addVisit("NEW", this::dealWithNew);
-        //addVisit("OPERATION", this::dealWithOperation);
-        //addVisit("LESS", this::dealWithOperation);
-        //addVisit("AND", this::dealWithOperation);
-        //addVisit("EXCLAMATION", this::dealWithOperation);
-        //addVisit("OBJECT_METHOD", this::dealWithObjectMethod);
-
 
 
         //addVisit("VAR_DECLARATION", this::dealWithVar);
@@ -208,6 +194,11 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
         return 0;
      }
 
+     public Integer arrayAccessVisit(JmmNode arrayAccess, Integer dummy){
+        if ()
+
+        return 0;
+     }
 
     private Integer memberCallVisit(JmmNode memberCall, Integer dummy){
 
@@ -239,7 +230,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
             String kind = !varName.equalsIgnoreCase("this") ? varName + "." : "";
 
             if (callName.equals("length")) {
-                code.append("t").append(varCounter++).append(".i32 :=.i32 arraylength(").append(kind).append("array.i32).i32");
+                code.append("t").append(varCounter++).append(".i32 :=.i32 arraylength(").append(kind).append("array.i32).i32;\n");
 
             } else {
                 Type tp = symbolTable.getReturnType(func.get("name"));
@@ -369,6 +360,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
 
         else if (!rhs.getKind().equals("IDENTIFIER") && !isNot)
             visit(rhs);
+
+
 
 
         String var = newAuxiliarVar(parseOp(lhs.getKind()));
