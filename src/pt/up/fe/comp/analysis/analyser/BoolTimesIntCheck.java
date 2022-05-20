@@ -38,15 +38,22 @@ public class BoolTimesIntCheck extends PreorderJmmVisitor<Integer, Integer> {
 
 
         if (left_node_type.equals("boolean") && right_node_type.equals("int")){
+            System.out.println("1");
             reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + timesNode.getJmmChild(1) + "\" invalid type: expecting an boolean.", null));
         }
         else if (left_node_type.equals("int") && right_node_type.equals("boolean")){
+            System.out.println("2");
+
             reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + timesNode.getJmmChild(1) + "\" invalid type: expecting an boolean.", null));
         }
         else if (timesNode.getJmmChild(0).getKind().equals("Number") && right_node_type.equals("boolean")){
+            System.out.println("3");
+
             reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + timesNode.getJmmChild(1) + "\" invalid type: expecting an boolean.", null));
         }
         else if (left_node_type.equals("int") && right_node_type.equals("boolean")){
+            System.out.println("4");
+
             reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + timesNode.getJmmChild(1) + "\" invalid type: expecting an boolean.", null));
         }
         return 0;
