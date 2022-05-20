@@ -24,13 +24,8 @@ public class IncompatibleReturnCheck extends PreorderJmmVisitor<Integer, Integer
         JmmNode left_node = returnStatementNode.getJmmChild(0);
         String method_name = returnStatementNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
         String methodReturnType = symbolTable.getReturnType(method_name).getName();
-        System.out.println(method_name);
-
-        System.out.println(methodReturnType);
 
         boolean isMathExpression = symbolTable.isMathExpression(left_node.getJmmChild(0).getKind());
-        System.out.println(left_node.getJmmChild(0).getKind());
-        System.out.println(isMathExpression);
         boolean isBooleanExpression = symbolTable.isBooleanExpression(left_node.getJmmChild(0).getKind());
 
         if(isMathExpression){

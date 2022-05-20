@@ -44,83 +44,72 @@ public class JmmAnalyser implements JmmAnalysis{
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_02_ClassNotImported
-        /*var classNotImported = new ClassNotImportedCheck(symbolTable,reports);
-        classNotImported.visit(rootNode,0);*/
+        var classNotImported = new ClassNotImportedCheck(symbolTable,reports);
+        classNotImported.visit(rootNode,0);
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_03_IntPlusObject  //falta dot access
-        /*var intPlusObject = new IntPlusObjectCheck(symbolTable,reports);
-        intPlusObject.visit(rootNode,null);*/
+        var intPlusObject = new IntPlusObjectCheck(symbolTable,reports);
+        intPlusObject.visit(rootNode,null);
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_04_BoolTimesInt  //falta dot access
-        /*var boolTimesIntCheck = new BoolTimesIntCheck(symbolTable,reports);
-        boolTimesIntCheck.visit(rootNode,null);*/
+        var boolTimesIntCheck = new BoolTimesIntCheck(symbolTable,reports);
+        boolTimesIntCheck.visit(rootNode,null);
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_05_ArrayPlusInt //falta dot access
-        /*var arrayPlusIntCheck = new ArrayPlusIntCheck(symbolTable,reports);
-        arrayPlusIntCheck.visit(rootNode,null);*/
+        var arrayPlusIntCheck = new ArrayPlusIntCheck(symbolTable,reports);
+        arrayPlusIntCheck.visit(rootNode,null);
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_06_ArrayAccessOnInt
-        /*var arrayAccessOnInt = new ArrayAccessOnIntCheck(symbolTable,reports);
-        arrayAccessOnInt.visit(rootNode,null);*/
+        var arrayAccessOnInt = new ArrayAccessOnIntCheck(symbolTable,reports);
+        arrayAccessOnInt.visit(rootNode,null);
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_07_ArrayIndexNotInt  //falta dot access
-        /*var arrayIndexNotIntCheck = new ArrayIndexNotIntCheck(symbolTable,reports);
-        arrayIndexNotIntCheck.visit(rootNode,null);*/
+        var arrayIndexNotIntCheck = new ArrayIndexNotIntCheck(symbolTable,reports);
+        arrayIndexNotIntCheck.visit(rootNode,null);
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_08_AssignIntToBool   //AST PARTIDA NO CASO DE DOT ACCESS
-        /*var assignIntToBoolCheck = new AssignIntToBoolCheck(symbolTable,reports);
-        assignIntToBoolCheck.visit(rootNode,null);*/
+        var assignIntToBoolCheck = new AssignIntToBoolCheck(symbolTable,reports);
+        assignIntToBoolCheck.visit(rootNode,null);
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_09_ObjectAssignmentFail
-        /*var objectAssignementCheck = new ObjectAssignmentCheck(symbolTable,reports);
-        objectAssignementCheck.visit(rootNode,null);*/
+        // test_1_09_ObjectAssignmentFail test_1_10_ObjectAssignmentPassExtends test_1_11_ObjectAssignmentPassImports
+        var objectAssignementCheck = new ObjectAssignmentCheck(symbolTable,reports);
+        objectAssignementCheck.visit(rootNode,null);
 
-        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_10_ObjectAssignmentPassExtends
-        /*var objectAssignementCheck = new ObjectAssignmentCheck(symbolTable,reports);
-        objectAssignementCheck.visit(rootNode,null);*/
-
-        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_11_ObjectAssignmentPassImports
-        /*var objectAssignementCheck = new ObjectAssignmentCheck(symbolTable,reports);
-        objectAssignementCheck.visit(rootNode,null);*/
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_12_ObjectAssignmentPassImports
-        /*var intInIfConditionCheck = new IntInIfConditionCheck(symbolTable,reports);
-        intInIfConditionCheck.visit(rootNode,null);*/
+        var intInIfConditionCheck = new IntInIfConditionCheck(symbolTable,reports);
+        intInIfConditionCheck.visit(rootNode,null);
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_13_ArrayInWhileCondition
-        /*var arrayInWhileCondition = new ArrayInWhileCondition(symbolTable,reports);
-        arrayInWhileCondition.visit(rootNode,null);*/
+        var arrayInWhileCondition = new ArrayInWhileCondition(symbolTable,reports);
+        arrayInWhileCondition.visit(rootNode,null);
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_14_CallToUndeclaredMethod
-        /*var callToUndeclaredMethodCheck = new CallToUndeclaredMethodCheck(symbolTable,reports);
-        callToUndeclaredMethodCheck.visit(rootNode,null);*/
+        var callToUndeclaredMethodCheck = new CallToUndeclaredMethodCheck(symbolTable,reports);
+        callToUndeclaredMethodCheck.visit(rootNode,null);
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_15_CallToMethodAssumedInExtends
-        /*var callToMethodAssumedInExtends = new CallToMethodAssumedInExtends(symbolTable,reports);   /VERIFICAR AGAIN
-        callToMethodAssumedInExtends.visit(rootNode,null);*/
+        // test_1_15_CallToMethodAssumedInExtends test_1_16_CallToMethodAssumedInImporttest_1_16_CallToMethodAssumedInImport
+        var callToMethodAssumedInExtends = new CallToMethodAssumedInExtends(symbolTable,reports);
+        callToMethodAssumedInExtends.visit(rootNode,null);
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_16_CallToMethodAssumedInImport
-        /*var callToMethodAssumedInExtends = new CallToMethodAssumedInExtends(symbolTable,reports);    /VERIFICAR AGAIN
-        callToMethodAssumedInExtends.visit(rootNode,null);*/
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_17_IncompatibleArguments
-        /*var incompatibleArguments = new IncompatibleArgumentsCheck(symbolTable,reports);
-        incompatibleArguments.visit(rootNode,null);*/
+        var incompatibleArguments = new IncompatibleArgumentsCheck(symbolTable,reports);
+        incompatibleArguments.visit(rootNode,null);
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_18_IncompatibleReturn
