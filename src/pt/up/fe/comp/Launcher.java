@@ -43,6 +43,7 @@ public class Launcher {
         JmmParserResult parserResult = parser.parse(input, config);
 
         System.out.println("AST:\n\n" + parserResult.getRootNode().toTree());
+
         // Check if there are parsing errors
         TestUtils.noErrors(parserResult.getReports());
 

@@ -138,4 +138,16 @@ public class SymbolTableBuilder implements SymbolTable {
     public boolean hasMethod(String methodName) {
         return false;
     }
+
+    public Type getVariableType(String methodName,String variable){
+        if(getLocalVariables(methodName).isEmpty()){
+            return new Type("impossible",false);
+        }
+        for (Symbol symbol : getLocalVariables(methodName)){
+            if(symbol.getName().equals(variable)){
+                return symbol.getType();
+            }
+        }
+        return new Type("impossible",false);
+    }
 }

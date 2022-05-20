@@ -41,16 +41,14 @@ public class JmmAnalyser implements JmmAnalysis{
         symbolTableFiller.visit(rootNode, "");
         reports.addAll(reports);
 
+        System.out.println("Semantic Analysis");
 
-        System.out.println("Reports antes :)");
-        System.out.println(reports);
+        //Pass test_1_04_BoolTimesInt
         var boolTimesIntCheck = new BoolTimesIntCheck(symbolTable,reports);
         boolTimesIntCheck.visit(rootNode,null);
-        reports.addAll(reports);
-        System.out.println("Reports depois :(");
+
 
         System.out.println(reports);
-
 
         return new JmmSemanticsResult(parserResult, symbolTable, reports);
     }
