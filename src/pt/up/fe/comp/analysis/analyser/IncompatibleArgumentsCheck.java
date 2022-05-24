@@ -1,6 +1,6 @@
 package pt.up.fe.comp.analysis.analyser;
 
-import pt.up.fe.comp.analysis.SymbolTableBuilder;
+/*import pt.up.fe.comp.analysis.SymbolTableBuilder;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 import pt.up.fe.comp.jmm.report.Report;
@@ -34,3 +34,4 @@ public class IncompatibleArgumentsCheck extends PreorderJmmVisitor<Integer, Inte
         return reports;
     }
 }
+*/

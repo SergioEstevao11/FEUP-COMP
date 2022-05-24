@@ -44,6 +44,7 @@ public class JmmAnalyser implements JmmAnalysis{
 
         System.out.println("Semantic Analysis");
 
+
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_02_ClassNotImported
         var classNotImported = new ClassNotImportedCheck(symbolTable,reports);
@@ -110,8 +111,8 @@ public class JmmAnalyser implements JmmAnalysis{
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_17_IncompatibleArguments
-        var incompatibleArguments = new IncompatibleArgumentsCheck(symbolTable,reports);
-        incompatibleArguments.visit(rootNode,null);
+        /*var incompatibleArguments = new IncompatibleArgumentsCheck(symbolTable,reports);
+        incompatibleArguments.visit(rootNode,null);*/
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_18_IncompatibleReturn

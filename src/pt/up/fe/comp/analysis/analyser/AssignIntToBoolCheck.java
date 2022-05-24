@@ -27,12 +27,12 @@ public class AssignIntToBoolCheck extends PreorderJmmVisitor<Integer, Integer> {
         String left_node_name = assignmentNode.getJmmChild(0).get("name");
         String left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
         JmmNode right_node = assignmentNode.getJmmChild(1);
-
+/*
         System.out.println(right_node);
         System.out.println(assignmentNode.getJmmChild(0));
         System.out.println(left_node_type);
         System.out.println(symbolTable.getVariableType(method_name,right_node.get("name")));
-
+*/
         if(left_node_type.equals("boolean")) {
             if (right_node.getKind().equals("DotAccess")) {
                 String dot_right_node_name = right_node.getJmmChild(0).get("name");
