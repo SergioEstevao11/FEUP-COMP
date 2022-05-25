@@ -40,7 +40,7 @@ public class AssignIntToBoolCheck extends PreorderJmmVisitor<Integer, Integer> {
                 Type methodReturnType = symbolTable.getReturnType(dot_right_node_name);
                 if (methodReturnType.equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + methodReturnType + "\" invalid type: expecting a boolean.", null));
             }
-            else if(!symbolTable.getVariableType(method_name,assignmentNode.getJmmChild(1).get("name")).getName().equals("boolean") && !right_node.getKind().equals("True") && !right_node.getKind().equals("False") ){
+            else if(!right_node.getKind().equals("True") && !right_node.getKind().equals("False") ){
                 reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + "int" + "\" invalid type: expecting a boolean.", null));
             }
         }
