@@ -107,6 +107,21 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         return classString.toString();
     }
 
+    private String varDeclVisit(JmmNode varDecl, Integer dummy){
+        StringBuilder varStr = new StringBuilder();
+        JmmNode parent = varDecl.getJmmParent();
+        JmmNode type = varDecl.getJmmChild(0);
+        JmmNode identifier = varDecl.getJmmChild(1);
+
+        if (parent.getKind().equals("ClassDeclaration")) {
+            varStr.append(".field private ");
+            varStr.append(visit(identifier));
+            varStr.append(OllirUtils.getOllirType(getFieldType(varDecl.get("name"))));
+        }
+
+        return "";
+    }
+
     private String methodDeclVisit(JmmNode methodDecl, Integer dummy){
         StringBuilder methodString = new StringBuilder();
         var methodType = methodDecl.getJmmChild(0);
@@ -255,7 +270,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
          if (!idStr.contains("\n")) {
              retStr.append(prefix).append("\t\tt").append(varCounter).append(".i32 :=.i32 ")
-                     .append(idStr).append("[").append(indexStr).append("].i32;)";
+                     .append(idStr).append("[").append(indexStr).append("].i32;)");
              varCounter++;
              //while (skipTemps.contains(varCounter))
              //    varCounter++;
@@ -282,7 +297,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
             return methodString.toString();
 
-        } else if (id.getKind().equals("NEW")) {
+        } else if (id.getKind().equals("New")) {
 
             String var = newAuxiliarVar(symbolTable.getReturnType(memberCall.get("name")).getName());
             methodString.append("invokespecial(").append("t" + var).append(", \"<init>\").V;\n");
@@ -583,6 +598,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         }
         return null;
     }
+
 
     private int getCondition(String methodName, JmmNode node){
         //if(isField(node) || node.getKind().equals("Dot")){
