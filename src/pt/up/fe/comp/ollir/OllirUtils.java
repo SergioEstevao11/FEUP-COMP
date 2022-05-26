@@ -32,6 +32,12 @@ public class OllirUtils {
         return jmmType;
     }
 
+    public static boolean isOperation(JmmNode operation) {
+        return operation.getKind().equals("Plus") || operation.getKind().equals("Minus") ||
+                operation.getKind().equals("Times") || operation.getKind().equals("Divide") ||
+                operation.getKind().equals("Less") || operation.getKind().equals("And") || operation.getKind().equals("Not");
+    }
+
     public static String getOllirVar(String jmmVar, Type type){
         return jmmVar + getOllirType(type);
     }

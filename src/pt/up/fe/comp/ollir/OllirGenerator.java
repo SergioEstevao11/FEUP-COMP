@@ -10,6 +10,8 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 
 import java.lang.reflect.Method;
 import java.text.AttributedString;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
     static int varCounter;
+    static int markerCounter;
     private final StringBuilder code;
     private final SymbolTable symbolTable;
 
@@ -43,7 +46,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
             addVisit(ASTNode.NOT_DECLARATION, this::operationVisit);
             addVisit(ASTNode.NEW, this::newVisit);
             addVisit(ASTNode.IF, this::ifVisit);
-            //addVisit(ASTNode.ELSE, this::elseVisit);
+            addVisit(ASTNode.ELSE, this::elseVisit);
             addVisit(ASTNode.WHILE, this::whileVisit);
             addVisit(ASTNode.ASSIGNMENT, this::assignmentVisit);
             addVisit(ASTNode.RETURN, this::returnVisit);
@@ -139,45 +142,59 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
 
     private String ifVisit(JmmNode ifStmt, Integer dummy){
-        JmmNode conditionStmt = ifStmt.getChildren().get(0);
-        JmmNode ifBlock = ifStmt.getChildren().get(1);
-        JmmNode elseBlock = ifStmt.getChildren().get(2);
+        StringBuilder ifStr = new StringBuilder();
+        JmmNode conditionStmt = ifStmt.getJmmChild(0);
+        JmmNode bodyBlock = ifStmt.getJmmChild(1);
+        JmmNode elseBlock = ifStmt.getJmmChild(2);
 
-        code.append("if (");
-        visit(conditionStmt); // TRATAR INVERTER CONDIÇÃO
-        code.append("goto then;\n").append("else:\n");
-        
-        var elseStmts = elseBlock.getChildren();
-        for (var elseStmt: elseStmts)
-            visit(elseStmt);
+        String condStr = visit(conditionStmt);
 
-        code.append("goto endif;\n").append("then:\n");
-        var thenStmts = ifBlock.getChildren();
-        for (var thenStmt: thenStmts)
-            visit(thenStmt);
-      
-        code.append("endif:\n");
-            
-        return "";
+        List<String> editedCond = buildCondition(conditionStmt, condStr, false);
+        ifStr.append(editedCond.get(0));
+        condStr = editedCond.get(1);
+
+        ifStr.append("\t\tif (").append(condStr).append(") goto Else").append(++markerCounter).append(";\n");
+
+        ifStr.append("\t").append(visit(bodyBlock));
+        ifStr.append("\t").append(visit(elseBlock));
+
+        ifStr.append("\t\tgoto EndIf").append(markerCounter).append(";\n");
+
+        return ifStr.toString();
+    }
+    private String elseVisit(JmmNode jmmNode, Integer dummy) {
+        //int localLabel = ifCount;
+        StringBuilder elseStr = new StringBuilder();
+        elseStr.append("\t\tElse" + markerCounter + ":\n");
+
+        for (JmmNode child : jmmNode.getChildren()) {
+            elseStr.append("\t").append(visit(child));
+        }
+        elseStr.append("\t\tEndIf").append(markerCounter).append(":\n");
+        //ifCount--;
+        return elseStr.toString();
     }
 
     private String whileVisit(JmmNode whileStmt, Integer dummy){
+        StringBuilder whileStr = new StringBuilder();
         JmmNode conditionStmt = whileStmt.getChildren().get(0);
-        JmmNode whileBlock =  whileStmt.getChildren().get(1);
+        JmmNode bodyStmts = whileStmt.getChildren().get(1);
+        String condStr = visit(conditionStmt);
 
-        code.append("Loop:\n");
+        List<String> editedCond= this.buildCondition(conditionStmt, condStr, true);
+        condStr = editedCond.get(1);
 
-        visit(conditionStmt); // TODO INVERTER CONDIÇÃO
-        code.append("goto Endloop;\n");
+        whileStr.append("\t\tLoop" + markerCounter + ":\n");
+        whileStr.append(editedCond.get(0));
+        whileStr.append("\t\t\tif (").append(condStr).append(") goto Body").append(markerCounter);
+        whileStr.append(";\n\t\t\tgoto EndLoop").append(markerCounter).append(";\n\t\tBody").append(markerCounter).append(":\n");
 
-        var whileStmts = whileBlock.getChildren();
-        for (var whileBlockStmt: whileStmts)
-            visit(whileBlockStmt);
+        visit(bodyStmts);
 
-        code.append("goto Loop;\n").append("EndLoop:");
+        whileStr.append("\t\tgoto Loop;\n").append(markerCounter).append("\n\t\tEndLoop").append(markerCounter).append(":\n");
 
             
-        return "";
+        return whileStr.toString();
     }
 
      private String assignmentVisit(JmmNode assignmentStmt, Integer dummy){
@@ -188,9 +205,65 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
      }
 
      public String arrayAccessVisit(JmmNode arrayAccess, Integer dummy){
-        //if (arrayAccess.getJmmChild(0).getKind("Identifier"), )
+         StringBuilder retStr = new StringBuilder();
+         JmmNode identifier = arrayAccess.getChildren().get(0);
+         JmmNode indexNode = arrayAccess.getChildren().get(1);
 
-        return "";
+         String idStr = visit(identifier);
+         String indexStr = visit(indexNode);
+         String prefix = "";
+         idStr = idStr.substring(0, idStr.indexOf("."));
+         if (indexNode.getKind().equals("Int")) {
+             prefix += "\t\tt" + varCounter + ".i32 :=.i32 " + indexStr + ";\n";
+             indexStr = "t" + varCounter + ".i32";
+             varCounter++;
+            // while (skipTemps.contains(varCounter))
+            //     varCounter++;
+         } else {
+             String substring = indexStr.substring(indexStr.lastIndexOf("."), indexStr.length() - 1);
+             if (indexStr.contains("\n")) {
+                 if (indexStr.lastIndexOf("\n") > indexStr.lastIndexOf(":=.")) {
+                     String lastLine = indexStr.substring(indexStr.lastIndexOf("\n") + 1);
+                     if (!lastLine.contains(";")) lastLine += ";";
+                     prefix += "\t\t" + indexStr.substring(0, indexStr.lastIndexOf("\n") + 1) + "\t\tt" + varCounter + substring + " :=" + substring + " " + lastLine + "\n";
+                     indexStr = "\tt" + varCounter + substring;
+                     varCounter++;
+                    // while (skipTemps.contains(varCounter))
+                    //     varCounter++;
+                 } else
+                     indexStr = indexStr.substring(indexStr.lastIndexOf("\n"), indexStr.lastIndexOf(":=."));
+             } else if (indexStr.contains(":=.")) {
+                 prefix = indexStr + "\n";
+                 indexStr = indexStr.substring(0, indexStr.indexOf(" "));
+             } else if (indexStr.contains(";")){
+                 prefix += "\t\tt" + varCounter + substring + " :=" + substring + " " + indexStr + "\n";
+                 indexStr = "t" + varCounter + substring;
+                 varCounter++;
+                //while (skipTemps.contains(varCounter))
+                //    varCounter++;
+             }
+             else {
+                 if (!identifier.getKind().equals("Identifier")) {
+                     prefix += "\t\tt" + varCounter + substring + " :=" + substring + " " + indexStr + "\n";
+                     indexStr = "t" + varCounter + substring;
+                     varCounter++;
+                     //while (skipTemps.contains(varCounter))
+                     //    varCounter++;
+                 }
+             }
+         }
+
+         if (!idStr.contains("\n")) {
+             retStr.append(prefix).append("\t\tt").append(varCounter).append(".i32 :=.i32 ")
+                     .append(idStr).append("[").append(indexStr).append("].i32;)";
+             varCounter++;
+             //while (skipTemps.contains(varCounter))
+             //    varCounter++;
+         } else {
+             retStr.append(prefix).append(idStr).append("[").append(indexStr).append("].i32;");
+         }
+
+         return retStr.toString();
      }
 
     private String memberCallVisit(JmmNode memberCall, Integer dummy){
@@ -246,9 +319,9 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
 
     private String getVarName(JmmNode identifier) {
-        if (identifier.getKind().equals("THIS"))
+        if (identifier.getKind().equals("This"))
             return "this";
-        if (identifier.getKind().equals("NEW"))
+        if (identifier.getKind().equals("New"))
             return identifier.getChildren().get(0).get("name");
         return identifier.get("name");
     }
@@ -311,7 +384,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
     }
 
     private String parseOp(String op){
-        if (op.equals("AND") || op.equals("LESS") || op.equals("NOT")) return "bool";
+        if (op.equals("And") || op.equals("Less") || op.equals("Not")) return "bool";
         return "int";
     }
 
@@ -323,43 +396,162 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         return visitStr.toString();
     }
 
+    private String getOperator(JmmNode jmmNode) {
+        if (jmmNode.getKind().equals("Plus"))
+            return " +";
+        if (jmmNode.getKind().equals("Minus"))
+            return " -";
+        if (jmmNode.getKind().equals("Times"))
+            return " *";
+        if (jmmNode.getKind().equals("Divide"))
+            return " /";
+        if (jmmNode.getKind().equals("Less"))
+            return " <";
+        if (jmmNode.getKind().equals("And"))
+            return " &&";
+        if (jmmNode.getKind().equals("Not"))
+            return " !";
+        return "";
+    }
+
     private String operationVisit(JmmNode operation, Integer dummy) {
-        StringBuilder operationString = new StringBuilder();
-        boolean isNot = operation.getKind().equals("NOT");
+        StringBuilder operationStr = new StringBuilder();
+        boolean isNot = operation.getKind().equals("Not");
 
-        operation.get("value");
+        JmmNode left = operation.getChildren().get(0);
+        JmmNode right = (!isNot)? operation.getChildren().get(1) : null;
 
-        JmmNode lhs = operation.getChildren().get(0);
-        JmmNode rhs = operation.getChildren().get(1);
+        String leftStr = visit(left);
+        String rightStr = (!isNot)? visit(right) : "";
 
-        if (!lhs.getKind().equals("IDENTIFIER"))
-            visit(lhs);
+        List<String> leftOp = buildOperation(left, leftStr);
+        List<String> rightOp = (!isNot) ? buildOperation(right, rightStr) : leftOp;
 
-        else if (!rhs.getKind().equals("IDENTIFIER") && !isNot)
-            visit(rhs);
+        operationStr.append(leftOp.get(0));
+        if (!isNot) operationStr.append(rightOp);
+
+        operationStr.append(leftOp.get(1)).append(getOperator(operation));
+
+        if(operation.getKind().equals("Plus") || operation.getKind().equals("Minus") ||
+                operation.getKind().equals("Times") || operation.getKind().equals("Divide"))
+            operationStr.append(".i32");
+        else operationStr.append(".bool");
+
+        operationStr.append(rightOp.get(1)).append(";\n");
+
+        return operationStr.toString();
+    }
+
+    private List<String> buildOperation(JmmNode operation, String opStr) {
+        String str = "";
+        List<String> ret = new ArrayList<>();
+
+        if (OllirUtils.isOperation(operation) || operation.getKind().equals("OBJECT_METHOD") || operation.getKind().equals("ARRAY_ACCESS")) {
+
+            String substring;
+            String prefix = "";
+            if (!opStr.contains(":=."))
+                substring = opStr.substring(opStr.lastIndexOf("."), opStr.length() - 1);
+            else {
+                substring = opStr.substring(opStr.indexOf("."), opStr.indexOf(" "));
+                if (opStr.contains("\n")) {
+                    prefix = opStr.substring(0, opStr.lastIndexOf("\n") + 1);
+                    opStr = opStr.substring(opStr.lastIndexOf("\n") + 1);
+                } else {
+                    opStr = opStr.substring(opStr.lastIndexOf(" "));
+                }
+            }
+            if (!operation.getKind().equals("ARRAY_ACCESS")) {
+                str = prefix + "t" + varCounter + substring + " :=" + substring + " " + opStr + "\n";
+                opStr = "t" + varCounter + substring;
+                varCounter++;
+                //while (skipTemps.contains(varCounter))
+                    //varCounter++;
+            } else {
+                if (opStr.contains(":=.")) {
+                    prefix += opStr;
+                    opStr = opStr.substring(0, opStr.indexOf(" "));
+                } else
+                    opStr = opStr.substring(0, opStr.length() - 1);
+            }
+
+        } else {
+            if (opStr.contains("\n")) {
+                String[] lines = opStr.split("\n");
+                if (lines[lines.length - 1].contains(":=.")) {
+                    for (String line : lines)
+                        str += line;
+
+                    opStr = lines[lines.length - 1].substring(0, lines[lines.length - 1].indexOf(" "));
+                } else {
+                    for (String line : Arrays.copyOfRange(lines, 0, lines.length - 1))
+                        str += line;
 
 
-
-
-        String var = newAuxiliarVar(parseOp(lhs.getKind()));
-        code.append(var).append(" :=").append(" ");
-
-        //TODO NOT CORRECT
-        visit(lhs);
-        code.append(" ");
-        if (isNot) {
-            code.append(OllirUtils.getOllirOperator(operation, code));
-            visit(lhs);
-            code.append(";\n");
+                    opStr = lines[lines.length - 1];
+                }
+            } else if (opStr.contains(":=.")) {
+                str = opStr;
+                opStr = opStr.substring(0, opStr.indexOf(" "));
+            }
         }
-        else {
-            visit(lhs);
-            code.append(" ").append(OllirUtils.getOllirOperator(operation, code));
-            visit(rhs);
-            code.append(";\n");
+        ret.add(str);
+        ret.add(opStr);
+        return ret;
+    }
+
+
+    private List<String> buildCondition(JmmNode condition, String condStr, boolean isWhile) {
+        String finalStr = "";
+        List<String> result = new ArrayList<>(2);
+        if (condition.getKind().equals("DotAccess")) {
+            if (isWhile) {
+                finalStr += "\t\tt" + varCounter + ".bool :=.bool " + condStr + "\n";
+            } else {
+                if (!condStr.contains("\n"))
+                    finalStr += "\t\tt" + varCounter + ".bool :=.bool " + condStr + "\n";
+                else {
+                    finalStr += condStr.substring(0, condStr.lastIndexOf("\n") + 1) + "\n\t\tt" + varCounter + ".bool :=.bool " + condStr.substring(condStr.lastIndexOf("\n")) + "\n";
+                }
+            }
+
+            condStr = "t" + varCounter + ".bool !.bool t" + varCounter + ".bool;";
+            varCounter++;
+            //while (skipTemps.contains(varCounter))
+                //varCounter++;
+        } else if (condition.getKind().equals("Identifier") || condition.getKind().equals("True") || condition.getKind().equals("False")) {
+            if (isWhile)
+                condStr += " ==.bool " + condStr;
+            else
+                condStr += " !.bool " + condStr;
+        } else if (condition.getKind().equals("ArrayAccess")) {
+            finalStr += condStr + "\n";
+            condStr = condStr.substring(condStr.lastIndexOf("\n") + 1, condStr.lastIndexOf(":=."));
         }
 
-        return operationString.toString();
+        if (condStr.contains("\n")) {
+            finalStr += condStr.substring(0, condStr.lastIndexOf("\n"));
+            finalStr += "t" + varCounter + ".bool :=.bool " + condStr.substring(condStr.lastIndexOf("\n") + 1) + "\n";
+            condStr = isWhile ? "t" + varCounter + ".bool ==.bool t" + varCounter + ".bool;" : "t" + varCounter + ".bool !.bool t" + varCounter + ".bool;";
+            varCounter++;
+            //while (skipTemps.contains(varCounter))
+              //  varCounter++;
+        } else if (containsOps(condStr)) {
+            finalStr += "t" + varCounter + ".bool :=.bool " + condStr + "\n";
+            condStr = isWhile ? "t" + varCounter + ".bool ==.bool t" + varCounter + ".bool;" : "t" + varCounter + ".bool !.bool t" + varCounter + ".bool;";
+            varCounter++;
+            //while (skipTemps.contains(varCounter))
+                //varCounter++;
+        }
+        if (condStr.contains(";"))
+            condStr = condStr.substring(0, condStr.length() - 1);
+        result.add(finalStr);
+        result.add(condStr);
+        return result;
+    }
+
+    private boolean containsOps(String condStr) {
+        return condStr.contains("+") || condStr.contains("-") || condStr.contains("*") || condStr.contains("/") || condStr.contains("<") || condStr.contains("&&");
     }
   // visitBinOp(JmmNode node){
 
