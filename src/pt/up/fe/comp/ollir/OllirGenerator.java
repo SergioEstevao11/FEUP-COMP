@@ -30,6 +30,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
             addVisit(ASTNode.START, this::programVisit);
             addVisit(ASTNode.IMPORT_DECLARATION, this::importDeclVisit);
+            addVisit(ASTNode.VAR_DECLARATION, this::varDeclVisit);
             addVisit(ASTNode.CLASS_DECLARATION, this::classDeclVisit);
             addVisit(ASTNode.METHOD_DECLARATION, this::methodDeclVisit);
             addVisit(ASTNode.DOT_ACCESS, this::memberCallVisit);
