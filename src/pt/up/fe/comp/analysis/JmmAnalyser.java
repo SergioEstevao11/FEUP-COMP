@@ -111,14 +111,13 @@ public class JmmAnalyser implements JmmAnalysis{
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_17_IncompatibleArguments
-        /*var incompatibleArguments = new IncompatibleArgumentsCheck(symbolTable,reports);
-        incompatibleArguments.visit(rootNode,null);*/
+        var incompatibleArguments = new IncompatibleArgumentsCheck(symbolTable,reports);
+        incompatibleArguments.visit(rootNode,null);
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_18_IncompatibleReturn
         var incompatibleReturnCheck = new IncompatibleReturnCheck(symbolTable,reports);
         incompatibleReturnCheck.visit(rootNode,null);
-
 
 
         System.out.println(reports);

@@ -86,7 +86,7 @@ ClassDeclaration :
 ;
 
 VarDeclaration :
-    (Type <IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier) (<EQUALS> Expression)? <SEMICOLON>
+    (Type <IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier)  (<OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET>)? (<EQUALS> Expression)? <SEMICOLON>
 ;
 
 Type :

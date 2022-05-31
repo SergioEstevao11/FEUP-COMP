@@ -30,14 +30,14 @@ public class IncompatibleReturnCheck extends PreorderJmmVisitor<Integer, Integer
         boolean isBooleanExpression = symbolTable.isBooleanExpression(left_node.getKind());
 
         if(isMathExpression){
-            if(!methodReturnType.equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + left_node + "\" invalid return type", null));
+            if(!methodReturnType.equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + left_node + "\" invalid return type2", null));
         }
         else if (isBooleanExpression){
-            if(!methodReturnType.equals("boolean")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + left_node + "\" invalid return type", null));
+            if(!methodReturnType.equals("boolean")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + left_node + "\" invalid return type3", null));
         }
-       else if(left_node.getKind().equals("Identifier")) {
+       else if(left_node.getKind().equals("Identifier") && returnStatementNode.getChildren().size() == 1) {
             if (!symbolTable.getVariableType(method_name, left_node.get("name")).getName().equals(methodReturnType))
-                reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + left_node + "\" invalid return type", null));
+                reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + left_node + "\" invalid return type4", null));
         }
         return 1;
     }
