@@ -148,7 +148,7 @@ Assignment #void:
     VarAccess <EQUALS> Expression #Assignment(2) <SEMICOLON>
 ;
 
-VarAccess #void : SCAN 2 (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier) <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET>|
+VarAccess : SCAN 2 (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier) <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET>|
             (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier)
 ;
 

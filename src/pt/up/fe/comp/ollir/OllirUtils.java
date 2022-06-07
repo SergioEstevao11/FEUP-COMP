@@ -4,11 +4,43 @@ import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
+import java.util.List;
+
 public class OllirUtils {
 
     public static String getCode(Symbol symbol){
 
         return symbol.getName() + "." + getOllirType(symbol.getType());
+    }
+
+    public static String getType(String name, List<Symbol> fields, List<Symbol> localVars, List<Symbol> parameters){
+
+        Symbol var = null;
+        boolean isField = false;
+        for (Symbol symbol : fields) {
+            if (symbol.getName().equals(name)) {
+                isField = true;
+                var = symbol;
+                break;
+            }
+        }
+        if (!isField){
+            // List<Symbol> localVars = symbolTable.getLocalVariables(method.get("name"));
+            for (Symbol localVar:localVars){
+                if (localVar.getName().equals(name)){
+                    var = localVar;
+                    break;
+                }
+            }
+            for (Symbol param: parameters){
+                if (param.getName().equals(name)){
+                    var = param;
+                    break;
+                }
+            }
+        }
+
+        return var.getType().getName();
     }
 
     public static String getOllirType(Type type){

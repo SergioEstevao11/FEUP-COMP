@@ -1,6 +1,8 @@
 package pt.up.fe.comp.ollir;
+import pt.up.fe.comp.ArrayAccess;
 import pt.up.fe.comp.IDENTIFIER;
 import pt.up.fe.comp.INTEGERLITERAL;
+import pt.up.fe.comp.MethodBody;
 import pt.up.fe.comp.ast.ASTNode;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
@@ -98,7 +100,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         classString.append(" {\n");
 
         classString.append(".construct ").append(symbolTable.getClassName()).append("().V{\ninvokespecial(this, \"<init>\").V;\n}\n\n");
-
+        //todo construct stmts
         for (var child: classDecl.getChildren())
             if (!child.getKind().equals("Identifier")) classString.append(visit(child));
 
@@ -116,11 +118,11 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
         if (parent.getKind().equals("ClassDeclaration")) {
             varStr.append(".field private ");
-            varStr.append(visit(identifier));
-            varStr.append(OllirUtils.getOllirType(getFieldType(varDecl.get("name"))));
+            varStr.append(visit(identifier)).append(".");
+            varStr.append(OllirUtils.getOllirType(getFieldType(identifier.get("name"))));
         }
 
-        return "";
+        return varStr.toString() + ";\n";
     }
 
     private String methodDeclVisit(JmmNode methodDecl, Integer dummy){
@@ -133,7 +135,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         if (isMain)
             methodString.append("static main(");
 
-        else methodString.append(methodDecl.getJmmChild(0).get("name")); //TODO CHECKAR COMMON METHOD
+        else methodString.append(methodDecl.getJmmChild(0).getJmmChild(1).get("name")); //TODO CHECKAR COMMON METHOD
 
 
         var methods = symbolTable.getMethods();
@@ -214,12 +216,89 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
     }
 
      private String assignmentVisit(JmmNode assignmentStmt, Integer dummy){
-        JmmNode leftStmt = assignmentStmt.getChildren().get(0); 
-        JmmNode rightStmt = assignmentStmt.getChildren().get(1); 
+         StringBuilder methodStr = new StringBuilder();
+         JmmNode identifier = assignmentStmt.getJmmChild(0);
+         JmmNode assignment = assignmentStmt.getJmmChild(1);
+         JmmNode parent = assignmentStmt.getJmmParent();
 
-        return "";
+         String idStr = visit(identifier);
+         String assignmentStr = visit(assignment);
+         int currentCount = varCounter;
+
+         List<Symbol> fields = symbolTable.getFields();
+         Symbol var = null;
+         boolean isField = false;
+         for (Symbol symbol : fields) {
+             if (symbol.getName().equals(identifier.getJmmChild(0).get("name"))) {
+                 isField = true;
+                 break;
+             }
+         }
+        //TODO IF ARGS APPEND $<ARG_NUMBER>
+
+
+        if (assignmentStr.contains("\n")){
+            methodStr.append(assignmentStr);
+            methodStr.append(idStr).append("t").append(varCounter).append(";\n");
+        }
+        else methodStr.append(idStr).append(assignmentStr);
+
+         if (isField) methodStr.append(").V\n");
+         else methodStr.append(";\n");
+
+         return methodStr.toString();
      }
 
+    private String varAccess(JmmNode varAccess, Integer dummy) {
+        StringBuilder varStr = new StringBuilder();
+
+        List<Symbol> fields = symbolTable.getFields();
+        List<String> methods = symbolTable.getMethods();
+
+        JmmNode method = varAccess.getJmmParent().getJmmParent();
+
+        JmmNode id = varAccess.getJmmChild(0);
+        JmmNode array = varAccess.getJmmChild(1);
+
+        Symbol var = null;
+        boolean isField = false;
+        for (Symbol symbol : fields) {
+            if (symbol.getName().equals(id.get("name"))) {
+                isField = true;
+                var = symbol;
+                break;
+            }
+        }
+        if (!isField){
+            List<Symbol> localVars = symbolTable.getLocalVariables(method.get("name"));
+            for (Symbol localVar:localVars){
+                if (localVar.getName().equals(id.get("name"))){
+                    var = localVar;
+                    break;
+                }
+            }
+        }
+        //putfield(this, a.i32, $1.n.i32).V;
+        if (isField){
+            varStr.append("putfield(this, ").append(var.getName())
+                    .append(OllirUtils.getOllirType(var.getType()))
+                    .append(", "); // TODO ON THE ASSIGNMENT CHECK IF FIELD AND PUT THE REST
+            return var.toString();
+        }
+
+        if (array == null){
+            varStr.append(var.getName()).append(".").append(OllirUtils.getOllirType(var.getType()))
+                    .append(" :=").append(OllirUtils.getOllirType(var.getType())).append(" ");
+        }
+        else{
+            varStr.append(visit(array));
+            varStr.append("t").append(varCounter).append(".").append(OllirUtils.getOllirType(var.getType()))
+                    .append(" :=").append(OllirUtils.getOllirType(var.getType())).append(" ");
+        }
+
+        return varStr.toString();
+
+    }
      public String arrayAccessVisit(JmmNode arrayAccess, Integer dummy){
          StringBuilder retStr = new StringBuilder();
          JmmNode identifier = arrayAccess.getChildren().get(0);
@@ -227,58 +306,35 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
          String idStr = visit(identifier);
          String indexStr = visit(indexNode);
-         String prefix = "";
-         idStr = idStr.substring(0, idStr.indexOf("."));
-         if (indexNode.getKind().equals("Int")) {
-             prefix += "\t\tt" + varCounter + ".i32 :=.i32 " + indexStr + ";\n";
-             indexStr = "t" + varCounter + ".i32";
-             varCounter++;
-            // while (skipTemps.contains(varCounter))
-            //     varCounter++;
-         } else {
-             String substring = indexStr.substring(indexStr.lastIndexOf("."), indexStr.length() - 1);
-             if (indexStr.contains("\n")) {
-                 if (indexStr.lastIndexOf("\n") > indexStr.lastIndexOf(":=.")) {
-                     String lastLine = indexStr.substring(indexStr.lastIndexOf("\n") + 1);
-                     if (!lastLine.contains(";")) lastLine += ";";
-                     prefix += "\t\t" + indexStr.substring(0, indexStr.lastIndexOf("\n") + 1) + "\t\tt" + varCounter + substring + " :=" + substring + " " + lastLine + "\n";
-                     indexStr = "\tt" + varCounter + substring;
-                     varCounter++;
-                    // while (skipTemps.contains(varCounter))
-                    //     varCounter++;
-                 } else
-                     indexStr = indexStr.substring(indexStr.lastIndexOf("\n"), indexStr.lastIndexOf(":=."));
-             } else if (indexStr.contains(":=.")) {
-                 prefix = indexStr + "\n";
-                 indexStr = indexStr.substring(0, indexStr.indexOf(" "));
-             } else if (indexStr.contains(";")){
-                 prefix += "\t\tt" + varCounter + substring + " :=" + substring + " " + indexStr + "\n";
-                 indexStr = "t" + varCounter + substring;
-                 varCounter++;
-                //while (skipTemps.contains(varCounter))
-                //    varCounter++;
-             }
-             else {
-                 if (!identifier.getKind().equals("Identifier")) {
-                     prefix += "\t\tt" + varCounter + substring + " :=" + substring + " " + indexStr + "\n";
-                     indexStr = "t" + varCounter + substring;
-                     varCounter++;
-                     //while (skipTemps.contains(varCounter))
-                     //    varCounter++;
-                 }
-             }
-         }
 
-         if (!idStr.contains("\n")) {
-             retStr.append(prefix).append("\t\tt").append(varCounter).append(".i32 :=.i32 ")
-                     .append(idStr).append("[").append(indexStr).append("].i32;)");
-             varCounter++;
-             //while (skipTemps.contains(varCounter))
-             //    varCounter++;
-         } else {
-             retStr.append(prefix).append(idStr).append("[").append(indexStr).append("].i32;");
+         JmmNode ancestor = arrayAccess;
+         while (!ancestor.getKind().equals("MethodBody")){
+             ancestor = ancestor.getJmmParent();
          }
+         ancestor = ancestor.getJmmParent();
 
+
+         //idStr = idStr.substring(0, idStr.indexOf("."));
+         if (indexNode.getKind().equals("Number")) {
+             retStr.append("\t\tt").append(++varCounter).append(".i32 :=.i32 ").append(indexStr).append(";\n");
+             retStr.append(idStr).append("[t").append(varCounter).append(".i32]").append(".i32;");
+         }
+         else if (indexNode.getKind().equals("Identifier")) {
+             retStr.append("\t\tt").append(++varCounter).append(".i32 :=.i32 ").append(indexStr).append(";\n");
+             retStr.append(idStr).append("[t").append(varCounter).append(".i32]").append
+                     (OllirUtils.getType(identifier.get("name"), symbolTable.getFields(),
+                             symbolTable.getLocalVariables(ancestor.get("name")),
+                             symbolTable.getParameters(ancestor.get("name"))));
+             retStr.append(indexStr);
+
+             String prefix = indexStr.substring(0, indexStr.lastIndexOf("\n"));
+             String postfix = indexStr.substring(indexStr.lastIndexOf("\n"));
+
+             retStr.append(prefix).append(idStr).append("[").append(postfix).append(".i32").append("]")
+                     .append(OllirUtils.getType(identifier.get("name"), symbolTable.getFields(),
+                             symbolTable.getLocalVariables(ancestor.get("name")),
+                             symbolTable.getParameters(ancestor.get("name")))).append(";");
+         }
          return retStr.toString();
      }
 
