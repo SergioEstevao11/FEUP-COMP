@@ -26,7 +26,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
             this.symbolTable = symbolTable;
 
             addVisit(ASTNode.CLASS_DECLARATION, this::classDeclVisit);
-            /*
             addVisit(ASTNode.START, this::programVisit);
             addVisit(ASTNode.IMPORT_DECLARATION, this::importDeclVisit);
             addVisit(ASTNode.CLASS_DECLARATION, this::classDeclVisit);
@@ -50,17 +49,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
             addVisit(ASTNode.ASSIGNMENT, this::assignmentVisit);
             addVisit(ASTNode.RETURN, this::returnVisit);
             addVisit(ASTNode.ARRAY_ACCESS, this::arrayAccessVisit);
-            setDefaultVisit(this::defaultVisit);*/
+            setDefaultVisit(this::defaultVisit);
 
-
-        //addVisit("VAR_DECLARATION", this::dealWithVar);
-
-        //addVisit("ASSIGNMENT", this::dealWithAssignment);
-        //addVisit("IF", this::dealWithIf);
-        //addVisit("ELSE", this::dealWithElse);
-        //addVisit("WHILE", this::dealWithWhile);
-        //addVisit("ARRAY_ACCESS", this::dealWithArrayAccess);
-        //setDefaultVisit(this::defaultVisit);
     }
 
     public String getCode(){
@@ -68,7 +58,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
     }
 
     private Integer programVisit(JmmNode program, Integer dummy){
-
 
         //System.out.println(code);
 
