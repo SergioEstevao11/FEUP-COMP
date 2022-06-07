@@ -39,6 +39,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
             addVisit(ASTNode.ARGUMENTS, this::argumentsVisit);
             addVisit(ASTNode.IDENTIFIER, this::idVisit);
             addVisit(ASTNode.INT, this::intVisit);
+            addVisit(ASTNode.NUMBER, this::numberVisit);
             addVisit(ASTNode.TRUE, this::boolVisit);
             addVisit(ASTNode.FALSE, this::boolVisit);
             addVisit(ASTNode.EXPRESSION_STATEMENT, this::operationVisit);
@@ -48,9 +49,9 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
             addVisit(ASTNode.MULT_DIV_DECLARATION, this::operationVisit);
             addVisit(ASTNode.NOT_DECLARATION, this::operationVisit);
             addVisit(ASTNode.NEW, this::newVisit);
-            addVisit(ASTNode.IF, this::ifVisit);
-            addVisit(ASTNode.ELSE, this::elseVisit);
-            addVisit(ASTNode.WHILE, this::whileVisit);
+            addVisit(ASTNode.IF_STATEMENT, this::ifVisit);
+            addVisit(ASTNode.ELSE_STATEMENT, this::elseVisit);
+            addVisit(ASTNode.WHILE_STATEMENT, this::whileVisit);
             addVisit(ASTNode.ASSIGNMENT, this::assignmentVisit);
             addVisit(ASTNode.RETURN, this::returnVisit);
             addVisit(ASTNode.ARRAY_ACCESS, this::arrayAccessVisit);
@@ -99,10 +100,12 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
         classString.append(" {\n");
 
+        if (classDecl.getJmmChild(1).getKind().equals("VarDeclaration")) visit(classDecl.getJmmChild(1));
+
         classString.append(".construct ").append(symbolTable.getClassName()).append("().V{\ninvokespecial(this, \"<init>\").V;\n}\n\n");
         //todo construct stmts
         for (var child: classDecl.getChildren())
-            if (!child.getKind().equals("Identifier")) classString.append(visit(child));
+            if (!child.getKind().equals("Identifier") && !child.getKind().equals("VarDeclaration") ) classString.append(visit(child));
 
 
         classString.append("}\n");
@@ -120,9 +123,10 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
             varStr.append(".field private ");
             varStr.append(visit(identifier)).append(".");
             varStr.append(OllirUtils.getOllirType(getFieldType(identifier.get("name"))));
+            varStr.append(";\n");
         }
 
-        return varStr.toString() + ";\n";
+        return varStr.toString();
     }
 
     private String methodDeclVisit(JmmNode methodDecl, Integer dummy){
@@ -228,8 +232,11 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
          List<Symbol> fields = symbolTable.getFields();
          Symbol var = null;
          boolean isField = false;
+
+         JmmNode child = identifier.getChildren().size() == 0 ? identifier : identifier.getJmmChild(0);
+
          for (Symbol symbol : fields) {
-             if (symbol.getName().equals(identifier.getJmmChild(0).get("name"))) {
+             if (symbol.getName().equals(child.get("name"))) {
                  isField = true;
                  break;
              }
@@ -239,9 +246,9 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
         if (assignmentStr.contains("\n")){
             methodStr.append(assignmentStr);
-            methodStr.append(idStr).append("t").append(varCounter).append(";\n");
+            methodStr.append(idStr).append(".i32").append(" :=.i32 ").append("t").append(varCounter).append(".i32"); // TODO := TYPE
         }
-        else methodStr.append(idStr).append(assignmentStr);
+        else methodStr.append(idStr).append(".i32").append(" :=.i32 ").append(assignmentStr); // TODO := TYPE
 
          if (isField) methodStr.append(").V\n");
          else methodStr.append(";\n");
@@ -322,18 +329,16 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
          else if (indexNode.getKind().equals("Identifier")) {
              retStr.append("\t\tt").append(++varCounter).append(".i32 :=.i32 ").append(indexStr).append(";\n");
              retStr.append(idStr).append("[t").append(varCounter).append(".i32]").append
-                     (OllirUtils.getType(identifier.get("name"), symbolTable.getFields(),
-                             symbolTable.getLocalVariables(ancestor.get("name")),
-                             symbolTable.getParameters(ancestor.get("name"))));
+                     (".i32"); // TODO CHANGE TYPE
+         } else{
+
              retStr.append(indexStr);
 
              String prefix = indexStr.substring(0, indexStr.lastIndexOf("\n"));
              String postfix = indexStr.substring(indexStr.lastIndexOf("\n"));
 
              retStr.append(prefix).append(idStr).append("[").append(postfix).append(".i32").append("]")
-                     .append(OllirUtils.getType(identifier.get("name"), symbolTable.getFields(),
-                             symbolTable.getLocalVariables(ancestor.get("name")),
-                             symbolTable.getParameters(ancestor.get("name")))).append(";");
+                     .append(".i32"); // TODO CHANGE TYPE}
          }
          return retStr.toString();
      }
@@ -413,11 +418,11 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
         Optional<JmmNode> methodNode = returnNode.getAncestor("Method_Decl");
         String exp = visit(expression);
-        returnString.append("ret").append(OllirUtils.getOllirType(symbolTable.getReturnType(methodNode.get().get("name"))));
+        returnString.append("ret").append(/*OllirUtils.getOllirType(symbolTable.getReturnType(methodNode.get().get("name"))*/".V"); // todo change type
 
-        if (exp.contains(";")) returnString.append(" t").append(varCounter).append(OllirUtils.getOllirType(symbolTable.getReturnType(methodNode.get().get("name"))));
+        if (exp.contains(";")) returnString.append(" t").append(varCounter).append(/*OllirUtils.getOllirType(symbolTable.getReturnType(methodNode.get().get("name"))*/".V"); // todo change type
         else {
-            returnString.append("ret").append(OllirUtils.getOllirType(symbolTable.getReturnType(methodNode.get().get("name"))));
+            returnString.append("ret").append(/*OllirUtils.getOllirType(symbolTable.getReturnType(methodNode.get().get("name"))*/".V"); // todo change type
             returnString.append(" ").append(exp);
         }
         returnString.append(";\n");
@@ -431,6 +436,10 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
     private String intVisit(JmmNode value, Integer dummy){
         return value.get("value") + ".i32";
+    }
+
+    private String numberVisit(JmmNode value, Integer dummy){
+        return value.get("name") + ".i32";
     }
 
     private String boolVisit(JmmNode value, Integer dummy){
