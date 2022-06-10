@@ -210,11 +210,8 @@ public class TestUtils {
      * @return
      */
     public static JmmSemanticsResult analyse(String jmmCode, Map<String, String> config) {
-        System.out.println("dentro da função que vai buscar JmmSemanticsResult");
-        System.out.println(jmmCode);
         var parseResults = TestUtils.parse(jmmCode, config);
         noErrors(parseResults.getReports());
-        System.out.println("fim da função que vai buscar JmmSemanticsResult ");
         return analyse(parseResults);
     }
 

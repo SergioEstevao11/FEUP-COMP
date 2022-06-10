@@ -22,10 +22,23 @@ public class AssignIntToBoolCheck extends PreorderJmmVisitor<Integer, Integer> {
         setDefaultVisit((node, oi) -> 0);
     }
     public Integer visitAssignment(JmmNode assignmentNode,Integer ret){
+        String method_name = null;
+        String left_node_type = null;
+        if( assignmentNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = assignmentNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(0).get("name");
+        else method_name = assignmentNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
+        
+        if(assignmentNode.getJmmChild(0).getKind().equals("True") || assignmentNode.getJmmChild(0).getKind().equals("False") ) return 1;
+        else if(assignmentNode.getJmmChild(0).getKind().equals("Number")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + assignmentNode.getJmmChild(0).getKind().equals("Number") + "\" invalid type: expecting a boolean.", null));
+        else if(assignmentNode.getJmmChild(1) != null) {
+            String left_node_name = assignmentNode.getJmmChild(0).get("name");
+            left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
+        }
+        else{
+            String call_method_name = assignmentNode.getJmmChild(1).getJmmChild(0).get("name");
+            String returnMethodType = symbolTable.getReturnType(call_method_name).getName();
+            if(!returnMethodType.equals("boolean")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + assignmentNode.getJmmChild(0).getKind().equals("Number") + "\" invalid type: expecting a boolean.", null));
+        }
 
-        String method_name = assignmentNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
-        String left_node_name = assignmentNode.getJmmChild(0).get("name");
-        String left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
         JmmNode right_node = assignmentNode.getJmmChild(1);
 /*
         System.out.println(right_node);
@@ -33,17 +46,17 @@ public class AssignIntToBoolCheck extends PreorderJmmVisitor<Integer, Integer> {
         System.out.println(left_node_type);
         System.out.println(symbolTable.getVariableType(method_name,right_node.get("name")));
 */
-        if(left_node_type.equals("boolean")) {
-            if (right_node.getKind().equals("DotAccess")) {
-                String dot_right_node_name = right_node.getJmmChild(0).get("name");
-                System.out.println(dot_right_node_name);
-                Type methodReturnType = symbolTable.getReturnType(dot_right_node_name);
-                if (methodReturnType.equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + methodReturnType + "\" invalid type: expecting a boolean.", null));
-            }
-            else if(!right_node.getKind().equals("True") && !right_node.getKind().equals("False") ){
-                reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + "int" + "\" invalid type: expecting a boolean.", null));
-            }
-        }
+//        if(left_node_type.equals("boolean")) {
+//            if (right_node.getKind().equals("DotAccess")) {
+//                String dot_right_node_name = right_node.getJmmChild(0).get("name");
+//                System.out.println(dot_right_node_name);
+//                Type methodReturnType = symbolTable.getReturnType(dot_right_node_name);
+//                if (methodReturnType.equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + methodReturnType + "\" invalid type: expecting a boolean.", null));
+//            }
+//            else if(!right_node.getKind().equals("True") && !right_node.getKind().equals("False") ){
+//                reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + "int" + "\" invalid type: expecting a boolean.", null));
+//            }
+//        }
         return 0;
     }
 

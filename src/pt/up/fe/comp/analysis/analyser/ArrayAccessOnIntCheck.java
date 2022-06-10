@@ -23,7 +23,9 @@ public class ArrayAccessOnIntCheck extends PreorderJmmVisitor<Integer, Integer> 
     public Integer visitArrayAccess(JmmNode arrayAccessNode, Integer ret){
 
         JmmNode left_node = arrayAccessNode.getJmmChild(0);
-        String method_name = arrayAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
+        String method_name = null;
+        if( arrayAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = arrayAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(0).get("name");
+        else method_name = arrayAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
         String left_node_name = left_node.get("name");
         String left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
 

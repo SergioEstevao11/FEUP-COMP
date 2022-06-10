@@ -72,13 +72,8 @@ public class SymbolTableBuilder implements SymbolTable {
 
     @Override
     public List<Symbol> getParameters(String methodSignature) {
-        System.out.println("olá a sofia fez tudo bem");
-        System.out.println("method signature: " + methodSignature);
-        System.out.println("todos os métodos:" + this.methods);
         for (String method : this.methods){
-            System.out.println("method dentro: " + method);
             if (method.equals(methodSignature)){
-                System.out.println("method parameters:" + methodParams.get(methodSignature));
                 return methodParams.get(methodSignature);
             }
         }
