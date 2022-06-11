@@ -19,8 +19,8 @@ public class CallToUndeclaredMethodCheck  extends PreorderJmmVisitor<Integer, In
         addVisit("DotAccess", this::visitDotAccess);
         setDefaultVisit((node, oi) -> 0);
     }
-    public Integer visitDotAccess(JmmNode expressionNode,Integer ret){
-        JmmNode right_node = expressionNode.getChildren().get(0);
+    public Integer visitDotAccess(JmmNode dotAccessNode,Integer ret){
+        JmmNode right_node = dotAccessNode.getChildren().get(0);
         String method_node_name = right_node.get("name");
         if(symbolTable.getMethods().contains(method_node_name)) return 1;
 
