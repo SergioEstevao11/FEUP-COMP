@@ -101,7 +101,6 @@ MethodDeclaration :
     <PUBLIC> (CommonMethodHeader | MainMethodHeader) <OPEN_BRACKET> MethodBody <CLOSE_BRACKET>
 ;
 
-
 CommonMethodHeader :
     (Type <IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier) <OPEN_CURVE_BRACKET>
     ((Type <IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier)
