@@ -1,8 +1,5 @@
 package pt.up.fe.comp.ollir;
-import pt.up.fe.comp.ArrayAccess;
-import pt.up.fe.comp.IDENTIFIER;
-import pt.up.fe.comp.INTEGERLITERAL;
-import pt.up.fe.comp.MethodBody;
+import pt.up.fe.comp.*;
 import pt.up.fe.comp.ast.ASTNode;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
@@ -38,23 +35,25 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
             addVisit(ASTNode.DOT_ACCESS, this::memberCallVisit);
             addVisit(ASTNode.ARGUMENTS, this::argumentsVisit);
             addVisit(ASTNode.IDENTIFIER, this::idVisit);
-            addVisit(ASTNode.INT, this::intVisit);
             addVisit(ASTNode.NUMBER, this::numberVisit);
             addVisit(ASTNode.TRUE, this::boolVisit);
             addVisit(ASTNode.FALSE, this::boolVisit);
             addVisit(ASTNode.EXPRESSION_STATEMENT, this::operationVisit);
             addVisit(ASTNode.EXPRESSION, this::operationVisit);
-            addVisit(ASTNode.LESS_DECLARATION, this::operationVisit);
-            addVisit(ASTNode.ADD_SUB_DECLARATION, this::operationVisit);
-            addVisit(ASTNode.MULT_DIV_DECLARATION, this::operationVisit);
-            addVisit(ASTNode.NOT_DECLARATION, this::operationVisit);
-            addVisit(ASTNode.NEW, this::newVisit);
+            addVisit(ASTNode.LESS, this::operationVisit);
+            addVisit(ASTNode.PLUS, this::operationVisit);
+            addVisit(ASTNode.MINUS, this::operationVisit);
+            addVisit(ASTNode.TIMES, this::operationVisit);
+            addVisit(ASTNode.DIVIDE, this::operationVisit);
+            addVisit(ASTNode.NOT, this::operationVisit);
+            addVisit(ASTNode.NEW_DECLARATION, this::newVisit);
             addVisit(ASTNode.IF_STATEMENT, this::ifVisit);
-            addVisit(ASTNode.ELSE_STATEMENT, this::elseVisit);
+            addVisit(ASTNode.ELSE_SCOPE, this::elseVisit);
             addVisit(ASTNode.WHILE_STATEMENT, this::whileVisit);
             addVisit(ASTNode.ASSIGNMENT, this::assignmentVisit);
             addVisit(ASTNode.RETURN, this::returnVisit);
             addVisit(ASTNode.ARRAY_ACCESS, this::arrayAccessVisit);
+            //addVisit(ASTNode.VAR_ACCESS, this::varAccessVisit);
             setDefaultVisit(this::defaultVisit);
 
 
@@ -171,28 +170,40 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
         String condStr = visit(conditionStmt);
 
-        List<String> editedCond = buildCondition(conditionStmt, condStr, false);
-        ifStr.append(editedCond.get(0));
-        condStr = editedCond.get(1);
+        int localCounter = ++markerCounter;
+        String prefix = "";
 
-        ifStr.append("\t\tif (").append(condStr).append(") goto Else").append(++markerCounter).append(";\n");
+        if (condStr.contains("\n")){
+            prefix = condStr.substring(0, condStr.lastIndexOf("\n") + 1);
+            condStr = condStr.substring(condStr.lastIndexOf("\n") + 1);
+        }
 
-        ifStr.append("\t").append(visit(bodyBlock));
+        String newCondStr = this.buildCondition(conditionStmt, condStr, false);
+
+        ifStr.append(prefix);
+
+        ifStr.append("\t\tif (").append(newCondStr).append(") goto Else").append(localCounter).append(";\n");
+
+        for (JmmNode bodyStmt : bodyBlock.getChildren())
+            ifStr.append("\t").append(visit(bodyStmt));
+
+
+        ifStr.append("\t\tgoto EndIf").append(localCounter).append(";\n");
+
         ifStr.append("\t").append(visit(elseBlock));
-
-        ifStr.append("\t\tgoto EndIf").append(markerCounter).append(";\n");
 
         return ifStr.toString();
     }
     private String elseVisit(JmmNode jmmNode, Integer dummy) {
         //int localLabel = ifCount;
         StringBuilder elseStr = new StringBuilder();
-        elseStr.append("\t\tElse" + markerCounter + ":\n");
+        int localCounter = markerCounter;
+        elseStr.append("\t\tElse" + localCounter + ":\n");
 
         for (JmmNode child : jmmNode.getChildren()) {
             elseStr.append("\t").append(visit(child));
         }
-        elseStr.append("\t\tEndIf").append(markerCounter).append(":\n");
+        elseStr.append("\t\tEndIf").append(localCounter).append(":\n");
         //ifCount--;
         return elseStr.toString();
     }
@@ -200,20 +211,27 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
     private String whileVisit(JmmNode whileStmt, Integer dummy){
         StringBuilder whileStr = new StringBuilder();
         JmmNode conditionStmt = whileStmt.getChildren().get(0);
-        JmmNode bodyStmts = whileStmt.getChildren().get(1);
         String condStr = visit(conditionStmt);
+        int localCounter = ++markerCounter;
+        String prefix = "";
 
-        List<String> editedCond= this.buildCondition(conditionStmt, condStr, true);
-        condStr = editedCond.get(1);
+        if (condStr.contains("\n")){
+            prefix = condStr.substring(0, condStr.lastIndexOf("\n") + 1);
+            condStr = condStr.substring(condStr.lastIndexOf("\n") + 1);
+        }
 
-        whileStr.append("\t\tLoop" + markerCounter + ":\n");
-        whileStr.append(editedCond.get(0));
-        whileStr.append("\t\t\tif (").append(condStr).append(") goto Body").append(markerCounter);
-        whileStr.append(";\n\t\t\tgoto EndLoop").append(markerCounter).append(";\n\t\tBody").append(markerCounter).append(":\n");
+        String newCondStr = this.buildCondition(conditionStmt, condStr, true);
 
-        visit(bodyStmts);
+        whileStr.append("\t\tLoop" + localCounter + ":\n");
+        whileStr.append(prefix);
 
-        whileStr.append("\t\tgoto Loop;\n").append(markerCounter).append("\n\t\tEndLoop").append(markerCounter).append(":\n");
+        whileStr.append("\t\t\tif (").append(newCondStr).append(") goto EndLoop").append(localCounter);
+        whileStr.append(";\n");
+
+        for (int i = 1; i < whileStmt.getChildren().size(); i++)
+            whileStr.append(visit(whileStmt.getJmmChild(i)));
+
+        whileStr.append("\t\tgoto Loop").append(localCounter).append(";\n\t\tEndLoop").append(localCounter).append(":\n");
 
             
         return whileStr.toString();
@@ -248,7 +266,10 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
             methodStr.append(assignmentStr);
             methodStr.append(idStr).append(".i32").append(" :=.i32 ").append("t").append(varCounter).append(".i32"); // TODO := TYPE
         }
-        else methodStr.append(idStr).append(".i32").append(" :=.i32 ").append(assignmentStr); // TODO := TYPE
+        else {
+            methodStr.append(idStr).append(".i32").append(" :=.i32 ").append(assignmentStr); // TODO := TYPE
+            if (assignment.getKind().equals("Number")) methodStr.append(".i32");
+        }
 
          if (isField) methodStr.append(").V\n");
          else methodStr.append(";\n");
@@ -256,7 +277,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
          return methodStr.toString();
      }
 
-    private String varAccess(JmmNode varAccess, Integer dummy) {
+    private String varAccessVisit(JmmNode varAccess, Integer dummy) {
         StringBuilder varStr = new StringBuilder();
 
         List<Symbol> fields = symbolTable.getFields();
@@ -310,99 +331,99 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
          StringBuilder retStr = new StringBuilder();
          JmmNode identifier = arrayAccess.getChildren().get(0);
          JmmNode indexNode = arrayAccess.getChildren().get(1);
+         String prefix = "";
 
          String idStr = visit(identifier);
          String indexStr = visit(indexNode);
 
-         JmmNode ancestor = arrayAccess;
-         while (!ancestor.getKind().equals("MethodBody")){
-             ancestor = ancestor.getJmmParent();
+         if (indexStr.contains("\n")){
+             prefix = indexStr.substring(0, indexStr.lastIndexOf("\n") + 1);
+             indexStr = indexStr.substring(indexStr.lastIndexOf("\n") + 1);
          }
-         ancestor = ancestor.getJmmParent();
 
+         retStr.append(prefix);
 
          //idStr = idStr.substring(0, idStr.indexOf("."));
          if (indexNode.getKind().equals("Number")) {
              retStr.append("\t\tt").append(++varCounter).append(".i32 :=.i32 ").append(indexStr).append(";\n");
              retStr.append(idStr).append("[t").append(varCounter).append(".i32]").append(".i32;");
          }
-         else if (indexNode.getKind().equals("Identifier")) {
+         else {
              retStr.append("\t\tt").append(++varCounter).append(".i32 :=.i32 ").append(indexStr).append(";\n");
              retStr.append(idStr).append("[t").append(varCounter).append(".i32]").append
                      (".i32"); // TODO CHANGE TYPE
-         } else{
-
-             retStr.append(indexStr);
-
-             String prefix = indexStr.substring(0, indexStr.lastIndexOf("\n"));
-             String postfix = indexStr.substring(indexStr.lastIndexOf("\n"));
-
-             retStr.append(prefix).append(idStr).append("[").append(postfix).append(".i32").append("]")
-                     .append(".i32"); // TODO CHANGE TYPE}
-         }
+        }
          return retStr.toString();
      }
 
     private String memberCallVisit(JmmNode memberCall, Integer dummy){
         StringBuilder methodString = new StringBuilder();
-        JmmNode id= memberCall.getJmmChild(0);
+        JmmNode id = memberCall.getJmmChild(0);
         JmmNode func = memberCall.getJmmChild(1);
-        String type = OllirUtils.getOllirOperator(memberCall, code);
 
-        if (id.getKind().equals("Identifier")) {
-            methodString.append("invokestatic(").append(visit(id));
+
+        if (func.getKind().equals("Length")) {
+            methodString.append("t").append(++varCounter).append(".i32 :=.i32 arraylength(").append(visit(id)).append(".array.i32).i32;\n"); //todo check type
+            methodString.append("t").append(varCounter);
+        }
+        else if (id.getKind().equals("Identifier")) {
+            List<JmmNode> children = memberCall.getJmmParent().getChildren();
+            String realId = "";
+            for (int i = 0; i < children.size(); i++)
+                if (children.get(i).getKind().equals("Identifier"))
+                    if (i < children.size() - 1 && children.get(i + 1).getKind().equals("DotAccess"))
+                        realId = children.get(i).get("name");
+
+            List<String> imports = symbolTable.getImports();
+
+            for (String importStr: imports){
+                if (importStr.equals(realId)){
+                    methodString.append("invokestatic(").append(realId);
+
+                    methodString.append(", \"").append(visit(id)).append("\""); //todo checkar pq n da
+
+                    //visit(memberCall.getJmmChild(2)); // TODO ARGS
+                    methodString.append(").V;\n");
+
+                    return methodString.toString();
+                }
+            }
+
+            // else identifier is not imported
+
+            String type = OllirUtils.getOllirType(symbolTable.getReturnType(func.get("name")));
+
+            if (!type.equals(".V"))
+                methodString.append("t").append(++varCounter).append(type).append(" :=").append(type).append(" ");
+
+            methodString.append("invokevirtual(");
+            methodString.append(visit(id)).append(".i32"); //todo check type
 
             methodString.append(", \"").append(visit(func)).append("\"");
 
             //visit(memberCall.getJmmChild(2)); // TODO ARGS
-            methodString.append(")").append(type).append(";\n");
+            methodString.append(")");
 
-            return methodString.toString();
+            methodString.append(type).append(";\n");
 
-        } else if (id.getKind().equals("New")) {
+            if(!type.equals(".V"))
+                methodString.append("t").append(varCounter);
 
-            String var = newAuxiliarVar(symbolTable.getReturnType(memberCall.get("name")).getName());
-            methodString.append("invokespecial(").append("t" + var).append(", \"<init>\").V;\n");
+
+        } else if (id.getKind().equals("NewDeclaration")) {
+            String type = OllirUtils.getOllirType(symbolTable.getReturnType(func.get("name")));
+            methodString.append("t").append(++varCounter).append(type).append(" :=").append(type).append(" ");
+
+            methodString.append("invokespecial(").append(visit(func)).append(", \"<init>\").V\n");
             methodString.append(visit(id));
         } else {
-            String varName = this.getVarName(id);
-            String callName = !func.getKind().equals("LENGTH") ? func.get("name") : "length";
-            String kind = !varName.equalsIgnoreCase("this") ? varName + "." : "";
+             System.out.println("Extra method case");
 
-            if (callName.equals("length")) {
-                methodString.append("t").append(varCounter++).append(".i32 :=.i32 arraylength(").append(kind).append("array.i32).i32;\n");
-
-            } else {
-                Type tp = symbolTable.getReturnType(func.get("name"));
-
-
-                methodString.append("invokevirtual(");
-                methodString.append(kind);
-                if (tp.isArray()) methodString.append("array.");
-                methodString.append(tp.getName());
-
-                methodString.append(", \"");
-                visit(memberCall.getJmmChild(1));
-                methodString.append("\"");
-                //visit(memberCall.getJmmChild(2)); // TODO ARGS
-                methodString.append(")");
-
-                methodString.append(type).append(";\n");
-            }
         }
+
 
         return methodString.toString();
     }
-
-
-    private String getVarName(JmmNode identifier) {
-        if (identifier.getKind().equals("This"))
-            return "this";
-        if (identifier.getKind().equals("New"))
-            return identifier.getChildren().get(0).get("name");
-        return identifier.get("name");
-    }
-
 
     private String argumentsVisit(JmmNode arguments, Integer dummy){
         StringBuilder argsString = new StringBuilder();
@@ -431,15 +452,23 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
 
     private String idVisit(JmmNode id, Integer dummy){
+
+        // extern functions don't print id
+        List<JmmNode> children = id.getJmmParent().getChildren();
+        List<String> imports = symbolTable.getImports();
+
+        for (int i = 0; i < imports.size(); i++)
+            if (imports.get(i).equals(id.get("name"))) // id está nos imports
+                for (int j = 0; j < children.size(); j++)
+                    if (children.get(j).getKind().equals("Identifier") && children.get(j).get("name").equals(imports.get(i))) // encontrar posição do id no pai
+                        if (j < children.size() - 1 && children.get(j + 1).getKind().equals("DotAccess")) // id seguido de dot access
+                            return "";
+
         return id.get("name");
     }
 
-    private String intVisit(JmmNode value, Integer dummy){
-        return value.get("value") + ".i32";
-    }
-
     private String numberVisit(JmmNode value, Integer dummy){
-        return value.get("name") + ".i32";
+        return value.get("name");
     }
 
     private String boolVisit(JmmNode value, Integer dummy){
@@ -449,16 +478,11 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
     private String newVisit(JmmNode newNode, Integer dummy){
 
         StringBuilder newString = new StringBuilder();
-        JmmNode child = newNode.getChildren().get(0);
-        if (child.getKind().equals("ARRAY")) {
-            JmmNode grandChild = child.getChildren().get(0);
+        JmmNode child = newNode.getJmmChild(0);
+        if (!child.getKind().equals("Identifier")) {
             newString.append("new(array, ");
-            visit(grandChild);
-            newString.append(").array.i32");
-           // if (grandchild.getKind().equals("OBJECT_METHOD")) {
-           //     str += grandchildVisit + "\n";
-           //     grandchildVisit = grandchildVisit.substring(0, grandchildVisit.indexOf(" "));
-           // }
+            newString.append(visit(child));
+            newString.append(".i32).array");
         } else newString.append("new(").append(child.get("name")).append(").").append(child.get("name"));
 
         return newString.toString();
@@ -479,47 +503,95 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
     private String getOperator(JmmNode jmmNode) {
         if (jmmNode.getKind().equals("Plus"))
-            return " +";
+            return " +.i32 ";
         if (jmmNode.getKind().equals("Minus"))
-            return " -";
+            return " -.i32 ";
         if (jmmNode.getKind().equals("Times"))
-            return " *";
+            return " *.i32 ";
         if (jmmNode.getKind().equals("Divide"))
-            return " /";
+            return " /.i32 ";
         if (jmmNode.getKind().equals("Less"))
-            return " <";
+            return " <.i32 ";
         if (jmmNode.getKind().equals("And"))
-            return " &&";
+            return " &&.bool ";
         if (jmmNode.getKind().equals("Not"))
-            return " !";
-        return "";
+            return " !.bool ";
+        return " .V ";
     }
 
     private String operationVisit(JmmNode operation, Integer dummy) {
         StringBuilder operationStr = new StringBuilder();
-        boolean isNot = operation.getKind().equals("Not");
+        String leftNewVar = "";
+        String rightNewVar = "";
+        String opType = "";
+        if(operation.getKind().equals("Plus") || operation.getKind().equals("Minus") ||
+                operation.getKind().equals("Times") || operation.getKind().equals("Divide") || operation.getKind().equals("Less")) //todo evaluate type
+            opType = ".i32";
+        else opType = ".bool";
 
-        JmmNode left = operation.getChildren().get(0);
+        boolean isNot = operation.getKind().equals("Not"); //todo not
+
+
+
+        JmmNode left = operation.getJmmChild(0);
+        if (left.getKind().equals("Identifier") && left.get("name").equals("c"))
+            System.out.println("debug");
         JmmNode right = (!isNot)? operation.getChildren().get(1) : null;
 
         String leftStr = visit(left);
         String rightStr = (!isNot)? visit(right) : "";
 
-        List<String> leftOp = buildOperation(left, leftStr);
-        List<String> rightOp = (!isNot) ? buildOperation(right, rightStr) : leftOp;
+        if (leftStr.contains("\n")){
+            String leftPrefix = leftStr.substring(0, leftStr.lastIndexOf("\n") + 1);
+            operationStr.append(leftPrefix).append("\n");
+            leftNewVar = leftStr.substring(leftStr.lastIndexOf("\n") + 1);
+        }
 
-        operationStr.append(leftOp.get(0));
-        if (!isNot) operationStr.append(rightOp);
+    // TODO CHANGE TYPES
+     //  1 + 2 && 3;
 
-        operationStr.append(leftOp.get(1)).append(getOperator(operation));
+     //  t1.32 and 3.i32
+     //      1 ADD 2        t1.i32 :=.i32 (1.i32 +.i32 2.i32 \n t1
 
-        if(operation.getKind().equals("Plus") || operation.getKind().equals("Minus") ||
-                operation.getKind().equals("Times") || operation.getKind().equals("Divide"))
-            operationStr.append(".i32");
-        else operationStr.append(".bool");
+        if ((!isNot) && rightStr.contains("\n")){
+            String rightPrefix = rightStr.substring(0, rightStr.lastIndexOf("\n") + 1);
+            operationStr.append(rightPrefix).append("\n");
+            rightNewVar = rightStr.substring(rightStr.lastIndexOf("\n") + 1);
+        }
 
-        operationStr.append(rightOp.get(1)).append(";\n");
 
+        if (leftNewVar.equals("") && rightNewVar.equals("") && OllirUtils.isOperation(operation.getJmmParent()))
+            operationStr.append("\nt").append(++varCounter).append(opType).append(" :=").append(opType).append(" ");
+
+
+        if (leftNewVar.equals("")) operationStr.append(leftStr).append(opType);
+        else operationStr.append(leftNewVar).append(opType);
+
+        operationStr.append(getOperator(operation));
+
+        if (rightNewVar.equals("")) operationStr.append(rightStr).append(opType);
+        else operationStr.append(rightNewVar).append(opType);
+
+
+        if (leftNewVar.equals("") && rightNewVar.equals("") && OllirUtils.isOperation(operation.getJmmParent()))
+            operationStr.append(";\nt").append(varCounter);
+
+
+
+
+//
+       //     List<String> leftOp = buildOperation(left, leftStr);
+       // List<String> rightOp = (!isNot) ? buildOperation(right, rightStr) : leftOp;
+//
+       // operationStr.append(leftOp.get(0));
+       // if (!isNot) operationStr.append(rightOp);
+//
+       // operationStr.append(leftOp.get(1)).append(getOperator(operation));
+//
+//
+//
+       // operationStr.append(rightOp.get(1)).append(";\n");
+//
         return operationStr.toString();
     }
 
@@ -527,35 +599,37 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         String str = "";
         List<String> ret = new ArrayList<>();
 
-        if (OllirUtils.isOperation(operation) || operation.getKind().equals("OBJECT_METHOD") || operation.getKind().equals("ARRAY_ACCESS")) {
+        if (OllirUtils.isOperation(operation) || operation.getKind().equals("DotAccess") || operation.getKind().equals("ArrayAccess")) {
 
-            String substring;
-            String prefix = "";
-            if (!opStr.contains(":=."))
-                substring = opStr.substring(opStr.lastIndexOf("."), opStr.length() - 1);
-            else {
-                substring = opStr.substring(opStr.indexOf("."), opStr.indexOf(" "));
-                if (opStr.contains("\n")) {
-                    prefix = opStr.substring(0, opStr.lastIndexOf("\n") + 1);
-                    opStr = opStr.substring(opStr.lastIndexOf("\n") + 1);
-                } else {
-                    opStr = opStr.substring(opStr.lastIndexOf(" "));
-                }
-            }
-            if (!operation.getKind().equals("ARRAY_ACCESS")) {
-                str = prefix + "t" + varCounter + substring + " :=" + substring + " " + opStr + "\n";
-                opStr = "t" + varCounter + substring;
-                varCounter++;
-                //while (skipTemps.contains(varCounter))
-                    //varCounter++;
-            } else {
-                if (opStr.contains(":=.")) {
-                    prefix += opStr;
-                    opStr = opStr.substring(0, opStr.indexOf(" "));
-                } else
-                    opStr = opStr.substring(0, opStr.length() - 1);
-            }
 
+            //todo visitar nodes vizinhos
+           // String substring;
+           // String prefix = "";
+           // if (!opStr.contains(":=."))
+           //     substring = opStr.substring(opStr.lastIndexOf("."), opStr.length() - 1);
+           // else {
+           //     substring = opStr.substring(opStr.indexOf("."), opStr.indexOf(" "));
+           //     if (opStr.contains("\n")) {
+           //         prefix = opStr.substring(0, opStr.lastIndexOf("\n") + 1);
+           //         opStr = opStr.substring(opStr.lastIndexOf("\n") + 1);
+           //     } else {
+           //         opStr = opStr.substring(opStr.lastIndexOf(" "));
+           //     }
+           // }
+          //  if (!operation.getKind().equals("ARRAY_ACCESS")) {
+          //      str = prefix + "t" + varCounter + substring + " :=" + substring + " " + opStr + "\n";
+          //      opStr = "t" + varCounter + substring;
+          //      varCounter++;
+          //      //while (skipTemps.contains(varCounter))
+          //          //varCounter++;
+          //  } else {
+          //      if (opStr.contains(":=.")) {
+          //          prefix += opStr;
+          //          opStr = opStr.substring(0, opStr.indexOf(" "));
+          //      } else
+          //          opStr = opStr.substring(0, opStr.length() - 1);
+          //  }
+//
         } else {
             if (opStr.contains("\n")) {
                 String[] lines = opStr.split("\n");
@@ -582,53 +656,46 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
     }
 
 
-    private List<String> buildCondition(JmmNode condition, String condStr, boolean isWhile) {
-        String finalStr = "";
-        List<String> result = new ArrayList<>(2);
-        if (condition.getKind().equals("DotAccess")) {
-            if (isWhile) {
-                finalStr += "\t\tt" + varCounter + ".bool :=.bool " + condStr + "\n";
-            } else {
-                if (!condStr.contains("\n"))
-                    finalStr += "\t\tt" + varCounter + ".bool :=.bool " + condStr + "\n";
-                else {
-                    finalStr += condStr.substring(0, condStr.lastIndexOf("\n") + 1) + "\n\t\tt" + varCounter + ".bool :=.bool " + condStr.substring(condStr.lastIndexOf("\n")) + "\n";
+    private String buildCondition(JmmNode condition, String condStr, boolean isWhile) {
+        StringBuilder finalStr = new StringBuilder();
+
+        if (condition.getKind().equals("DotAccess") || condition.getKind().equals("ArrayAccess")) {
+            finalStr.append("t").append(++varCounter).append(".bool :=.bool ").append(condStr).append(";\n");
+            finalStr.append("t").append(varCounter);
+            //if (isWhile)
+            //    finalStr.append(".bool ==.bool 1.bool");
+            //else
+                finalStr.append(".bool !.bool 1.bool");
+
+
+        } else if (condition.getKind().equals("True") || condition.getKind().equals("False") || condition.getKind().equals("Identifier")) {
+
+           //if (isWhile)
+           //    finalStr.append(condStr).append(".bool ==.bool ").append(condStr).append(".bool");
+           //else
+                finalStr.append(condStr).append(".bool !.bool ").append(condStr).append(".bool");
+       }
+        else{
+           // if (isWhile)
+           //     return condStr;
+           // else{
+                if (condStr.contains("<")) {
+                    finalStr.append(condStr);
+                    finalStr.replace(finalStr.indexOf("<"), finalStr.indexOf("<") + 1, ">="); // todo change back
                 }
-            }
-
-            condStr = "t" + varCounter + ".bool !.bool t" + varCounter + ".bool;";
-            varCounter++;
-            //while (skipTemps.contains(varCounter))
-                //varCounter++;
-        } else if (condition.getKind().equals("Identifier") || condition.getKind().equals("True") || condition.getKind().equals("False")) {
-            if (isWhile)
-                condStr += " ==.bool " + condStr;
-            else
-                condStr += " !.bool " + condStr;
-        } else if (condition.getKind().equals("ArrayAccess")) {
-            finalStr += condStr + "\n";
-            condStr = condStr.substring(condStr.lastIndexOf("\n") + 1, condStr.lastIndexOf(":=."));
+                else if (condStr.contains("==")) {
+                    finalStr.append(condStr);
+                    finalStr.replace(finalStr.indexOf("=="), finalStr.indexOf("==") + 2, "!");
+                }
+                else if (condStr.contains("!")) {
+                    finalStr.append(condStr);
+                    finalStr.replace(finalStr.indexOf("!"), finalStr.indexOf("!") + 2, "==");
+                }
+            //}
         }
 
-        if (condStr.contains("\n")) {
-            finalStr += condStr.substring(0, condStr.lastIndexOf("\n"));
-            finalStr += "t" + varCounter + ".bool :=.bool " + condStr.substring(condStr.lastIndexOf("\n") + 1) + "\n";
-            condStr = isWhile ? "t" + varCounter + ".bool ==.bool t" + varCounter + ".bool;" : "t" + varCounter + ".bool !.bool t" + varCounter + ".bool;";
-            varCounter++;
-            //while (skipTemps.contains(varCounter))
-              //  varCounter++;
-        } else if (containsOps(condStr)) {
-            finalStr += "t" + varCounter + ".bool :=.bool " + condStr + "\n";
-            condStr = isWhile ? "t" + varCounter + ".bool ==.bool t" + varCounter + ".bool;" : "t" + varCounter + ".bool !.bool t" + varCounter + ".bool;";
-            varCounter++;
-            //while (skipTemps.contains(varCounter))
-                //varCounter++;
-        }
-        if (condStr.contains(";"))
-            condStr = condStr.substring(0, condStr.length() - 1);
-        result.add(finalStr);
-        result.add(condStr);
-        return result;
+
+        return finalStr.toString();
     }
 
     private boolean containsOps(String condStr) {

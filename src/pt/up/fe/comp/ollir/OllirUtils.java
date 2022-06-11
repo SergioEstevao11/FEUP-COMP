@@ -13,7 +13,7 @@ public class OllirUtils {
         return symbol.getName() + "." + getOllirType(symbol.getType());
     }
 
-    public static String getType(String name, List<Symbol> fields, List<Symbol> localVars, List<Symbol> parameters){
+    public static Symbol getSymbol(String name, List<Symbol> fields, List<Symbol> localVars){
 
         Symbol var = null;
         boolean isField = false;
@@ -25,23 +25,23 @@ public class OllirUtils {
             }
         }
         if (!isField){
-            // List<Symbol> localVars = symbolTable.getLocalVariables(method.get("name"));
             for (Symbol localVar:localVars){
                 if (localVar.getName().equals(name)){
                     var = localVar;
                     break;
                 }
             }
-            for (Symbol param: parameters){
-                if (param.getName().equals(name)){
-                    var = param;
-                    break;
-                }
-            }
+            //for (Symbol param: parameters){
+            //    if (param.getName().equals(name)){
+            //        var = param;
+            //        break;
+            //    }
+            //}
         }
 
-        return var.getType().getName();
+        return var;
     }
+
 
     public static String getOllirType(Type type){
         StringBuilder code = new StringBuilder();
@@ -85,12 +85,11 @@ public class OllirUtils {
 
         }
 
-
         switch (jmmOperator.getKind()){
             case "Add":
                 return " +.i32 ";
             case "Less":
-                return " <.bool ";
+                return " <.i32 ";
             case "Sub":
                 return " -.i32 ";
             case "Mult":
