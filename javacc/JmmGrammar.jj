@@ -90,7 +90,7 @@ VarDeclaration :
 ;
 
 Type :
-    (<INTBRACKETS> {jjtThis.put("type", lastConsumedToken.getImage());})    |
+    (<INTBRACKETS> {jjtThis.put("type", lastConsumedToken.getImage());})     |
     (<IDENTIFIER> {jjtThis.put("type", lastConsumedToken.getImage());})     |
     (<INT>  {jjtThis.put("type", lastConsumedToken.getImage());})           |
     (<BOOLEAN> {jjtThis.put("type", lastConsumedToken.getImage());})        |
@@ -169,7 +169,7 @@ NotDeclaration #void: DotArrayDeclaration | <NOT> NotDeclaration #Not(1)
 DotArrayDeclaration #void: KeyWords (<DOT> DotDeclaration #DotAccess(2) | (ArrayAccess #ArrayAccess(2)))*
 ;
 
-ArrayAccess #void: <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET>
+ArrayAccess #void: <OPEN_SQUARE_BRACKET> (Expression)? <CLOSE_SQUARE_BRACKET>
 ;
 
 DotDeclaration : <LENGTH> #Length | (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier) <OPEN_CURVE_BRACKET> DotDeclarationArgs <CLOSE_CURVE_BRACKET>

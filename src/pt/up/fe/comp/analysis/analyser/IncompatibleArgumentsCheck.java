@@ -25,7 +25,7 @@ public class IncompatibleArgumentsCheck extends PreorderJmmVisitor<Integer, Inte
         if( dotAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = dotAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(0).get("name");
         else method_name = dotAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
 
-        List<Symbol> parameters = symbolTable.getParameters(dotAccessNode.getJmmChild(0).get("name"));
+        List<Symbol> parameters = symbolTable.getParameters(dotAccessNode.getJmmChild(1).getJmmChild(0).get("name"));
         if(dotAccessNode.getJmmChild(1).getKind().equals("DotDeclarationArgs")){
             System.out.println("PARRAMETRROS: " + parameters);
             System.out.println("Numero filhos" + dotAccessNode.getJmmChild(1).getNumChildren() );
