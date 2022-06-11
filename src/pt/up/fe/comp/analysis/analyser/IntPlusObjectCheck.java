@@ -23,28 +23,46 @@ public class IntPlusObjectCheck extends PreorderJmmVisitor<Integer, Integer> {
     }
     public Integer visitIntPlusObject(JmmNode plusNode, Integer ret){
         String method_name = null;
-        if( plusNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = plusNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(0).get("name");
+
+        if( plusNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = "main";
         else method_name = plusNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
-        String left_node_name = plusNode.getJmmChild(0).get("name");
-        String left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
-        String right_node_name = plusNode.getJmmChild(1).get("name");
-        String right_node_type = symbolTable.getVariableType(method_name,right_node_name).getName();
 
-        JmmNode rightNode = plusNode.getJmmChild(1);
-        JmmNode leftNode = plusNode.getJmmChild(0);
+        if(plusNode.getJmmChild(0).getKind().equals("Identifier") ) {
+            String left_side = symbolTable.getVariableType(method_name, plusNode.getJmmChild(0).get("name")).getName();
+            if (plusNode.getJmmChild(1).getKind().equals("Identifier")) {
+                if (symbolTable.isArray(method_name, plusNode.getJmmChild(1).get("name")) && symbolTable.isArray(method_name, plusNode.getJmmChild(0).get("name")))
+                    reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add two arrays", null));
+                String right_side = symbolTable.getVariableType(method_name, plusNode.getJmmChild(1).get("name")).getName();
+                if (!left_side.equals(right_side))
+                    reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "variables of different type", null));
+            }
+        }
 
-        if (symbolTable.isObject(method_name,left_node_name) && rightNode.getKind().equals("Number")){
-            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + leftNode + "\" invalid type: expecting an boolean.", null));
+        else if(plusNode.getJmmChild(1).getKind().equals("Identifier") ){
+            String right_side = symbolTable.getVariableType(method_name,plusNode.getJmmChild(0).get("name")).getName();
+
         }
-        else if (symbolTable.isObject(method_name,right_node_name) && leftNode.getKind().equals("Number")){
-            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + leftNode + "\" invalid type: expecting an boolean.", null));
-        }
-        else if (left_node_type.equals("int") && symbolTable.isObject(method_name,right_node_name)){
-            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + rightNode + "\" invalid type: expecting an boolean.", null));
-        }
-        else if (right_node_type.equals("int") && symbolTable.isObject(method_name,left_node_name)){
-            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + rightNode + "\" invalid type: expecting an boolean.", null));
-        }
+
+//        String left_node_name = plusNode.getJmmChild(0).get("name");
+//        String left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
+//        String right_node_name = plusNode.getJmmChild(1).get("name");
+//        String right_node_type = symbolTable.getVariableType(method_name,right_node_name).getName();
+//
+//        JmmNode rightNode = plusNode.getJmmChild(1);
+//        JmmNode leftNode = plusNode.getJmmChild(0);
+//
+//        if (symbolTable.isObject(method_name,left_node_name) && rightNode.getKind().equals("Number")){
+//            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + leftNode + "\" invalid type: expecting an boolean.", null));
+//        }
+//        else if (symbolTable.isObject(method_name,right_node_name) && leftNode.getKind().equals("Number")){
+//            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + leftNode + "\" invalid type: expecting an boolean.", null));
+//        }
+//        else if (left_node_type.equals("int") && symbolTable.isObject(method_name,right_node_name)){
+//            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + rightNode + "\" invalid type: expecting an boolean.", null));
+//        }
+//        else if (right_node_type.equals("int") && symbolTable.isObject(method_name,left_node_name)){
+//            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + rightNode + "\" invalid type: expecting an boolean.", null));
+//        }
         return 0;
     }
 

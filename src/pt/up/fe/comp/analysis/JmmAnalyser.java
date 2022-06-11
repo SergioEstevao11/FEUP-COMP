@@ -113,6 +113,11 @@ public class JmmAnalyser implements JmmAnalysis{
         var incompatibleReturnCheck = new IncompatibleReturnCheck(symbolTable,reports);
         incompatibleReturnCheck.visit(rootNode,null);
 
+        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
+        // test_1_18_IncompatibleReturn
+        var thisCallCheck = new ThisCallCheck(symbolTable,reports);
+        thisCallCheck.visit(rootNode,null);
+
 
         System.out.println(reports);
 

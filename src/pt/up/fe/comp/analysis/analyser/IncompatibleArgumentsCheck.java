@@ -22,7 +22,7 @@ public class IncompatibleArgumentsCheck extends PreorderJmmVisitor<Integer, Inte
     }
     public Integer visitDotAccess(JmmNode dotAccessNode, Integer ret) {
         String method_name = null;
-        if( dotAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = dotAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(0).get("name");
+        if( dotAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = "main";
         else method_name = dotAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
 
         List<Symbol> parameters = symbolTable.getParameters(dotAccessNode.getJmmChild(1).getJmmChild(0).get("name"));
@@ -74,6 +74,9 @@ public class IncompatibleArgumentsCheck extends PreorderJmmVisitor<Integer, Inte
                 }
             }
         }
+//        else if(dotAccessNode.getJmmChild(0).getKind().equals("ThisDeclaration"){
+//
+//        }
         return 1;
     }
     public List<Report> getReports(){

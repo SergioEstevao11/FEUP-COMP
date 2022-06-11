@@ -23,7 +23,7 @@ public class IntInIfConditionCheck extends PreorderJmmVisitor<Integer, Integer> 
     public Integer visitIfCondition(JmmNode ifStatementNode, Integer ret) {
         JmmNode left_node = ifStatementNode.getJmmChild(0);
         String method_name = null;
-        if( ifStatementNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = ifStatementNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(0).get("name");
+        if( ifStatementNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = "main";
         else method_name = ifStatementNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
 
         boolean isMathExpression = symbolTable.isMathExpression(left_node.getKind());

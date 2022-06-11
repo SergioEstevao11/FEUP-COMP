@@ -25,7 +25,7 @@ public class ArrayInWhileCondition extends PreorderJmmVisitor<Integer, Integer> 
     public Integer visitWhileCondition(JmmNode whileStatementNode, Integer ret) {
         JmmNode left_node = whileStatementNode.getJmmChild(0);
         String method_name = null;
-        if( whileStatementNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = whileStatementNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(0).get("name");
+        if( whileStatementNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = "main";
         else method_name = whileStatementNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
 
         boolean isMathExpression = symbolTable.isMathExpression(left_node.getKind());

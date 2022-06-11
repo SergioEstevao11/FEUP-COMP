@@ -22,17 +22,17 @@ public class ArrayAccessOnIntCheck extends PreorderJmmVisitor<Integer, Integer> 
     }
     public Integer visitArrayAccess(JmmNode arrayAccessNode, Integer ret){
 
-        JmmNode left_node = arrayAccessNode.getJmmChild(0);
-        String method_name = null;
-        String left_node_name = null;
-        if( arrayAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = arrayAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(0).get("name");
-        else method_name = arrayAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
-
-        if(!left_node.getKind().equals("Type")) left_node_name = left_node.get("name");
-        String left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
-
-        if(!symbolTable.isArray(method_name, left_node_name) || left_node_type.equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + left_node_type + "\" invalid type: can't access on a int, expected an array", null));
-
+//        JmmNode left_node = arrayAccessNode.getJmmChild(0);
+//        String method_name = null;
+//        String left_node_name = null;
+//        if( arrayAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = arrayAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(0).get("name");
+//        else method_name = arrayAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
+//
+//        if(!left_node.getKind().equals("Int")) left_node_name = left_node.get("name");
+//        String left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
+//
+//        if(!symbolTable.isArray(method_name, left_node_name) || left_node_type.equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + left_node_type + "\" invalid type: can't access on a int, expected an array", null));
+//
         return 0;
     }
 
