@@ -190,7 +190,7 @@ KeyWords #void:  <TRUE> #True |
 ThisDeclaration : <THIS> (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier)?
 ;
 
-NewDeclaration : <NEW> (<INT> ArrayAccess #ArrayAccess | (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier) <OPEN_CURVE_BRACKET> <CLOSE_CURVE_BRACKET>)
+NewDeclaration : <NEW> (<INT> #Int ArrayAccess #ArrayAccess(2) | (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier) <OPEN_CURVE_BRACKET> <CLOSE_CURVE_BRACKET>)
 ;          
 
 
