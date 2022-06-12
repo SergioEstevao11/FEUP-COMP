@@ -11,7 +11,7 @@ class Method_Call_Missing {
 
     public int foo(boolean a){
         int j;
-        
+        a = b[b.foo()];
         if (a) {
             j = this.solve(20);
         } else {

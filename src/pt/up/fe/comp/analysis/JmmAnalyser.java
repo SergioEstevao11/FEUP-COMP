@@ -17,7 +17,6 @@ public class JmmAnalyser implements JmmAnalysis{
 
     @Override
     public JmmSemanticsResult semanticAnalysis(JmmParserResult parserResult) {
-        System.out.println("DENTRO DO FUCKING SEMANTIC ANALYSER");
         if (TestUtils.getNumReports(parserResult.getReports(), ReportType.ERROR) > 0) {
             var errorReport = new Report(ReportType.ERROR, Stage.SEMANTIC, -1,
                     "Started semantic analysis but there are errors from previous stage");
@@ -34,15 +33,10 @@ public class JmmAnalyser implements JmmAnalysis{
 
         List<Report> reports = new ArrayList<>();
         var symbolTable = new SymbolTableBuilder();
-        System.out.println("Symbol Table Created");
 
-        System.out.println("Filling Symbol Table");
         var symbolTableFiller = new SymbolTableFiller(symbolTable, reports);
         symbolTableFiller.visit(rootNode, null);
         reports.addAll(reports);
-        System.out.println("Symbol Table Filled");
-
-        System.out.println("Semantic Analysis");
 
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA

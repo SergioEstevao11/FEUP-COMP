@@ -25,8 +25,9 @@ public class ArrayPlusIntCheck  extends PreorderJmmVisitor<Integer, Integer> {
     public Integer visitArrayPlusInt(JmmNode plusNode, Integer ret){
         JmmNode left_node = plusNode.getJmmChild(0);
         JmmNode right_node  = plusNode.getJmmChild(1);
-        String method_name = plusNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
-        String left_node_name = left_node.get("name");
+        String method_name = null;
+        if( plusNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = plusNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(0).get("name");
+        else method_name = plusNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");        String left_node_name = left_node.get("name");
         String left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
         String right_node_name = right_node.get("name");
         String right_node_type = symbolTable.getVariableType(method_name,right_node_name).getName();

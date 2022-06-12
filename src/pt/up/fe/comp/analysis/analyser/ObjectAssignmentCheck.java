@@ -24,10 +24,16 @@ public class ObjectAssignmentCheck extends PreorderJmmVisitor<Integer, Integer> 
     public Integer visitObjectAssignmentFail(JmmNode assignmentNode, Integer ret) {
         JmmNode left_node = assignmentNode.getJmmChild(0);
         JmmNode right_node = assignmentNode.getJmmChild(1);
+        String method_name = null;
+        String left_node_name = null;
+        if( assignmentNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = assignmentNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(0).get("name");
+        else method_name = assignmentNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
 
-        String method_name = assignmentNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
-
-        String left_node_name = left_node.get("name");
+//        if(left_node.getKind().equals("True") || left_node.getKind().equals("False") ) return 1;
+//        else if(left_node.getKind().equals("Number")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + left_node.getKind().equals("Number") + "\" invalid type: expecting a boolean.", null));
+//        else {
+//            left_node_name = left_node.get("name");
+//        }
 
         if(symbolTable.isObject(method_name, left_node_name) && right_node.getKind().equals("Identifier")) {
             String right_node_name = right_node.get("name");

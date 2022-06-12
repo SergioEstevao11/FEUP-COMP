@@ -61,7 +61,7 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
     }
 
     private String visitCommonMethodDeclaration(JmmNode node, String space) {
-        System.out.println("estou dentro do visit common method declarration");
+
         scope = "METHOD";
 
         List<Symbol> parameters = new ArrayList<>();
@@ -76,7 +76,6 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
         //visit common method name
         table.addMethod(node.getJmmChild(1).get("name"), SymbolTableBuilder.getType(node.getJmmChild(0), "type"), parameters);
 
-        System.out.println("METHOD NAME" + node.getJmmChild(1).get("name"));
         return node.toString();
     }
 

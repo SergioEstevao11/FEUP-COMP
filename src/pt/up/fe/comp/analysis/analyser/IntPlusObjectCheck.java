@@ -22,7 +22,9 @@ public class IntPlusObjectCheck extends PreorderJmmVisitor<Integer, Integer> {
         setDefaultVisit((node, oi) -> 0);
     }
     public Integer visitIntPlusObject(JmmNode plusNode, Integer ret){
-        String method_name = plusNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
+        String method_name = null;
+        if( plusNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = plusNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(0).get("name");
+        else method_name = plusNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
         String left_node_name = plusNode.getJmmChild(0).get("name");
         String left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
         String right_node_name = plusNode.getJmmChild(1).get("name");
