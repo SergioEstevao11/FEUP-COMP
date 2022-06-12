@@ -271,7 +271,7 @@ public class Backend implements JasminBackend{
         OpCondInstruction opCondInstr = (OpCondInstruction) instr;
         OperationType opCondType = opCondInstr.getCondition().getOperation().getOpType();
 
-        if (opCondType == OperationType.AND || opCondType == OperationType.ANDB || opCondType == OperationType.ANDI32) {
+        if (opCondType == OperationType.AND || opCondType == OperationType.ANDB || opCondType == OperationType.AND) {
             comparisons++;
 
             branchOpCode += "\tifeq False" + comparisons + "\n" +
@@ -471,11 +471,11 @@ public class Backend implements JasminBackend{
                     "Store" + conditionals + ":\n";
         }
 
-        if (opType == OperationType.EQ || opType == OperationType.EQI32){
+        if ( opType == OperationType.EQ){
             //TODO
         }
 
-        if (opType == OperationType.LTH || opType == OperationType.LTHI32) {
+        if (opType == OperationType.LTH) {
             conditionals++;
             String jasminCode = loadElement(instr.getLeftOperand()) +
                     loadElement(instr.getRightOperand()) +
@@ -497,22 +497,22 @@ public class Backend implements JasminBackend{
 
     private String getJasminNumOperation(Operation operation) {
         OperationType opType = operation.getOpType();
-        if (opType == OperationType.ANDB || opType == OperationType.ANDI32)
+        if (opType == OperationType.ANDB || opType == OperationType.AND)
             return "iand";
 
-        if (opType == OperationType.ORB || opType == OperationType.ORI32)
+        if (opType == OperationType.ORB || opType == OperationType.OR)
             return "ior";
 
-        if (opType == OperationType.ADD || opType == OperationType.ADDI32)
+        if (opType == OperationType.ADD)
             return "iadd";
 
-        if (opType == OperationType.SUB || opType == OperationType.SUBI32)
+        if ( opType == OperationType.SUB)
             return "imul";
 
-        if (opType == OperationType.MUL || opType == OperationType.MULI32)
+        if ( opType == OperationType.MUL)
             return "isub";
 
-        if (opType == OperationType.DIV || opType == OperationType.DIVI32)
+        if ( opType == OperationType.DIV)
             return "idiv";
 
         return "ERROR operation not implemented yet";
@@ -668,17 +668,17 @@ public class Backend implements JasminBackend{
 
     private String getJasminBranchComparison(Operation operation) {
         switch (operation.getOpType()) {
-            case LTE: case LTEI32:
+            case LTE:
                 return "if_icmple";
-            case LTH: case LTHI32:
+            case LTH:
                 return "if_icmplt";
-            case GTE: case GTEI32:
+            case GTE:
                 return "if_icmpge";
-            case GTH: case GTHI32:
+            case GTH:
                 return "if_icmpgt";
-            case EQ: case EQI32:
+            case EQ:
                 return "if_icmpeq";
-            case NOTB: case NEQ: case NEQI32:
+            case NOTB: case NEQ:
                 return "if_icmpne";
             default:
                 System.out.println(operation.getOpType());
