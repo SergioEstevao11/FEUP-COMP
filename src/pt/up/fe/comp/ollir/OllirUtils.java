@@ -70,6 +70,10 @@ public class OllirUtils {
                 operation.getKind().equals("Less") || operation.getKind().equals("And") || operation.getKind().equals("Not");
     }
 
+    public static boolean isFinalOperation(JmmNode operation) {
+        return operation.getKind().equals("Less") || operation.getKind().equals("And") || operation.getKind().equals("Not");
+    }
+
     public static String getOllirVar(String jmmVar, Type type){
         return jmmVar + getOllirType(type);
     }
@@ -89,7 +93,7 @@ public class OllirUtils {
             case "Add":
                 return " +.i32 ";
             case "Less":
-                return " <.i32 ";
+                return " <.bool ";
             case "Sub":
                 return " -.i32 ";
             case "Mult":
