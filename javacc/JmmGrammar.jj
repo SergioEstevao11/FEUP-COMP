@@ -86,11 +86,11 @@ ClassDeclaration :
 ;
 
 VarDeclaration :
-    (Type <IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier) (<EQUALS> Expression)? <SEMICOLON>
+    (Type <IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier)  (<OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET>)? (<EQUALS> Expression)? <SEMICOLON>
 ;
 
 Type :
-    (<INTBRACKETS> {jjtThis.put("type", lastConsumedToken.getImage());})    |
+    (<INTBRACKETS> {jjtThis.put("type", lastConsumedToken.getImage());})     |
     (<IDENTIFIER> {jjtThis.put("type", lastConsumedToken.getImage());})     |
     (<INT>  {jjtThis.put("type", lastConsumedToken.getImage());})           |
     (<BOOLEAN> {jjtThis.put("type", lastConsumedToken.getImage());})        |
@@ -114,7 +114,11 @@ MainMethodHeader :
 ;
 
 MethodBody :
-    (SCAN 2 VarDeclaration)* (Statement)* (<RETURN> Expression <SEMICOLON>)?
+        (SCAN 2 VarDeclaration)* (Statement)* (Return)?
+;
+
+Return :
+    <RETURN> ExpressionStatement
 ;
 
 Statement #void:
@@ -128,7 +132,7 @@ Statement #void:
 CompoundStatement #void: <OPEN_BRACKET> (Statement)* <CLOSE_BRACKET>
 ;
 
-ExpressionStatement : Expression <SEMICOLON>
+ExpressionStatement #void: Expression <SEMICOLON>
 ;
 
 IfStatement :
@@ -144,8 +148,7 @@ Assignment #void:
     VarAccess <EQUALS> Expression #Assignment(2) <SEMICOLON>
 ;
 
-VarAccess #void : SCAN 2 (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier) <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET>|
-            (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier)
+VarAccess #void : (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier) (ArrayAccess #ArrayAccess(2))?
 ;
 
 Expression #void: LessDeclaration ((<AND> LessDeclaration) #And(2) )*
@@ -163,25 +166,31 @@ MultDivDeclaration #void: NotDeclaration ( (<TIMES> NotDeclaration ) #Times(2)  
 NotDeclaration #void: DotArrayDeclaration | <NOT> NotDeclaration #Not(1)
 ;
 
-DotArrayDeclaration #void: KeyWords ((<DOT> DotDeclaration) #DotAccess(2) | (ArrayAccess #ArrayAccess(2)))*
+DotArrayDeclaration #void: KeyWords (<DOT> DotDeclaration #DotAccess(2) | (ArrayAccess #ArrayAccess(2)))*
 ;
 
-ArrayAccess #void: <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET>
+ArrayAccess #void: <OPEN_SQUARE_BRACKET> (Expression)? <CLOSE_SQUARE_BRACKET>
 ;
 
-DotDeclaration #void: <LENGTH> #Length | (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier) <OPEN_CURVE_BRACKET> (Expression (<COMMA> Expression)*)* <CLOSE_CURVE_BRACKET>
+DotDeclaration : <LENGTH> #Length | (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier) <OPEN_CURVE_BRACKET> DotDeclarationArgs <CLOSE_CURVE_BRACKET>
+;
+
+DotDeclarationArgs : (Expression (<COMMA> Expression)*)?
 ;
 
 KeyWords #void:  <TRUE> #True |
             <FALSE> #False|
-            <THIS> #This |
+            ThisDeclaration |
             NewDeclaration |
             <OPEN_CURVE_BRACKET> Expression <CLOSE_CURVE_BRACKET> |
             (<INTEGERLITERAL> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Number)|
             (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier)
 ;
 
-NewDeclaration : <NEW> (<INT> <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET> | (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier) <OPEN_CURVE_BRACKET> <CLOSE_CURVE_BRACKET>)
+ThisDeclaration : <THIS> (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier)?
+;
+
+NewDeclaration : <NEW> (<INT> #Int ArrayAccess #ArrayAccess(2) | (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier) <OPEN_CURVE_BRACKET> <CLOSE_CURVE_BRACKET>)
 ;          
 
 

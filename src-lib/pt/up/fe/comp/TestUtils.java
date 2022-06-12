@@ -54,9 +54,7 @@ public class TestUtils {
     }
 
     public static JmmParserResult parse(String code, Map<String, String> config) {
-
         JmmParser parser = getJmmParser();
-
         return parser.parse(code, config);
     }
 
@@ -74,9 +72,8 @@ public class TestUtils {
     }
 
     public static JmmParser getJmmParser() {
-
+        System.out.println("boas1");
         SpecsSystem.programStandardInit();
-
         // Get Parser class
         String parserClassName = getClassFromConfig("ParserClass");
 
@@ -189,7 +186,6 @@ public class TestUtils {
      * @return
      */
     public static JmmSemanticsResult analyse(JmmParserResult parserResult) {
-
         JmmAnalysis analysis = getJmmAnalysis();
 
         return analysis.semanticAnalysis(parserResult);
@@ -248,7 +244,9 @@ public class TestUtils {
      * @return
      */
     public static OllirResult optimize(String jmmCode, Map<String, String> config) {
+        System.out.println("antes de correr semantic");
         var semanticsResult = analyse(jmmCode, config);
+        System.out.println("depois de correr semantic");
         noErrors(semanticsResult.getReports());
         return optimize(semanticsResult);
     }
