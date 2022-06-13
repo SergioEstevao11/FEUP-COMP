@@ -142,7 +142,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         }
         else {
             methodString.append(methodDecl.getJmmChild(0).getJmmChild(1).get("name")).append("(");
-            params = symbolTable.getParameters(methodDecl.getJmmChild(0).getJmmChild(1).get("name"));
+            params = symbolTable.getParameters(methodName(methodDecl));
         }
 
         String paramCode = params.stream().map(symbol -> OllirUtils.getCode(symbol)).collect(Collectors.joining(", "));
@@ -153,15 +153,17 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
         methodString.append(")");
 
-        methodString.append(OllirUtils.getOllirType(symbolTable.getReturnType(methods.get(methods.size() - 1))));
+        methodString.append(OllirUtils.getOllirType(symbolTable.getReturnType(methodName(methodDecl))));
         methodString.append(" {\n");
 
 
         for (var stmt: methodDecl.getJmmChild(1).getChildren())
             methodString.append(visit(stmt));
 
+        if(!methodString.toString().contains("ret."))
+            methodString.append("ret.V;\n");
 
-        methodString.append("ret.V;\n"); // todo test, take off later
+
 
         methodString.append("}\n");
 
@@ -501,18 +503,18 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
     private String returnVisit(JmmNode returnNode, Integer dummy){
         StringBuilder returnString = new StringBuilder();
         JmmNode expression = returnNode.getChildren().get(0);
-        //String type = returnNode.getJmmParent().getJmmParent();
         String exp = visit(expression);
+        String type = OllirUtils.getOllirType(symbolTable.getReturnType(methodName(returnNode)));
 
         if (exp.contains("\n")){
             returnString.append(exp.substring(0, exp.lastIndexOf("\n") + 1));
             String tmp = exp.substring(exp.lastIndexOf("\n") + 1);
-            returnString.append("ret").append(".i32 ");
-            returnString.append(tmp).append(/*OllirUtils.getOllirType(symbolTable.getReturnType(methodNode.get().get("name"))*/".i32"); // todo change type
+            returnString.append("ret").append(type);
+            returnString.append(tmp).append(type);
         }
         else {
-            returnString.append("ret").append(/*OllirUtils.getOllirType(symbolTable.getReturnType(methodNode.get().get("name"))*/".i32"); // todo change type
-            returnString.append(" ").append(exp).append(".i32");
+            returnString.append("ret").append(type);
+            returnString.append(" ").append(exp).append(type);
         }
         returnString.append(";\n");
         return returnString.toString();
@@ -530,15 +532,14 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
             }
         }
 
-        for (String method : symbolTable.getMethods()){
+        String method = methodName(id);
+        if (!method.equals("")){
             List<Symbol> params = symbolTable.getParameters(method);
             for (int i = 0; i < params.size(); i++){
                 if (params.get(i).getName().equals(id.get("name")))
                     return "$" + (i + 1) + "." + id.get("name");
             }
         }
-
-
 
         // extern functions don't print id
         List<JmmNode> children = id.getJmmParent().getChildren();
@@ -559,8 +560,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
     }
 
     private String boolVisit(JmmNode value, Integer dummy){
-        if (value.getKind().equals("True")) return "true.bool";
-        return "false.bool";
+        if (value.getKind().equals("True")) return "true";
+        return "false";
     }
 
     private String newVisit(JmmNode newNode, Integer dummy){
@@ -733,6 +734,19 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
         return ".i32";
     }
+
+    public String methodName(JmmNode nodeId){
+        while(!nodeId.getKind().equals("MethodDeclaration") && !nodeId.getKind().equals("Start")){
+            nodeId = nodeId.getJmmParent();
+        }
+
+        if (nodeId.getKind().equals("Start")) return "";
+        else {
+            if (nodeId.getJmmChild(0).getKind().equals("MainMethodHeader")) return "main";
+            else return nodeId.getJmmChild(0).getJmmChild(1).get("name");
+        }
+    }
+
 
 };
 

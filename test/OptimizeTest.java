@@ -20,7 +20,7 @@ public class OptimizeTest {
 
     @Test
     public void testHelloWorld() {
-        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/QuickSort.jmm"));
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/WhileAndIf.jmm"));
         System.out.println(result);
         TestUtils.noErrors(result.getReports());
     }
