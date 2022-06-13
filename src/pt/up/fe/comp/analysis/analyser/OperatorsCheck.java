@@ -96,7 +96,9 @@ public class OperatorsCheck extends PreorderJmmVisitor<Integer, Integer> {
             else if(!plusNode.getJmmChild(1).getKind().equals("Number")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add variable which aren't of type int", null));
 
         }
-        else if(!plusNode.getJmmChild(0).getKind().equals("Number")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add variable which aren't of type int", null));
+        else if(plusNode.getJmmChild(0).getKind().equals("Number") ){
+            if(!plusNode.getJmmChild(1).getKind().equals("Number")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add variable which aren't of type int", null));
+        }
 
         return 0;
     }
