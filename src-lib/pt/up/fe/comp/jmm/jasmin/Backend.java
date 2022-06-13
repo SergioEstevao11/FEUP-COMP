@@ -1,6 +1,7 @@
 package pt.up.fe.comp.jmm.jasmin;
 
 import org.specs.comp.ollir.*;
+import pt.up.fe.comp.ElseScope;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.Stage;
@@ -244,11 +245,36 @@ public class Backend implements JasminBackend{
             return this.generateGetFieldOp((GetFieldInstruction) instr);
         if (instr instanceof PutFieldInstruction)
             return this.generatePutFieldOp((PutFieldInstruction) instr);
+        if (instr instanceof UnaryOpInstruction){
+            return this.generateUnaryOp((UnaryOpInstruction) instr);
+        }
         return "ERROR: instruction doesn't exist";
 
     }
 
-    private String generatePutFieldOp(PutFieldInstruction instr) {
+    private String generateUnaryOp(UnaryOpInstruction instr) {
+        OperationType opType = instr.getOperation().getOpType();
+        Element leftElem = instr.getOperands().get(0);
+        String branchOpCode = loadElement(leftElem);
+
+        if (opType == OperationType.NOTB || opType == OperationType.NOT) {
+            comparisons++;
+            //limitStack(1);
+            stack = 0;
+
+            branchOpCode +=  "\tifne True" + comparisons + "\n" +
+                    "\ticonst_1" + "\n" +
+                    "\tgoto " + "Continue" + comparisons + "\n" +
+                    "True" + comparisons + ":\n" +
+                    "\ticonst_0" + "\n" +
+                    "Continue" + comparisons + ":\n";
+        }
+
+        return branchOpCode;
+
+    }
+
+        private String generatePutFieldOp(PutFieldInstruction instr) {
 
         return loadElement(instr.getFirstOperand())
                 + loadElement(instr.getThirdOperand()) + "\tputfield "
@@ -279,7 +305,7 @@ public class Backend implements JasminBackend{
         Instruction condInstr = instr.getCondition();
 
         if (condInstr instanceof OpInstruction) {
-
+            Element rightElem = instr.getOperands().get(1);
             OpInstruction opCondInstr = (OpInstruction) condInstr;
             opCondType = opCondInstr.getOperation().getOpType();
             if (opCondType == OperationType.AND || opCondType == OperationType.ANDB) {
@@ -288,16 +314,32 @@ public class Backend implements JasminBackend{
                 stack = 0;
 
                 branchOpCode += "\tifeq False" + comparisons + "\n" +
-                        loadElement(leftElem) +
+                        loadElement(rightElem) +
                         "\tifeq False" + comparisons + "\n" +
                         "\tgoto " + instr.getLabel() + "\n" +
                         "False" + comparisons + ":\n";
 
-            } else {
-                Element rightElem = instr.getOperands().get(1);
+            }
+            else if(opCondType == OperationType.OR || opCondType == OperationType.ORB) {
+                comparisons++;
+                //limitStack(1);
+                stack = 0;
+
+                //TODO
+
+            }else {
                 branchOpCode += loadElement(rightElem)
                         + "\t" + getJasminBranchComparison(opCondInstr.getOperation()) + " " + instr.getLabel() + "\n";
             }
+        }
+        else{
+            comparisons++;
+            //limitStack(1);
+            stack = 0;
+
+            branchOpCode +=  "\tifeq False" + comparisons + "\n" +
+                    "\tgoto " + instr.getLabel() + "\n" +
+                    "False" + comparisons + ":\n";
         }
 
 
@@ -487,12 +529,12 @@ public class Backend implements JasminBackend{
                     "Store" + conditionals + ":\n";
         }
 
-        if (opType == OperationType.ANDB) {
+        if (opType == OperationType.ANDB || opType == OperationType.AND) {
             conditionals++;
             //limitStack(1);
             stack = 0;
 
-            return loadElement(instr.getLeftOperand()) +
+            return  loadElement(instr.getLeftOperand()) +
                     "\tifeq False" + conditionals + "\n" +
                     loadElement(instr.getRightOperand()) +
                     "\tifeq False" + conditionals + "\n" +
@@ -501,10 +543,6 @@ public class Backend implements JasminBackend{
                     "False" + conditionals + ":\n" +
                     "\ticonst_0\n" +
                     "Store" + conditionals + ":\n";
-        }
-
-        if ( opType == OperationType.EQ){
-            //TODO
         }
 
         if (opType == OperationType.LTH) {
@@ -521,6 +559,7 @@ public class Backend implements JasminBackend{
             return jasminCode;
         }
 
+
         return loadElement(instr.getLeftOperand()) + loadElement(instr.getRightOperand())
                 + "\t" + getJasminNumOperation(instr.getOperation()) + "\n";
     }
@@ -529,11 +568,6 @@ public class Backend implements JasminBackend{
 
     private String getJasminNumOperation(Operation operation) {
         OperationType opType = operation.getOpType();
-        if (opType == OperationType.ANDB || opType == OperationType.AND)
-            return "iand";
-
-        if (opType == OperationType.ORB || opType == OperationType.OR)
-            return "ior";
 
         if (opType == OperationType.ADD)
             return "iadd";
@@ -628,6 +662,11 @@ public class Backend implements JasminBackend{
     private String loadElement(Element elem) {
         if (elem.isLiteral())
             return loadLiteral((LiteralElement) elem);
+        if (elem.getType().getTypeOfElement() == ElementType.BOOLEAN){
+            String name = ((Operand) elem).getName();
+            if (name.equals("true") || name.equals("false"))
+                return loadBoolean(elem);
+        }
 
         Descriptor descriptor = currVarTable.get(((Operand) elem).getName());
         if (descriptor == null)
@@ -645,6 +684,19 @@ public class Backend implements JasminBackend{
         }
 
         return loadDescriptor(descriptor);
+    }
+
+    private String loadBoolean(Element elem){
+        String jasminCode = "\t";
+
+        String name = ((Operand) elem).getName();
+
+        if (name.equals("true")){
+            return jasminCode + "iconst_1" + "\n";
+        }
+        else{
+            return jasminCode + "iconst_0" + "\n";
+        }
     }
 
     private String loadDescriptor(Descriptor descriptor) {
@@ -721,12 +773,12 @@ public class Backend implements JasminBackend{
     //Stack Functions
     private String generateStackLimits()
     {
-        return "\t.limit stack " + 99 + "\n";
+        return "\t.limit stack " + 98 + "\n";
     }
 
     private String generateLocalLimits() {
 
-        return "\t.limit locals " + 99 + "\n";
+        return "\t.limit locals " + 98 + "\n";
 
     }
 
