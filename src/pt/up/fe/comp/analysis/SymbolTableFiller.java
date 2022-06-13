@@ -107,7 +107,6 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
 
         System.out.println("scope : " + scope);
         if (scope.equals("CLASS")) {
-            System.out.println("teoricamente isto seria um field :)");
             if (table.hasField(field.getName())) {
                 this.reports.add(new Report(
                         ReportType.ERROR, Stage.SEMANTIC,
@@ -133,6 +132,14 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
             var parent = node.getJmmParent().getJmmParent();
             var common_method_header = parent.getJmmChild(0);
             var method_name = common_method_header.getJmmChild(1).get("name");
+            if(table.getLocalVariables(method_name).contains(field)){
+                this.reports.add(new Report(
+                        ReportType.ERROR, Stage.SEMANTIC,
+                        Integer.parseInt("-1"),
+                        Integer.parseInt("-1"),
+                        "Variable already declared in method: " + method_name + field.getName()));
+                return space + "ERROR";
+            }
             table.addLocalVariable(method_name, field);
         }
         return space + "VARDECLARATION";

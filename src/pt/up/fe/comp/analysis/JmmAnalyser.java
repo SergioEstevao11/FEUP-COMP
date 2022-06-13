@@ -70,6 +70,11 @@ public class JmmAnalyser implements JmmAnalysis{
         arrayIndexNotIntCheck.visit(rootNode,null);
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
+        // test_1_14_CallToUndeclaredMethod
+        var callToUndeclaredMethodCheck = new CallToUndeclaredMethodCheck(symbolTable,reports);
+        callToUndeclaredMethodCheck.visit(rootNode,null);
+
+        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_08_AssignIntToBool   //AST PARTIDA NO CASO DE DOT ACCESS
         var assignIntToBoolCheck = new AssignIntToBoolCheck(symbolTable,reports);
         assignIntToBoolCheck.visit(rootNode,null);
@@ -85,10 +90,7 @@ public class JmmAnalyser implements JmmAnalysis{
         var arrayInWhileCondition = new WhileIfConditionCheck(symbolTable,reports);
         arrayInWhileCondition.visit(rootNode,null);
 
-        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_14_CallToUndeclaredMethod
-        var callToUndeclaredMethodCheck = new CallToUndeclaredMethodCheck(symbolTable,reports);
-        callToUndeclaredMethodCheck.visit(rootNode,null);
+
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_15_CallToMethodAssumedInExtends test_1_16_CallToMethodAssumedInImporttest_1_16_CallToMethodAssumedInImport

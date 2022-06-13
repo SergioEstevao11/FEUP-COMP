@@ -105,7 +105,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer>{
         if (isMain)
             code.append("static main(");
 
-        else code.append(methodDecl.getJmmChild(0).get("name")); //TODO CHECKAR COMMON METHOD
+        else code.append(methodDecl.getJmmChild(0).getJmmChild(1).get("name")); //TODO CHECKAR COMMON METHOD
 
 
         var methods = symbolTable.getMethods();

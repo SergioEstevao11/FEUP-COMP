@@ -28,15 +28,23 @@ public class CallToUndeclaredMethodCheck  extends PreorderJmmVisitor<Integer, In
 
 //        System.out.println("Classe: " + symbolTable.getClassName());
 //        System.out.println(symbolTable.getVariableType(method_name,dotAccessNode.getJmmChild(0).get("name")).getName());
-
-        if(symbolTable.getMethods().contains(method_node_name)) return 1;
+        System.out.println("NOME" + method_node_name);
+        if(symbolTable.getMethods().contains(method_node_name)){
+            System.out.println("FDS1");
+            return 1;
+        }
 //        else if(symbolTable.getClassName().equals(symbolTable.getVariableType(method_name,dotAccessNode.getJmmChild(0).get("name")).getName())){
 //            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Method \"" + method_node_name + "\" is not declared in this class", null));
 //            return 1;
 //        }
-        if(symbolTable.getSuper() != null) return 1;
+        if(symbolTable.getSuper() != null){
+            System.out.println("FDS2");
+
+            return 1;
+        }
 
         if(!symbolTable.getImports().isEmpty()) {
+            System.out.println("FDS3");
             return 1;
         }
 
