@@ -12,7 +12,8 @@ public class Backend implements JasminBackend{
     private String className;
     private String extendsDef;
     private ArrayList<String> imports;
-
+    int stacklimit;
+    int stack;
     private int conditionals;
     private int comparisons;
     private HashMap<String, Descriptor> currVarTable;
@@ -109,6 +110,11 @@ public class Backend implements JasminBackend{
         StringBuilder classMethodsCode = new StringBuilder();
 
         for(Method method: ollirClass.getMethods()) {
+            conditionals = 0;
+            stacklimit = 0;
+            stack = 0;
+            comparisons = 0;
+
             classMethodsCode.append("\n")
                             .append(generateClassMethodHeader(method))
                             .append(generateClassMethodBody(method));
@@ -148,6 +154,9 @@ public class Backend implements JasminBackend{
     }
 
     private String generateClassMethodBody(Method method) {
+
+
+
         StringBuilder methodBodyCode = new StringBuilder();
         StringBuilder instructions = new StringBuilder();
         currVarTable = method.getVarTable();
@@ -264,27 +273,34 @@ public class Backend implements JasminBackend{
 
 
         Element leftElem = instr.getOperands().get(0);
-        Element rightElem = instr.getOperands().get(1);
-
         String branchOpCode = loadElement(leftElem);
 
-        OpCondInstruction opCondInstr = (OpCondInstruction) instr;
-        OperationType opCondType = opCondInstr.getCondition().getOperation().getOpType();
+        OperationType opCondType = null;
+        Instruction condInstr = instr.getCondition();
 
-        if (opCondType == OperationType.AND || opCondType == OperationType.ANDB || opCondType == OperationType.AND) {
-            comparisons++;
+        if (condInstr instanceof OpInstruction) {
 
-            branchOpCode += "\tifeq False" + comparisons + "\n" +
-                            loadElement(rightElem) +
-                            "\tifeq False" + comparisons + "\n" +
-                            "\tgoto " + opCondInstr.getLabel() + "\n" +
-                            "False" + comparisons + ":\n";
+            OpInstruction opCondInstr = (OpInstruction) condInstr;
+            opCondType = opCondInstr.getOperation().getOpType();
+            if (opCondType == OperationType.AND || opCondType == OperationType.ANDB) {
+                comparisons++;
+                //limitStack(1);
+                stack = 0;
 
+                branchOpCode += "\tifeq False" + comparisons + "\n" +
+                        loadElement(leftElem) +
+                        "\tifeq False" + comparisons + "\n" +
+                        "\tgoto " + instr.getLabel() + "\n" +
+                        "False" + comparisons + ":\n";
+
+            } else {
+                Element rightElem = instr.getOperands().get(1);
+                branchOpCode += loadElement(rightElem)
+                        + "\t" + getJasminBranchComparison(opCondInstr.getOperation()) + " " + instr.getLabel() + "\n";
+            }
         }
-        else{
-            branchOpCode+= loadElement(rightElem)
-                        + "\t" + getJasminBranchComparison(opCondInstr.getCondition().getOperation()) + " " + instr.getLabel() + "\n";
-        }
+
+
 
         return branchOpCode;
     }
@@ -471,6 +487,22 @@ public class Backend implements JasminBackend{
                     "Store" + conditionals + ":\n";
         }
 
+        if (opType == OperationType.ANDB) {
+            conditionals++;
+            //limitStack(1);
+            stack = 0;
+
+            return loadElement(instr.getLeftOperand()) +
+                    "\tifeq False" + conditionals + "\n" +
+                    loadElement(instr.getRightOperand()) +
+                    "\tifeq False" + conditionals + "\n" +
+                    "\ticonst_1\n" +
+                    "\tgoto Store" + conditionals + "\n" +
+                    "False" + conditionals + ":\n" +
+                    "\ticonst_0\n" +
+                    "Store" + conditionals + ":\n";
+        }
+
         if ( opType == OperationType.EQ){
             //TODO
         }
@@ -507,10 +539,10 @@ public class Backend implements JasminBackend{
             return "iadd";
 
         if ( opType == OperationType.SUB)
-            return "imul";
+            return "isub";
 
         if ( opType == OperationType.MUL)
-            return "isub";
+            return "imul";
 
         if ( opType == OperationType.DIV)
             return "idiv";
@@ -696,6 +728,11 @@ public class Backend implements JasminBackend{
 
         return "\t.limit locals " + 99 + "\n";
 
+    }
+
+    private void limitStack(int s) {
+        if (s > stacklimit)
+            stacklimit = s;
     }
 
 }
