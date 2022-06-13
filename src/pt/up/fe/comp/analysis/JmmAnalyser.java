@@ -46,13 +46,13 @@ public class JmmAnalyser implements JmmAnalysis{
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_03_IntPlusObject  //falta dot access
-        var intPlusObject = new IntPlusObjectCheck(symbolTable,reports);
-        intPlusObject.visit(rootNode,null);
+//        var intPlusObject = new IntPlusObjectCheck(symbolTable,reports);
+//        intPlusObject.visit(rootNode,null);
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_04_BoolTimesInt  //falta dot access
-        var boolTimesIntCheck = new BoolTimesIntCheck(symbolTable,reports);
-        boolTimesIntCheck.visit(rootNode,null);
+        var operatorsCheck = new OperatorsCheck(symbolTable,reports);
+        operatorsCheck.visit(rootNode,null);
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_05_ArrayPlusInt //falta dot access
@@ -81,13 +81,8 @@ public class JmmAnalyser implements JmmAnalysis{
 
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_12_ObjectAssignmentPassImports
-        var intInIfConditionCheck = new IntInIfConditionCheck(symbolTable,reports);
-        intInIfConditionCheck.visit(rootNode,null);
-
-        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
         // test_1_13_ArrayInWhileCondition
-        var arrayInWhileCondition = new ArrayInWhileCondition(symbolTable,reports);
+        var arrayInWhileCondition = new WhileIfConditionCheck(symbolTable,reports);
         arrayInWhileCondition.visit(rootNode,null);
 
         //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA

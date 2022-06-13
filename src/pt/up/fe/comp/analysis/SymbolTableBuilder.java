@@ -141,11 +141,14 @@ public class SymbolTableBuilder implements SymbolTable {
     }
 
     public Type getVariableType(String methodName,String variable){
-
-        if(getLocalVariables(methodName).isEmpty()){
-            return new Type("impossible",false);
-        }
+        //check if variable is local
         for (Symbol symbol : getLocalVariables(methodName)){
+            if(symbol.getName().equals(variable)){
+                return symbol.getType();
+            }
+        }
+        //not local variable -> now check if it is class variable
+        for (Symbol symbol : getFields()){
             if(symbol.getName().equals(variable)){
                 return symbol.getType();
             }

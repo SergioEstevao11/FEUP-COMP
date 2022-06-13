@@ -23,8 +23,7 @@ public class ArrayIndexNotIntCheck extends PreorderJmmVisitor<Integer, Integer> 
         setDefaultVisit((node, oi) -> 0);
     }
     public Integer visitArrayAccess(JmmNode arrayAccessNode, Integer ret){
-        String method_name = null;
-        String left_node_name = null;
+        String method_name;
 
         if( arrayAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = arrayAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(0).get("name");
         else method_name = arrayAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
@@ -33,7 +32,7 @@ public class ArrayIndexNotIntCheck extends PreorderJmmVisitor<Integer, Integer> 
         boolean isBooleanExpression = symbolTable.isBooleanExpression(arrayAccessNode.getJmmChild(1).getKind());
 
         if(isBooleanExpression || arrayAccessNode.getJmmChild(1).getKind().equals("True") || arrayAccessNode.getJmmChild(1).getKind().equals("False")){
-            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, " Cant access with a boolean", null));
+            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Cant access an array with a boolean", null));
         }
         else if(isMathExpression || arrayAccessNode.getJmmChild(1).getKind().equals("Number")) return 1;
         else if(arrayAccessNode.getJmmChild(1).getKind().equals("Identifier")){
@@ -43,7 +42,7 @@ public class ArrayIndexNotIntCheck extends PreorderJmmVisitor<Integer, Integer> 
         else{
             String call_method_name = arrayAccessNode.getJmmChild(1).getJmmChild(0).get("name");
             String returnMethodType = symbolTable.getReturnType(call_method_name).getName();
-            if(!returnMethodType.equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" +"\" invalid type: expecting a int.", null));
+            if(!returnMethodType.equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Invalid type, was expecting an int", null));
         }
 
         return 0;
