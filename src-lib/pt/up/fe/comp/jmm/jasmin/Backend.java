@@ -442,7 +442,7 @@ public class Backend implements JasminBackend{
     private String generateInvokeSpecial(CallInstruction instr) {
         StringBuilder jasminCode = new StringBuilder();
         jasminCode.append(loadElement(instr.getFirstArg()));
-
+        String className = ((ClassType) instr.getFirstArg().getType()).getName();
         jasminCode.append("\tinvokespecial ")
                 .append((instr.getFirstArg().getType().getTypeOfElement() == ElementType.THIS) ? generateSuper() : className)
                 .append("/<init>(");
