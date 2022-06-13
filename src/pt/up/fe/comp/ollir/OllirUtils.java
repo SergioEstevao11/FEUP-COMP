@@ -10,7 +10,7 @@ public class OllirUtils {
 
     public static String getCode(Symbol symbol){
 
-        return symbol.getName() + "." + getOllirType(symbol.getType());
+        return symbol.getName() + getOllirType(symbol.getType());
     }
 
     public static Symbol getSymbol(String name, List<Symbol> fields, List<Symbol> localVars){
@@ -48,26 +48,36 @@ public class OllirUtils {
         code.append(".");
 
         if (type.isArray())
-            return "array." + type.getName();
+            code.append("array.");
 
         String jmmType = type.getName();
 
         switch(jmmType){
             case "int":
-                return "i32";
+                code.append("i32");
+                break;
             case "boolean":
-                return "bool";
+                code.append("bool");
+                break;
             case "void":
-                return "V";
+                code.append("V");
+                break;
+            default:
+                code.append(jmmType);
+                break;
         }
 
-        return jmmType;
+        return code.toString();
     }
 
     public static boolean isOperation(JmmNode operation) {
         return operation.getKind().equals("Plus") || operation.getKind().equals("Minus") ||
                 operation.getKind().equals("Times") || operation.getKind().equals("Divide") ||
                 operation.getKind().equals("Less") || operation.getKind().equals("And") || operation.getKind().equals("Not");
+    }
+
+    public static boolean isFinalOperation(JmmNode operation) {
+        return operation.getKind().equals("Less") || operation.getKind().equals("And") || operation.getKind().equals("Not");
     }
 
     public static String getOllirVar(String jmmVar, Type type){
@@ -89,7 +99,7 @@ public class OllirUtils {
             case "Add":
                 return " +.i32 ";
             case "Less":
-                return " <.i32 ";
+                return " <.bool ";
             case "Sub":
                 return " -.i32 ";
             case "Mult":
