@@ -4,32 +4,80 @@ import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
+import java.util.List;
+
 public class OllirUtils {
 
     public static String getCode(Symbol symbol){
 
-        return symbol.getName() + "." + getOllirType(symbol.getType());
+        return symbol.getName() + getOllirType(symbol.getType());
     }
+
+    public static Symbol getSymbol(String name, List<Symbol> fields, List<Symbol> localVars){
+
+        Symbol var = null;
+        boolean isField = false;
+        for (Symbol symbol : fields) {
+            if (symbol.getName().equals(name)) {
+                isField = true;
+                var = symbol;
+                break;
+            }
+        }
+        if (!isField){
+            for (Symbol localVar:localVars){
+                if (localVar.getName().equals(name)){
+                    var = localVar;
+                    break;
+                }
+            }
+            //for (Symbol param: parameters){
+            //    if (param.getName().equals(name)){
+            //        var = param;
+            //        break;
+            //    }
+            //}
+        }
+
+        return var;
+    }
+
 
     public static String getOllirType(Type type){
         StringBuilder code = new StringBuilder();
         code.append(".");
 
         if (type.isArray())
-            return "array." + type.getName();
+            code.append("array.");
 
         String jmmType = type.getName();
 
         switch(jmmType){
             case "int":
-                return "i32";
+                code.append("i32");
+                break;
             case "boolean":
-                return "bool";
+                code.append("bool");
+                break;
             case "void":
-                return "V";
+                code.append("V");
+                break;
+            default:
+                code.append(jmmType);
+                break;
         }
 
-        return jmmType;
+        return code.toString();
+    }
+
+    public static boolean isOperation(JmmNode operation) {
+        return operation.getKind().equals("Plus") || operation.getKind().equals("Minus") ||
+                operation.getKind().equals("Times") || operation.getKind().equals("Divide") ||
+                operation.getKind().equals("Less") || operation.getKind().equals("And") || operation.getKind().equals("Not");
+    }
+
+    public static boolean isFinalOperation(JmmNode operation) {
+        return operation.getKind().equals("Less") || operation.getKind().equals("And") || operation.getKind().equals("Not");
     }
 
     public static String getOllirVar(String jmmVar, Type type){
@@ -46,7 +94,6 @@ public class OllirUtils {
             substring = substring.substring(0, substring.indexOf(" "));
 
         }
-
 
         switch (jmmOperator.getKind()){
             case "Add":
