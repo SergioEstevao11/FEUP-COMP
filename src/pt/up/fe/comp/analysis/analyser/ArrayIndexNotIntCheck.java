@@ -36,8 +36,6 @@ public class ArrayIndexNotIntCheck extends PreorderJmmVisitor<Integer, Integer> 
         }
         else if(isMathExpression || arrayAccessNode.getJmmChild(1).getKind().equals("Number")) return 1;
         else if(arrayAccessNode.getJmmChild(1).getKind().equals("Identifier")){
-            System.out.println(arrayAccessNode.getJmmChild(1));
-            System.out.println("TIPO:" + symbolTable.getVariableType(method_name,arrayAccessNode.getJmmChild(1).get("name")));
             String variableType = symbolTable.getVariableType(method_name,arrayAccessNode.getJmmChild(1).get("name")).getName();
             if(!variableType.equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Variable isn't of type Int", null));
         }
