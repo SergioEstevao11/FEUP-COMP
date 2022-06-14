@@ -103,9 +103,7 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
     private String visitVarDeclaration(JmmNode node, String space) {
 
         Symbol field = new Symbol(SymbolTableBuilder.getType(node.getJmmChild(0), "type"), node.getJmmChild(1).get("name"));
-        System.out.println("FIELD : " + field);
 
-        System.out.println("scope : " + scope);
         if (scope.equals("CLASS")) {
             if (table.hasField(field.getName())) {
                 this.reports.add(new Report(

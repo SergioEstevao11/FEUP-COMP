@@ -1,5 +1,6 @@
 package pt.up.fe.comp.analysis.analyser;
 
+import org.eclipse.jgit.util.io.IsolatedOutputStream;
 import pt.up.fe.comp.analysis.SymbolTableBuilder;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.ast.JmmNode;
@@ -25,17 +26,31 @@ public class AssignmentsCheck extends PreorderJmmVisitor<Integer, Integer> {
         String identifierType;
         boolean found = false;
 
-        if( assignmentNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")){
+        if(assignmentNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")){
             method_name = "main";
             List<Symbol> mainMethodVariables = symbolTable.getLocalVariables(method_name);
+            System.out.println("VAIAVEIS" + mainMethodVariables);
             for (Symbol mainMethodVariable : mainMethodVariables) {
+                System.out.println("VAIAVELS EFEFEFE" + assignmentNode.getJmmChild(0) );
                 if(assignmentNode.getJmmChild(0).getKind().equals("Identifier")){
+//                    System.out.println("1" + assignmentNode.getJmmChild(0).get("name"));
+//                    System.out.println("2" + mainMethodVariable.getName());
+
                     if (assignmentNode.getJmmChild(0).get("name").equals(mainMethodVariable.getName())){
                         found = true;
                     }
                 }
+                else if(assignmentNode.getJmmChild(0).getKind().equals("ArrayAccess")){
+                    if (assignmentNode.getJmmChild(0).getJmmChild(0).get("name").equals(mainMethodVariable.getName())){
+                        found = true;
+                    }
+                }
             }
-            if(!found) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, " Variable not declared on main", null));
+            if(!found){
+                System.out.println("nao encontrei" + assignmentNode.getJmmChild(0) );
+
+                reports.add(Report.newError(Stage.SEMANTIC, -1, -1, " Variable not declared on main", null));
+            }
         }
         else method_name = assignmentNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
 
