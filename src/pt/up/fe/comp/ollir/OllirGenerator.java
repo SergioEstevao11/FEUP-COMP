@@ -297,7 +297,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
                 methodStr.append(assignmentStr).append(";\n");
                 assignmentStr = "t" + varCounter + ".i32"; //todo change type
             }
-
             //todo array access left side com array field
 
             if (!assignmentStr.contains(".")) assignmentStr += ".i32"; // number fix, todo may need type change

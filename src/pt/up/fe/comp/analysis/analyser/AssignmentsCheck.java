@@ -29,13 +29,8 @@ public class AssignmentsCheck extends PreorderJmmVisitor<Integer, Integer> {
         if(assignmentNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")){
             method_name = "main";
             List<Symbol> mainMethodVariables = symbolTable.getLocalVariables(method_name);
-            System.out.println("VAIAVEIS" + mainMethodVariables);
             for (Symbol mainMethodVariable : mainMethodVariables) {
-                System.out.println("VAIAVELS EFEFEFE" + assignmentNode.getJmmChild(0) );
                 if(assignmentNode.getJmmChild(0).getKind().equals("Identifier")){
-//                    System.out.println("1" + assignmentNode.getJmmChild(0).get("name"));
-//                    System.out.println("2" + mainMethodVariable.getName());
-
                     if (assignmentNode.getJmmChild(0).get("name").equals(mainMethodVariable.getName())){
                         found = true;
                     }
@@ -47,8 +42,6 @@ public class AssignmentsCheck extends PreorderJmmVisitor<Integer, Integer> {
                 }
             }
             if(!found){
-                System.out.println("nao encontrei" + assignmentNode.getJmmChild(0) );
-
                 reports.add(Report.newError(Stage.SEMANTIC, -1, -1, " Variable not declared on main", null));
             }
         }
@@ -110,18 +103,6 @@ public class AssignmentsCheck extends PreorderJmmVisitor<Integer, Integer> {
         else if(assignmentNode.getJmmChild(1).getKind().equals("NewDeclaration")){
             return 1;
         }
-
-
-
-//        else if(assignmentNode.getJmmChild(1) != null) {
-//            String left_node_name = assignmentNode.getJmmChild(1).getJmmChild(0).get("name");
-//            left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
-//        }
-//        else{
-//            String call_method_name = assignmentNode.getJmmChild(1).getJmmChild(0).get("name");
-//            String returnMethodType = symbolTable.getReturnType(call_method_name).getName();
-//            if(!returnMethodType.equals("boolean")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + assignmentNode.getJmmChild(0).getKind().equals("Number") + "\" invalid type: expecting a boolean.", null));
-//        }
 
         return 0;
     }
