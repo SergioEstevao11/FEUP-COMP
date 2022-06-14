@@ -54,8 +54,19 @@ public class IncompatibleArgumentsCheck extends PreorderJmmVisitor<Integer, Inte
                                 if(dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).getKind().equals("Number") || dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).getKind().equals("True") || dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).getKind().equals("False")){
                                     argumentType = dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).getKind();
                                 }
-                                else {
+                                else if(dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).getKind().equals("ArrayAccess")){
+                                    System.out.println(dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).getJmmChild(0));
+                                    argumentType = symbolTable.getVariableType(method_name, dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).getJmmChild(0).get("name")).getName();
+                                }
+                                else if(dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).getKind().equals("Identifier")){
+                                    System.out.println("ENTREI AQUI OLA " + dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j));
                                     argumentType = symbolTable.getVariableType(method_name, dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).get("name")).getName();
+
+                                }
+                                else { // if(dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).getKind().equals("DotAcess"))
+                                    System.out.println("OLAA" + dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).getKind());
+                                    String call_method_name = dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).getJmmChild(1).getJmmChild(0).get("name");
+                                    argumentType = symbolTable.getReturnType(call_method_name).getName();
                                 }
                             }
                             if (!argumentType.equals(parameterType)) {
