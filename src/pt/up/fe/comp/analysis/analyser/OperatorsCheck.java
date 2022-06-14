@@ -94,36 +94,35 @@ public class OperatorsCheck extends PreorderJmmVisitor<Integer, Integer> {
 
     public Integer visitPlus(JmmNode plusNode,Integer ret){
         String method_name = null;
-
+        String left_side_type;
         if( plusNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = "main";
         else method_name = plusNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
 
         if(plusNode.getJmmChild(0).getKind().equals("Identifier") ) {
-            String left_side = symbolTable.getVariableType(method_name, plusNode.getJmmChild(0).get("name")).getName();
-            if (plusNode.getJmmChild(1).getKind().equals("Identifier")) {
-                if (symbolTable.isArray(method_name, plusNode.getJmmChild(1).get("name"))){
-                    if(symbolTable.isArray(method_name, plusNode.getJmmChild(0).get("name"))){
-                        reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add two arrays", null));
-                    }
-                    else reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add int/boolean to an array", null));
-                }
-                else if(symbolTable.isArray(method_name, plusNode.getJmmChild(0).get("name"))){
-                    if(symbolTable.isArray(method_name, plusNode.getJmmChild(1).get("name"))){
-                        reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add two arrays", null));
-                    }
-                    else reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add int/boolean to an array", null));
-                }
-                String right_side = symbolTable.getVariableType(method_name, plusNode.getJmmChild(1).get("name")).getName();
-                if (!left_side.equals(right_side))
-                    reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "variables of different type", null));
-            }
-            else if(!plusNode.getJmmChild(1).getKind().equals("Number")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add variable which aren't of type int", null));
+            left_side_type = symbolTable.getVariableType(method_name, plusNode.getJmmChild(0).get("name")).getName();}
+        else{
+            left_side_type = "int";
+        }
 
+        if (plusNode.getJmmChild(1).getKind().equals("Identifier")) {
+            if (symbolTable.isArray(method_name, plusNode.getJmmChild(1).get("name"))){
+                if(symbolTable.isArray(method_name, plusNode.getJmmChild(0).get("name"))){
+                    reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add two arrays", null));
+                }
+                else reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add int/boolean to an array", null));
+            }
+            else if(symbolTable.isArray(method_name, plusNode.getJmmChild(0).get("name"))){
+                if(symbolTable.isArray(method_name, plusNode.getJmmChild(1).get("name"))){
+                    reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add two arrays", null));
+                }
+                else reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add int/boolean to an array", null));
+            }
+            String right_side = symbolTable.getVariableType(method_name, plusNode.getJmmChild(1).get("name")).getName();
+            if (!left_side_type.equals(right_side))
+                reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "variables of different type", null));
         }
-        else if(plusNode.getJmmChild(0).getKind().equals("Number") ){
-            System.out.println(plusNode.getJmmChild(0));
-            if(!plusNode.getJmmChild(1).getKind().equals("Number")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add variable which aren't of type int", null));
-        }
+        else if(!plusNode.getJmmChild(1).getKind().equals("Number")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add variable which aren't of type int5", null));
+
 
         return 0;
     }
