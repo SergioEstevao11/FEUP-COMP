@@ -427,8 +427,13 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
                 if (node.contains("\n")){
                     argPrefix += node.substring(0, node.lastIndexOf("\n") + 1);
                     argString += (", " + node.substring(node.lastIndexOf("\n") + 1));
+                }else if (OllirUtils.isOperation(child)){
+                    String argType = OllirUtils.isFinalOperation(child) ? ".bool" : ".i32";
+                    argPrefix += ("t" + ++varCounter + argType + " :=" + argType + " " + node + ";\n");
+                    argString += (", t" + varCounter + argType);
                 }
-                else argString += (node + getVarType(child.get("name")));
+
+                else argString += (", " + node + getVarType(child.get("name")));
             }
 
             methodString.append(argPrefix);
@@ -439,7 +444,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         if (func.getKind().equals("Length")) {
             methodString.append("t").append(++varCounter).append(".i32 :=.i32 arraylength(").append(visit(id)).append(getVarType(id.get("name"))).append(").i32;\n"); //todo check type
             methodString.append("t").append(varCounter).append(".i32");
-        }else if (id.getKind().equals("This")){
+        }else if (id.getKind().equals("ThisDeclaration")){
             String type = OllirUtils.getOllirType(symbolTable.getReturnType(func.get("name"))); //typecheck
 
             if (!type.equals(".V"))
@@ -500,16 +505,23 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
 
         } else if (id.getKind().equals("NewDeclaration")) {
-            String type = getVarType(id.getJmmChild(0).get("name"));
-            String prefix = "t" + ++varCounter + type + ":=" + type + " " + visit(id) + ";\n";
+            String type = "." + id.getJmmChild(0).get("name");
+            String prefix = "t" + ++varCounter + type + " :=" + type + " " + visit(id) + ";\n";
             String postfix = "t" + varCounter + type;
+            String funcType = getVarType(func.get("name"));
 
             methodString.append(prefix);
-            methodString.append("invokespecial(").append(postfix).append(", \"<init>\").V\n");
+            methodString.append("invokespecial(").append(postfix).append(", \"<init>\").V;\n");
+
+            methodString.append(argPrefix);
+
+            methodString.append("t" + ++varCounter + funcType + " :=" + funcType + " ");
+            methodString.append("invokevirtual(").append(postfix).append(", \"").append(func.get("name")).append("\"");
+            methodString.append(argString).append(")").append(funcType);
+            methodString.append(";\nt" + varCounter + funcType);
 
         } else {
             System.out.println("Default(Other type)");
-
         }
 
 
