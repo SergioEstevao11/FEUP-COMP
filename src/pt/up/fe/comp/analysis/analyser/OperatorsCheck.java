@@ -105,8 +105,14 @@ public class OperatorsCheck extends PreorderJmmVisitor<Integer, Integer> {
             left_side_type = symbolTable.getVariableType(method_name, plusNode.getJmmChild(0).get("name")).getName();
         }
         else if(plusNode.getJmmChild(0).getKind().equals("DotAccess")) {
-            String call_method_name = plusNode.getJmmChild(1).getJmmChild(0).get("name");
-            left_side_type = symbolTable.getReturnType(call_method_name).getName();
+            if(plusNode.getJmmChild(0).getJmmChild(1).getJmmChild(0).getKind().equals("Length")){
+                left_side_type = "int";
+            }
+            else{
+                System.out.println("OLAA");
+                String call_method_name = plusNode.getJmmChild(1).getJmmChild(0).get("name");
+                left_side_type = symbolTable.getReturnType(call_method_name).getName();
+            }
         }
         else if(plusNode.getJmmChild(0).getKind().equals("ArrayAccess")){
             left_side_type = symbolTable.getVariableType(method_name,plusNode.getJmmChild(0).getJmmChild(0).get("name")).getName();
@@ -127,12 +133,12 @@ public class OperatorsCheck extends PreorderJmmVisitor<Integer, Integer> {
                 }
                 else reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add int/boolean to an array", null));
             }
-            else if(symbolTable.isArray(method_name, plusNode.getJmmChild(0).get("name"))){
-                if(symbolTable.isArray(method_name, plusNode.getJmmChild(1).get("name"))){
-                    reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add two arrays", null));
-                }
-                else reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add int/boolean to an array", null));
-            }
+//            else if(symbolTable.isArray(method_name, plusNode.getJmmChild(0).get("name"))){
+//                if(symbolTable.isArray(method_name, plusNode.getJmmChild(1).get("name"))){
+//                    reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add two arrays", null));
+//                }
+//                else reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add int/boolean to an array", null));
+//            }
             String right_side = symbolTable.getVariableType(method_name, plusNode.getJmmChild(1).get("name")).getName();
             if (!left_side_type.equals(right_side))
                 reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "variables of different type", null));
