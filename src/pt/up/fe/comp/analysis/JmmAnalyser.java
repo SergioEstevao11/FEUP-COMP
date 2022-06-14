@@ -39,82 +39,33 @@ public class JmmAnalyser implements JmmAnalysis{
         reports.addAll(reports);
 
 
-        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_02_ClassNotImported
-        var classNotImported = new ClassNotImportedCheck(symbolTable,reports);
-        classNotImported.visit(rootNode,0);
 
-        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_03_IntPlusObject  //falta dot access
-//        var intPlusObject = new IntPlusObjectCheck(symbolTable,reports);
-//        intPlusObject.visit(rootNode,null);
-
-        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_04_BoolTimesInt  //falta dot access
         var operatorsCheck = new OperatorsCheck(symbolTable,reports);
         operatorsCheck.visit(rootNode,null);
 
-        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_05_ArrayPlusInt //falta dot access
-        var arrayPlusIntCheck = new ArrayPlusIntCheck(symbolTable,reports);
-        arrayPlusIntCheck.visit(rootNode,null);
-
-        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_06_ArrayAccessOnInt
-        var arrayAccessOnInt = new ArrayAccessOnIntCheck(symbolTable,reports);
-        arrayAccessOnInt.visit(rootNode,null);
-
-        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_07_ArrayIndexNotInt  //falta dot access
         var arrayIndexNotIntCheck = new ArrayIndexNotIntCheck(symbolTable,reports);
         arrayIndexNotIntCheck.visit(rootNode,null);
 
-        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_14_CallToUndeclaredMethod
         var callToUndeclaredMethodCheck = new CallToUndeclaredMethodCheck(symbolTable,reports);
         callToUndeclaredMethodCheck.visit(rootNode,null);
 
-        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_08_AssignIntToBool   //AST PARTIDA NO CASO DE DOT ACCESS
-        var assignIntToBoolCheck = new AssignIntToBoolCheck(symbolTable,reports);
-        assignIntToBoolCheck.visit(rootNode,null);
+        var assignmentsCheck = new AssignmentsCheck(symbolTable,reports);
+        assignmentsCheck.visit(rootNode,null);
 
-        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_09_ObjectAssignmentFail test_1_10_ObjectAssignmentPassExtends test_1_11_ObjectAssignmentPassImports
-        var objectAssignementCheck = new ObjectAssignmentCheck(symbolTable,reports);
-        objectAssignementCheck.visit(rootNode,null);
+        var arrayInWhileIfCondition = new WhileIfConditionCheck(symbolTable,reports);
+        arrayInWhileIfCondition.visit(rootNode,null);
 
-
-        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_13_ArrayInWhileCondition
-        var arrayInWhileCondition = new WhileIfConditionCheck(symbolTable,reports);
-        arrayInWhileCondition.visit(rootNode,null);
-
-
-
-        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_15_CallToMethodAssumedInExtends test_1_16_CallToMethodAssumedInImporttest_1_16_CallToMethodAssumedInImport
         var callToMethodAssumedInExtends = new CallToMethodAssumedInExtends(symbolTable,reports);
         callToMethodAssumedInExtends.visit(rootNode,null);
 
-        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_16_CallToMethodAssumedInImport
-
-        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_17_IncompatibleArguments
         var incompatibleArguments = new IncompatibleArgumentsCheck(symbolTable,reports);
         incompatibleArguments.visit(rootNode,null);
 
-        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_18_IncompatibleReturn
         var incompatibleReturnCheck = new IncompatibleReturnCheck(symbolTable,reports);
         incompatibleReturnCheck.visit(rootNode,null);
 
-        //CHECK ESTÁ A CORRER BEM, FALTA SÓ ACRRESCENTAR CASOS EXTRA
-        // test_1_18_IncompatibleReturn
         var thisCallCheck = new ThisCallCheck(symbolTable,reports);
         thisCallCheck.visit(rootNode,null);
-
 
         System.out.println(reports);
 
