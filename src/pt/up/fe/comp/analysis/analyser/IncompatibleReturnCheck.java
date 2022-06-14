@@ -28,8 +28,6 @@ public class IncompatibleReturnCheck extends PreorderJmmVisitor<Integer, Integer
 
         String methodReturnType = symbolTable.getReturnType(method_name).getName();
 
-        System.out.println(left_node);
-
         boolean isMathExpression = symbolTable.isMathExpression(left_node.getKind());
         boolean isBooleanExpression = symbolTable.isBooleanExpression(left_node.getKind());
 
@@ -49,7 +47,6 @@ public class IncompatibleReturnCheck extends PreorderJmmVisitor<Integer, Integer
             if(!returnMethodType.equals(methodReturnType)) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Didn't expect return type " + returnMethodType , null));
         }
         else if(returnStatementNode.getJmmChild(0).getKind().equals("Identifier")){
-            System.out.println(symbolTable.getVariableType(method_name,left_node.get("name")));
             if(!symbolTable.getVariableType(method_name,left_node.get("name")).getName().equals(methodReturnType)) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Didn't expect that return type", null));
         }
         else if(isMathExpression ){
