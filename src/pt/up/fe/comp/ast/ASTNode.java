@@ -16,6 +16,7 @@ public enum ASTNode {
     NEW_DECLARATION,
     EXPRESSION_STATEMENT,
     EXPRESSION,
+    AND,
     LESS,
     PLUS,
     MINUS,
