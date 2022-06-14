@@ -49,6 +49,22 @@ public class AssignIntToBoolCheck extends PreorderJmmVisitor<Integer, Integer> {
             boolean isBooleanExpression = symbolTable.isBooleanExpression(assignmentNode.getJmmChild(1).getKind());
 
             if(assignmentNode.getJmmChild(1).getKind().equals("Identifier")){
+                System.out.println(symbolTable.getVariableType(method_name,assignmentNode.getJmmChild(1).get("name")).getName());
+                System.out.println(identifierType);
+                if(symbolTable.isObject(method_name,assignmentNode.getJmmChild(1).get("name"))) {
+                    if(symbolTable.getSuper() == null){
+                        if(symbolTable.isObject(method_name,assignmentNode.getJmmChild(0).get("name"))) {
+                            System.out.println(symbolTable.getVariableType(method_name,assignmentNode.getJmmChild(0).get("name")).getName());
+                            System.out.println(symbolTable.getClassName());
+                            if(symbolTable.getVariableType(method_name,assignmentNode.getJmmChild(0).get("name")).getName().equals(symbolTable.getClassName())){
+                                reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Cannot assign a not imported class to an object", null));
+                                return 1;
+                            }
+                            else if(symbolTable.getImports().contains(symbolTable.getVariableType(method_name,assignmentNode.getJmmChild(0).get("name")).getName()) && symbolTable.getImports().contains(symbolTable.getVariableType(method_name,assignmentNode.getJmmChild(1).get("name")).getName())) return 1;
+                        }
+                    }
+                    else if(!symbolTable.getImports().isEmpty()) return 1;
+                }
                 if(!symbolTable.getVariableType(method_name,assignmentNode.getJmmChild(1).get("name")).getName().equals(identifierType)) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Cannot assign a int to a boolean", null));
             }
             else if(assignmentNode.getJmmChild(1).getKind().equals("DotAccess")){
