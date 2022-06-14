@@ -21,6 +21,7 @@ public class OperatorsCheck extends PreorderJmmVisitor<Integer, Integer> {
         this.symbolTable = symbolTable;
         addVisit("Times", this::visitTimes);
         addVisit("Plus", this::visitPlus);
+        addVisit("Minus", this::visitPlus);
         addVisit("And", this::visitAnd);
         setDefaultVisit((node, oi) -> 0);
     }
@@ -28,21 +29,44 @@ public class OperatorsCheck extends PreorderJmmVisitor<Integer, Integer> {
     public Integer visitTimes(JmmNode timesNode,Integer ret){
 
 
-        String method_name = timesNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
-        String left_node_name = timesNode.getJmmChild(0).get("name");
-        String left_node_type = symbolTable.getVariableType(method_name,left_node_name).getName();
-        String right_node_name = timesNode.getJmmChild(1).get("name");
-        String right_node_type = symbolTable.getVariableType(method_name,right_node_name).getName();
+        String method_name = null;
 
+        if( timesNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = "main";
+        else method_name = timesNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
 
-        if (left_node_type.equals("boolean") && (right_node_type.equals("int") || timesNode.getJmmChild(1).getKind().equals("Number"))){
-            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + timesNode.getJmmChild(1) + "\" invalid type: expecting an boolean.", null));
+        if(timesNode.getJmmChild(0).getKind().equals("Identifier") ) {
+            String left_side = symbolTable.getVariableType(method_name, timesNode.getJmmChild(0).get("name")).getName();
+            if (timesNode.getJmmChild(1).getKind().equals("Identifier")) {
+                if (symbolTable.isArray(method_name, timesNode.getJmmChild(1).get("name"))){
+                    if(symbolTable.isArray(method_name, timesNode.getJmmChild(0).get("name"))){
+                        reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't multiply two arrays", null));
+                    }
+                    else reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't multiplyint/boolean to an array", null));
+                }
+                else if(symbolTable.isArray(method_name, timesNode.getJmmChild(0).get("name"))){
+                    if(symbolTable.isArray(method_name, timesNode.getJmmChild(1).get("name"))){
+                        reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't multiply two arrays", null));
+                    }
+                    else reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't multiply int/boolean to an array", null));
+                }
+                String right_side = symbolTable.getVariableType(method_name, timesNode.getJmmChild(1).get("name")).getName();
+                if (!left_side.equals(right_side))
+                    reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "variables of different type", null));
+            }
+            else if(timesNode.getJmmChild(1).getKind().equals("DotAccess")){
+                String call_method_name = timesNode.getJmmChild(1).getJmmChild(1).getJmmChild(0).get("name");
+                String returnMethodType = symbolTable.getReturnType(call_method_name).getName();
+                if (!left_side.equals(returnMethodType))
+                    reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "variables of different type5", null));
+            }
+            else if(!timesNode.getJmmChild(1).getKind().equals("Number")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't multiply variable which aren't of type int4", null));
+
         }
-        else if ((left_node_type.equals("int") || timesNode.getJmmChild(0).getKind().equals("Number")) && right_node_type.equals("boolean")){
-            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + timesNode.getJmmChild(1) + "\" invalid type: expecting an boolean.", null));
+        else if(timesNode.getJmmChild(0).getKind().equals("Number") ){
+            if(!timesNode.getJmmChild(1).getKind().equals("Number")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't multiply variable which aren't of type int3", null));
         }
 
-        return 1;
+        return 0;
     }
 
     public Integer visitAnd(JmmNode andNode,Integer ret){
@@ -97,6 +121,7 @@ public class OperatorsCheck extends PreorderJmmVisitor<Integer, Integer> {
 
         }
         else if(plusNode.getJmmChild(0).getKind().equals("Number") ){
+            System.out.println(plusNode.getJmmChild(0));
             if(!plusNode.getJmmChild(1).getKind().equals("Number")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add variable which aren't of type int", null));
         }
 
