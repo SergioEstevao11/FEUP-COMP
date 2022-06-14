@@ -94,15 +94,31 @@ public class OperatorsCheck extends PreorderJmmVisitor<Integer, Integer> {
 
     public Integer visitPlus(JmmNode plusNode,Integer ret){
         String method_name = null;
-        String left_side_type;
+        String left_side_type = null;
         if( plusNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = "main";
         else method_name = plusNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
 
-        if(plusNode.getJmmChild(0).getKind().equals("Identifier") ) {
-            left_side_type = symbolTable.getVariableType(method_name, plusNode.getJmmChild(0).get("name")).getName();}
+        boolean isMathExpression = symbolTable.isMathExpression(plusNode.getJmmChild(0).getKind());
+        boolean isBooleanExpression = symbolTable.isBooleanExpression(plusNode.getJmmChild(0).getKind());
+
+        if(plusNode.getJmmChild(0).getKind().equals("Identifier")) {
+            left_side_type = symbolTable.getVariableType(method_name, plusNode.getJmmChild(0).get("name")).getName();
+        }
+        else if(plusNode.getJmmChild(0).getKind().equals("DotAccess")) {
+            String call_method_name = plusNode.getJmmChild(1).getJmmChild(0).get("name");
+            left_side_type = symbolTable.getReturnType(call_method_name).getName();
+        }
+        else if(plusNode.getJmmChild(0).getKind().equals("ArrayAccess")){
+            left_side_type = symbolTable.getVariableType(method_name,plusNode.getJmmChild(0).getJmmChild(0).get("name")).getName();
+        }
+        else if(plusNode.getJmmChild(0).getKind().equals("True") || plusNode.getJmmChild(0).getKind().equals("False") || isBooleanExpression){
+            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add booleans", null));
+        }
         else{
             left_side_type = "int";
         }
+
+        if(!left_side_type.equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add not ints", null));
 
         if (plusNode.getJmmChild(1).getKind().equals("Identifier")) {
             if (symbolTable.isArray(method_name, plusNode.getJmmChild(1).get("name"))){
