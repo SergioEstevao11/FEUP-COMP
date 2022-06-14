@@ -102,6 +102,14 @@ public class OperatorsCheck extends PreorderJmmVisitor<Integer, Integer> {
         boolean isBooleanExpression = symbolTable.isBooleanExpression(plusNode.getJmmChild(0).getKind());
 
         if(plusNode.getJmmChild(0).getKind().equals("Identifier")) {
+            if(symbolTable.isArray(method_name, plusNode.getJmmChild(0).get("name"))) {
+                if(plusNode.getJmmChild(1).getKind().equals("Identifier")) {
+                    if (symbolTable.isArray(method_name, plusNode.getJmmChild(1).get("name"))) {
+                        reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add two arrays", null));
+                    } else
+                        reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add int/boolean to an array", null));
+                }
+            }
             left_side_type = symbolTable.getVariableType(method_name, plusNode.getJmmChild(0).get("name")).getName();
         }
         else if(plusNode.getJmmChild(0).getKind().equals("DotAccess")) {
@@ -115,6 +123,7 @@ public class OperatorsCheck extends PreorderJmmVisitor<Integer, Integer> {
             }
         }
         else if(plusNode.getJmmChild(0).getKind().equals("ArrayAccess")){
+
             left_side_type = symbolTable.getVariableType(method_name,plusNode.getJmmChild(0).getJmmChild(0).get("name")).getName();
         }
         else if(plusNode.getJmmChild(0).getKind().equals("True") || plusNode.getJmmChild(0).getKind().equals("False") || isBooleanExpression){
@@ -127,6 +136,11 @@ public class OperatorsCheck extends PreorderJmmVisitor<Integer, Integer> {
         if(!left_side_type.equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add not ints", null));
 
         if (plusNode.getJmmChild(1).getKind().equals("Identifier")) {
+//            System.out.println(plusNode.getJmmChild(1));
+//            System.out.println(symbolTable.isArray(method_name, plusNode.getJmmChild(1).get("name")));
+            System.out.println(plusNode);
+            System.out.println(plusNode.getJmmChild(0));
+           //System.out.println(symbolTable.isArray(method_name, plusNode.getJmmChild(0).get("name")));
             if (symbolTable.isArray(method_name, plusNode.getJmmChild(1).get("name"))){
                 if(symbolTable.isArray(method_name, plusNode.getJmmChild(0).get("name"))){
                     reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add two arrays", null));
@@ -142,6 +156,9 @@ public class OperatorsCheck extends PreorderJmmVisitor<Integer, Integer> {
             String right_side = symbolTable.getVariableType(method_name, plusNode.getJmmChild(1).get("name")).getName();
             if (!left_side_type.equals(right_side))
                 reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "variables of different type", null));
+        }
+        else if(plusNode.getJmmChild(1).getKind().equals("Identifie")){
+
         }
         else if(!plusNode.getJmmChild(1).getKind().equals("Number")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add variable which aren't of type int5", null));
 

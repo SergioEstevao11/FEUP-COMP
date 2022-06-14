@@ -79,17 +79,23 @@ public class AssignmentsCheck extends PreorderJmmVisitor<Integer, Integer> {
             if(!symbolTable.getVariableType(method_name,assignmentNode.getJmmChild(1).get("name")).getName().equals(identifierType)) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Cannot assign a int to a boolean", null));
         }
         else if(assignmentNode.getJmmChild(1).getKind().equals("DotAccess")){
-            String call_method_name = assignmentNode.getJmmChild(1).getJmmChild(1).getJmmChild(0).get("name");
-            String returnMethodType = null;
-            if(!symbolTable.getMethods().contains(call_method_name)){
-                if(symbolTable.getSuper() != null || !symbolTable.getImports().isEmpty()) return 1;
-                else {
-                    reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Method is missing.", null));
-                    return 1;
-                }
+            String call_method_name = null;
+            String returnMethodType;
+            if(assignmentNode.getJmmChild(1).getJmmChild(1).getJmmChild(0).getKind().equals("Length")){
+                returnMethodType = "int";
             }
             else{
-                returnMethodType = symbolTable.getReturnType(call_method_name).getName();
+                call_method_name = assignmentNode.getJmmChild(1).getJmmChild(1).getJmmChild(0).get("name");
+                if(!symbolTable.getMethods().contains(call_method_name)){
+                    if(symbolTable.getSuper() != null || !symbolTable.getImports().isEmpty()) return 1;
+                    else {
+                        reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Method is missing.", null));
+                        return 1;
+                    }
+                }
+                else{
+                    returnMethodType = symbolTable.getReturnType(call_method_name).getName();
+                }
             }
             if(!returnMethodType.equals(identifierType)) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + assignmentNode.getJmmChild(0).getKind().equals("Number") + "\" invalid type: expecting a boolean.", null));
         }
