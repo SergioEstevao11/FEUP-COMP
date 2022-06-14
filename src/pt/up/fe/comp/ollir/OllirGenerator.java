@@ -255,6 +255,12 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         JmmNode identifier = assignmentStmt.getJmmChild(0);
         JmmNode assignment = assignmentStmt.getJmmChild(1);
         JmmNode parent = assignmentStmt.getJmmParent();
+        String type = "";
+
+        if (identifier.getKind().equals("ArrayAccess"))
+            type = getVarType(identifier.getJmmChild(0).get("name")).replace(".array", "");
+        else type = getVarType(identifier.get("name"));
+
 
         String idStr = visit(identifier);
         String assignmentStr = visit(assignment);
@@ -272,9 +278,17 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
                 break;
             }
         }
-        //TODO IF ARGS APPEND $<ARG_NUMBER>
+
+        if (idStr.contains("\n")){
+            String prefix = idStr.substring(0, idStr.lastIndexOf("\n") + 1);
+            idStr = idStr.substring(idStr.lastIndexOf("\n") + 1);
+            if (idStr.contains("."))
+                idStr = idStr.substring(0, idStr.lastIndexOf("."));
+            methodStr.append(prefix);
+        }
 
         if (!isField) {
+
             if (assignmentStr.contains("\n")) {
                 String prefix = assignmentStr.substring(0, assignmentStr.lastIndexOf("\n") + 1);
                 assignmentStr = assignmentStr.substring(assignmentStr.lastIndexOf("\n") + 1);
@@ -284,8 +298,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
             if (assignment.getKind().equals("Number"))
                 assignmentStr += ".i32"; //todo check if needed
 
-            methodStr.append(idStr).append(getVarType(identifier.get("name"))).append(" :=").append(getVarType(identifier.get("name")))
-                    .append(" ").append(assignmentStr); // typecheck
+            methodStr.append(idStr).append(type).append(" :=").append(type).append(" ").append(assignmentStr); // typecheck
+
             methodStr.append(";\n");
 
         } else{
@@ -294,16 +308,21 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
                 assignmentStr = assignmentStr.substring(assignmentStr.lastIndexOf("\n") + 1);
                 methodStr.append(prefix);
             }else if (!assignment.getKind().equals("Number") && !assignment.getKind().equals("Identifier")){
-                methodStr.append("t").append(++varCounter).append(".i32").append(" :=").append(".i32").append(" "); //todo change types
+                methodStr.append("t").append(++varCounter).append(type).append(" :=").append(type).append(" ");
                 methodStr.append(assignmentStr).append(";\n");
-                assignmentStr = "t" + varCounter + ".i32"; //todo change type
+                assignmentStr = "t" + varCounter + type;
             }
 
-            //todo array access left side com array field
 
             if (!assignmentStr.contains(".")) assignmentStr += ".i32"; // number fix, todo may need type change
 
-            methodStr.append("putfield(this, ").append(identifier.get("name")).append(".i32").append(", ").append(assignmentStr).append(").V;\n"); //todo change type
+            String fieldId = "";
+            if (identifier.getKind().equals("ArrayAccess"))
+                fieldId = identifier.getJmmChild(0).get("name");
+            else fieldId = identifier.get("name");
+
+
+            methodStr.append("putfield(this, ").append(fieldId).append(type).append(", ").append(assignmentStr).append(").V;\n");
         }
 
         return methodStr.toString();
@@ -383,12 +402,12 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         if (indexNode.getKind().equals("Number"))
             indexStr += ".i32"; //todo check if needed
 
+        String type = getVarType(idStr).replace(".array", "");
 
-
-        retStr.append("\t\tt").append(++varCounter).append(getVarType(idStr).replace(".array", ""));
-        retStr.append(" :=").append(getVarType(idStr).replace(".array", "")).append(" ");
-        retStr.append(idStr).append("[").append(indexStr).append("]").append(getVarType(idStr).replace(".array", ""));
-        retStr.append("\nt").append(varCounter).append(getVarType(idStr).replace(".array", ""));//typecheck
+        retStr.append("\t\tt").append(++varCounter).append(type);
+        retStr.append(" :=").append(type).append(" ");
+        retStr.append(idStr).append("[").append(indexStr).append(type).append("]").append(type);
+        retStr.append(";\nt").append(varCounter).append(type);//typecheck
 
         return retStr.toString();
     }
@@ -397,18 +416,24 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         StringBuilder methodString = new StringBuilder();
         JmmNode id = memberCall.getJmmChild(0);
         JmmNode func = memberCall.getJmmChild(1).getJmmChild(0);
-        JmmNode args = memberCall.getJmmChild(1).getJmmChild(1);
+        JmmNode args;
         String argPrefix = "";
         String argString = "";
+        if (!func.getKind().equals("Length")){
+            args = memberCall.getJmmChild(1).getJmmChild(1);
 
-        for (JmmNode child : args.getChildren()){
-            String node = visit(child);
-            if (node.contains("\n")){
-                argPrefix += node.substring(0, node.lastIndexOf("\n" + 1));
-                argString += (", " + node.substring(node.lastIndexOf("\n") + 1));
+            for (JmmNode child : args.getChildren()){
+                String node = visit(child);
+                if (node.contains("\n")){
+                    argPrefix += node.substring(0, node.lastIndexOf("\n") + 1);
+                    argString += (", " + node.substring(node.lastIndexOf("\n") + 1));
+                }
+                else argString += (node + getVarType(child.get("name")));
             }
-            else argString += (node + getVarType(child.get("name")));
+
+            methodString.append(argPrefix);
         }
+
 
 
         if (func.getKind().equals("Length")) {
