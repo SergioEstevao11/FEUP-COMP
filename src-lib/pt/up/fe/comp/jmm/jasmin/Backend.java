@@ -2,6 +2,7 @@ package pt.up.fe.comp.jmm.jasmin;
 
 import org.specs.comp.ollir.*;
 import pt.up.fe.comp.ElseScope;
+import pt.up.fe.comp.Int;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.Stage;
@@ -192,8 +193,9 @@ public class Backend implements JasminBackend{
         }
         if (!locals.contains(0) && !method.isConstructMethod())
             locals.add(0);
+        Integer localstack = locals.size();
 
-        methodBodyCode.append("\t.limit locals ").append(locals.size()).append("\n\n");
+        methodBodyCode.append("\t.limit locals ").append(localstack).append("\n\n");
 
         methodBodyCode.append(instructions);
 
@@ -270,15 +272,15 @@ public class Backend implements JasminBackend{
         if (opType == OperationType.NOTB || opType == OperationType.NOT) {
             comparisons++;
 
-            branchOpCode +=  "\tifne True" + comparisons + "\n" +
+            branchOpCode +=  "\tifne NOTB" + comparisons + "\n" +
                     "\ticonst_1" + "\n" +
                     "\tgoto " + "Continue" + comparisons + "\n" +
-                    "True" + comparisons + ":\n" +
+                    "NOTB" + comparisons + ":\n" +
                     "\ticonst_0" + "\n" +
                     "Continue" + comparisons + ":\n";
 
             limitStack(stack);
-            stack = 0;
+            stack -= 1;
         }
 
         return branchOpCode;
@@ -338,9 +340,7 @@ public class Backend implements JasminBackend{
 
             }
             else if(opCondType == OperationType.OR || opCondType == OperationType.ORB) {
-                comparisons++;
-                limitStack(1);
-                stack = 0;
+
 
                 //TODO
 
@@ -348,14 +348,10 @@ public class Backend implements JasminBackend{
 
                 branchOpCode += loadElement(rightElem)
                         + "\t" + getJasminBranchComparison(opCondInstr.getOperation()) + " " + instr.getLabel() + "\n";
-                limitStack(stack);
-                stack = 0;
             }
         }
         else{
             comparisons++;
-            limitStack(1);
-            stack = 0;
 
             branchOpCode +=  "\tifeq False" + comparisons + "\n" +
                     "\tgoto " + instr.getLabel() + "\n" +
@@ -363,7 +359,8 @@ public class Backend implements JasminBackend{
         }
 
 
-
+        limitStack(stack);
+        stack = 0;
         return branchOpCode;
     }
 
@@ -465,10 +462,9 @@ public class Backend implements JasminBackend{
     private String generateInvokeSpecial(CallInstruction instr) {
         StringBuilder jasminCode = new StringBuilder();
         jasminCode.append(loadElement(instr.getFirstArg()));
-
+        limitStack(stack);
         String invokedClassName = ((ClassType) instr.getFirstArg().getType()).getName();
 
-        limitStack(stack);
 
         jasminCode.append("\tinvokespecial ")
                 .append((instr.getFirstArg().getType().getTypeOfElement() == ElementType.THIS) ? generateSuper() : invokedClassName)
@@ -492,6 +488,7 @@ public class Backend implements JasminBackend{
             jasminCode.append(loadElement(e));
 
         limitStack(stack + 1);
+        stack = (instr.getReturnType().getTypeOfElement() == ElementType.VOID) ? 0 : 1;
 
 
         jasminCode.append("\tinvokevirtual ")
@@ -696,8 +693,6 @@ public class Backend implements JasminBackend{
 
     private String generateSingleOp(SingleOpInstruction instr) {
         String singleOpCode = loadElement(instr.getSingleOperand());
-        limitStack(stack);
-        stack = 0;
         return singleOpCode;
     }
 
@@ -712,7 +707,7 @@ public class Backend implements JasminBackend{
 
         Descriptor descriptor = currVarTable.get(((Operand) elem).getName());
         if (descriptor == null)
-            return "";
+            return "NULL";
 
         try {
             if (elem.getType().getTypeOfElement() != ElementType.ARRAYREF
@@ -818,7 +813,8 @@ public class Backend implements JasminBackend{
     //Stack Functions
     private String generateStackLimits()
     {
-        return "\t.limit stack " + stacklimit + "\n";
+        Integer res = stacklimit + 1;
+        return "\t.limit stack " + res + "\n";
     }
 
     private void limitStack(int s) {
