@@ -20,13 +20,16 @@ public class CallToUndeclaredMethodCheck  extends PreorderJmmVisitor<Integer, In
         setDefaultVisit((node, oi) -> 0);
     }
     public Integer visitDotAccess(JmmNode dotAccessNode,Integer ret){
+        System.out.println(dotAccessNode.getJmmChild(1).getJmmChild(0).getKind());
+        if(dotAccessNode.getJmmChild(1).getJmmChild(0).getKind().equals("Length")){
+            return 1;
+        }
         String method_node_name = dotAccessNode.getJmmChild(1).getJmmChild(0).get("name");
         String method_name = null;
 
         if( dotAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = "main";
         else method_name = dotAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
 
-        System.out.println("NOME" + method_node_name);
         if(symbolTable.getMethods().contains(method_node_name)){
             return 1;
         }
