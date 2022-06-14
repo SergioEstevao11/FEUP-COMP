@@ -401,16 +401,15 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         String argPrefix = "";
         String argString = "";
 
-       // for (int i = 2; i < memberCall.getChildren().size(); i++){
-       //     String visitedString = visit(memberCall.getJmmChild(i));
-       //     if (visitedString.contains("\n")) {
-       //         argPrefix += visitedString.substring(0, visitedString.lastIndexOf("\n") + 1);
-       //         argString += (", " + visitedString.substring(visitedString.lastIndexOf("\n") + 1));
-       //     }
-       //     else argString += (", " + visitedString);
-       // }
+        for (JmmNode child : args.getChildren()){
+            String node = visit(child);
+            if (node.contains("\n")){
+                argPrefix += node.substring(0, node.lastIndexOf("\n" + 1));
+                argString += (", " + node.substring(node.lastIndexOf("\n") + 1));
+            }
+            else argString += (node + getVarType(child.get("name")));
+        }
 
-        //methodString.append(argPrefix);
 
         if (func.getKind().equals("Length")) {
             methodString.append("t").append(++varCounter).append(".i32 :=.i32 arraylength(").append(visit(id)).append(getVarType(id.get("name"))).append(").i32;\n"); //todo check type
@@ -436,13 +435,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
         }
         else if (id.getKind().equals("Identifier")) {
-          // List<JmmNode> children = memberCall.getJmmParent().getChildren();
-          // String realId = "";
-          // for (int i = 0; i < children.size(); i++)
-          //     if (children.get(i).getKind().equals("Identifier"))
-          //         if (i < children.size() - 1 && children.get(i + 1).getKind().equals("DotAccess"))
-          //             realId = children.get(i).get("name");
-
             List<String> imports = symbolTable.getImports();
 
             for (String importStr: imports){
