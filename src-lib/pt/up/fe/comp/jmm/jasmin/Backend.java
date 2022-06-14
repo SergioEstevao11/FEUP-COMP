@@ -184,7 +184,17 @@ public class Backend implements JasminBackend{
         }
 
         methodBodyCode.append(generateStackLimits());
-        methodBodyCode.append(generateLocalLimits());
+
+        HashSet<Integer> locals = new HashSet<>();
+        for (Descriptor d : currVarTable.values()) {
+            if (!locals.contains(d.getVirtualReg()))
+                locals.add(d.getVirtualReg());
+        }
+        if (!locals.contains(0) && !method.isConstructMethod())
+            locals.add(0);
+
+        methodBodyCode.append("\t.limit locals ").append(locals.size()).append("\n\n");
+
         methodBodyCode.append(instructions);
 
         if (method.isConstructMethod())
@@ -259,8 +269,6 @@ public class Backend implements JasminBackend{
 
         if (opType == OperationType.NOTB || opType == OperationType.NOT) {
             comparisons++;
-            //limitStack(1);
-            stack = 0;
 
             branchOpCode +=  "\tifne True" + comparisons + "\n" +
                     "\ticonst_1" + "\n" +
@@ -268,6 +276,9 @@ public class Backend implements JasminBackend{
                     "True" + comparisons + ":\n" +
                     "\ticonst_0" + "\n" +
                     "Continue" + comparisons + ":\n";
+
+            limitStack(stack);
+            stack = 0;
         }
 
         return branchOpCode;
@@ -276,11 +287,15 @@ public class Backend implements JasminBackend{
 
         private String generatePutFieldOp(PutFieldInstruction instr) {
 
-        return loadElement(instr.getFirstOperand())
+        String jasminCode = loadElement(instr.getFirstOperand())
                 + loadElement(instr.getThirdOperand()) + "\tputfield "
                 + getObjectName(((Operand) instr.getFirstOperand()).getName())
                 + "/" + ((Operand) instr.getSecondOperand()).getName()
                 + " " + getJasminType(instr.getSecondOperand().getType()) + "\n";
+
+        limitStack(stack);
+        stack = 0;
+        return jasminCode;
 
     }
 
@@ -288,11 +303,13 @@ public class Backend implements JasminBackend{
 
         Operand op = (Operand) instr.getSecondOperand();
         Element elem = instr.getFirstOperand();
-
-        return loadElement(elem) + "\tgetfield "
+        String getCode = loadElement(elem) + "\tgetfield "
                 + getObjectName(((Operand) elem).getName())
                 + "/" + op.getName()
                 + " " + getJasminType(instr.getFieldType()) + "\n";
+        limitStack(stack);
+        stack = 0;
+        return getCode;
     }
 
     private String generateBranchOp(CondBranchInstruction instr) {
@@ -310,7 +327,7 @@ public class Backend implements JasminBackend{
             opCondType = opCondInstr.getOperation().getOpType();
             if (opCondType == OperationType.AND || opCondType == OperationType.ANDB) {
                 comparisons++;
-                //limitStack(1);
+                limitStack(1);
                 stack = 0;
 
                 branchOpCode += "\tifeq False" + comparisons + "\n" +
@@ -322,19 +339,22 @@ public class Backend implements JasminBackend{
             }
             else if(opCondType == OperationType.OR || opCondType == OperationType.ORB) {
                 comparisons++;
-                //limitStack(1);
+                limitStack(1);
                 stack = 0;
 
                 //TODO
 
             }else {
+
                 branchOpCode += loadElement(rightElem)
                         + "\t" + getJasminBranchComparison(opCondInstr.getOperation()) + " " + instr.getLabel() + "\n";
+                limitStack(stack);
+                stack = 0;
             }
         }
         else{
             comparisons++;
-            //limitStack(1);
+            limitStack(1);
             stack = 0;
 
             branchOpCode +=  "\tifeq False" + comparisons + "\n" +
@@ -363,6 +383,8 @@ public class Backend implements JasminBackend{
         }
 
         returnOpCode.append("return\n");
+        limitStack(stack);
+        stack = 0;
         return returnOpCode.toString();
     }
 
@@ -435,23 +457,28 @@ public class Backend implements JasminBackend{
             jasminCode.append("GENERATENEW TYPE NOT IMPLEMENTED\n");
         }
 
-
+        limitStack(stack);
+        stack = 1;
         return jasminCode.toString();
     }
 
     private String generateInvokeSpecial(CallInstruction instr) {
         StringBuilder jasminCode = new StringBuilder();
         jasminCode.append(loadElement(instr.getFirstArg()));
-        String className = ((ClassType) instr.getFirstArg().getType()).getName();
+
+        String invokedClassName = ((ClassType) instr.getFirstArg().getType()).getName();
+
+        limitStack(stack);
+
         jasminCode.append("\tinvokespecial ")
-                .append((instr.getFirstArg().getType().getTypeOfElement() == ElementType.THIS) ? generateSuper() : className)
+                .append((instr.getFirstArg().getType().getTypeOfElement() == ElementType.THIS) ? generateSuper() : invokedClassName)
                 .append("/<init>(");
 
         for (Element e : instr.getListOfOperands())
             jasminCode.append(getJasminType(e.getType()));
 
         jasminCode.append(")").append(getJasminType(instr.getReturnType())).append("\n");
-
+        stack = 0;
         return jasminCode.toString();
     }
 
@@ -463,6 +490,8 @@ public class Backend implements JasminBackend{
 
         for (Element e : instr.getListOfOperands())
             jasminCode.append(loadElement(e));
+
+        limitStack(stack + 1);
 
 
         jasminCode.append("\tinvokevirtual ")
@@ -484,6 +513,8 @@ public class Backend implements JasminBackend{
         for (Element e : instr.getListOfOperands())
             jasminCode.append(loadElement(e));
 
+        limitStack(stack);
+
         jasminCode.append("\tinvokestatic ")
                 .append(getObjectName(((Operand) instr.getFirstArg()).getName()))
                 .append(".").append(((LiteralElement) instr.getSecondArg()).getLiteral().replace("\"", ""))
@@ -493,7 +524,7 @@ public class Backend implements JasminBackend{
             jasminCode.append(getJasminType(e.getType()));
 
         jasminCode.append(")").append(getJasminType(instr.getReturnType())).append("\n");
-
+        stack = (instr.getReturnType().getTypeOfElement() == ElementType.VOID) ? 0 : 1;
         return jasminCode.toString();
     }
 
@@ -509,7 +540,8 @@ public class Backend implements JasminBackend{
 
         if (opType == OperationType.NOTB || opType == OperationType.NOT) {
             conditionals++;
-
+            limitStack(1);
+            stack = 0;
 
             String jasminCode = loadElement(instr.getLeftOperand());
             if (((Operand) instr.getRightOperand()).getName().equals(
@@ -531,7 +563,7 @@ public class Backend implements JasminBackend{
 
         if (opType == OperationType.ANDB || opType == OperationType.AND) {
             conditionals++;
-            //limitStack(1);
+            limitStack(1);
             stack = 0;
 
             return  loadElement(instr.getLeftOperand()) +
@@ -556,6 +588,7 @@ public class Backend implements JasminBackend{
                     "\ticonst_1\n" +
                     "Store" + conditionals + ":\n";
 
+            stack = 1;
             return jasminCode;
         }
 
@@ -636,6 +669,10 @@ public class Backend implements JasminBackend{
 
             if (currVarTable.get(op.getName()).getVarType().getTypeOfElement() == ElementType.ARRAYREF) {
                 jasminCode.append("\tiastore\n");
+
+                limitStack(stack);
+                stack = 0;
+
                 return jasminCode.toString();
             } else
                 jasminCode.append("\tistore");
@@ -651,12 +688,17 @@ public class Backend implements JasminBackend{
 
         jasminCode.append(reg).append("\n");
 
+        limitStack(stack);
+        stack = 0;
 
         return jasminCode.toString();
     }
 
     private String generateSingleOp(SingleOpInstruction instr) {
-        return loadElement(instr.getSingleOperand());
+        String singleOpCode = loadElement(instr.getSingleOperand());
+        limitStack(stack);
+        stack = 0;
+        return singleOpCode;
     }
 
     private String loadElement(Element elem) {
@@ -688,6 +730,7 @@ public class Backend implements JasminBackend{
 
     private String loadBoolean(Element elem){
         String jasminCode = "\t";
+        stack += 1;
 
         String name = ((Operand) elem).getName();
 
@@ -701,6 +744,7 @@ public class Backend implements JasminBackend{
 
     private String loadDescriptor(Descriptor descriptor) {
         StringBuilder jasminCode = new StringBuilder("\t");
+        stack += 1;
 
         ElementType t = descriptor.getVarType().getTypeOfElement();
         if (t == ElementType.THIS) {
@@ -728,6 +772,7 @@ public class Backend implements JasminBackend{
     }
 
     private String loadLiteral(LiteralElement elem) {
+        stack += 1;
         String jasminCode = "\t";
         int elemValue = Integer.parseInt(elem.getLiteral());
         ElementType elemType = elem.getType().getTypeOfElement();
@@ -773,13 +818,7 @@ public class Backend implements JasminBackend{
     //Stack Functions
     private String generateStackLimits()
     {
-        return "\t.limit stack " + 98 + "\n";
-    }
-
-    private String generateLocalLimits() {
-
-        return "\t.limit locals " + 98 + "\n";
-
+        return "\t.limit stack " + stacklimit + "\n";
     }
 
     private void limitStack(int s) {
