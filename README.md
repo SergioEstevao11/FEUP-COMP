@@ -20,7 +20,7 @@ This project's main goal was to acquire and apply the theoretical principals of 
 
 ### Type Verification
 
-**The following verifications are implemented in the foldertypeverfification :** (_src/pt/up/fe/comp/analysis/analyser/typeverfification)
+**The following verifications are implemented in the typeverfification folder :** (_src/pt/up/fe/comp/analysis/analyser/typeverfification)
 
 - _ArrayIndexNotIntCheck_ - In a array access it checks if the index is of type int or not,  if it isn't an error is created
 AssignmentsCheck - Checks in every assignment if the types match in order for it too be correct
@@ -35,7 +35,7 @@ OperatorsCheck - Checks if the types are correct in the "Times", "And", "Plus", 
 - _WhileIfConditionCheck_ - Checks if the conditions presented in If and While statements are of type boolean
 
 ### Method Verification 
-**The following verifications are implemented in the methodverification :** The following files can be found in the folder methodverification(_src/pt/up/fe/comp/analysis/analyser/methodverification_)
+**The following verifications are implemented in the methodverification folder :** The following files can be found in the folder methodverification(_src/pt/up/fe/comp/analysis/analyser/methodverification_)
 
 - _CallToUndeclared method_ - checks whether or not a method is declared, if it is imported from another class or if the Super class extends another class which contains the method
 
