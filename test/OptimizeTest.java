@@ -20,7 +20,7 @@ public class OptimizeTest {
 
     @Test
     public void testHelloWorld() {
-        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/Life.jmm"));
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/cpf/3_ollir/control_flow/SimpleIfElseStat.jmm"));
         System.out.println(result);
         TestUtils.noErrors(result.getReports());
     }
