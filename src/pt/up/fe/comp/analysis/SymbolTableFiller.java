@@ -38,11 +38,15 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
         List<String> imports = table.getImports();
 
         var counter = 0;
+        String newImport = "";
         for (JmmNode ignored : node.getChildren()){
-            String newImport = node.getJmmChild(counter).get("name");
-            imports.add(newImport);
+            if(! (newImport == "")){
+                newImport += ".";
+            }
+            newImport += node.getJmmChild(counter).get("name");
             counter++;
         }
+        table.addImport(newImport);
 
         return space + "IMPORT";
     }
