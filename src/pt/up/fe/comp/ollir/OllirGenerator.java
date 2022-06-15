@@ -82,10 +82,11 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
         
         StringBuilder importString = new StringBuilder();
-        for (var importStmt : symbolTable.getImports())
-            importString.append("import ").append(importStmt).append(";\n");
+        importString.append("import ");
+        for (var importIdentifier : importDecl.getChildren())
+           importString.append(visit(importIdentifier)).append(".");
 
-        return importString.toString();
+        return importString.substring(0, importString.lastIndexOf(".")) + ";\n";
     }
 
     private String classDeclVisit(JmmNode classDecl, Integer dummy){
@@ -505,6 +506,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
             String idStr = visit(id);
 
             for (String importStr: imports){
+                if (importStr.contains(".")) importStr = importStr.substring(importStr.lastIndexOf(".") + 1);
                 if (importStr.equals(id.get("name"))){
                     methodString.append("invokestatic(").append(id.get("name"));
 
@@ -527,6 +529,11 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
             // else identifier is not imported
             String type = ".V";
+
+            if (idStr.contains("\n")) {
+                methodString.append(idStr.substring(0, idStr.lastIndexOf("\n") + 1));
+                idStr = idStr.substring(idStr.lastIndexOf("\n") + 1);
+            }
 
             if (symbolTable.getClassName().equals(getVarType(id.get("name")).replace(".", "")))
                 for (String method : symbolTable.getMethods())
@@ -638,17 +645,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
                     return "$" + (i + 1) + "." + id.get("name");
             }
         }
-
-        // extern functions don't print id
-        List<JmmNode> children = id.getJmmParent().getChildren();
-        List<String> imports = symbolTable.getImports();
-
-        for (int i = 0; i < imports.size(); i++)
-            if (imports.get(i).equals(id.get("name"))) // id está nos imports
-                for (int j = 0; j < children.size(); j++)
-                    if (children.get(j).getKind().equals("Identifier") && children.get(j).get("name").equals(imports.get(i))) // encontrar posição do id no pai
-                        if (j < children.size() - 1 && children.get(j + 1).getKind().equals("DotAccess")) // id seguido de dot access
-                            return "";
 
         return id.get("name");
     }

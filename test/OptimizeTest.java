@@ -20,7 +20,7 @@ public class OptimizeTest {
 
     @Test
     public void testHelloWorld() {
-        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/cp2/CompileBasic.jmm"));
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/cpf/3_ollir/basic/BasicImportsPackages.jmm"));
         System.out.println(result);
         TestUtils.noErrors(result.getReports());
     }
