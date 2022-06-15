@@ -785,12 +785,12 @@ public class Backend implements JasminBackend{
         if (elemType == ElementType.INT32 || elemType == ElementType.BOOLEAN) {
             if (elemValue <= 5 && elemValue >= -1)
                 jasminCode += "iconst_";
-            else if (elemValue > 255 || elemValue < -1)
-                jasminCode += "ldc ";
-            else if (elemValue > 127)
+            else if (elemValue <= 127)
+                jasminCode += "bipush ";
+            else if (elemValue <= Short.MAX_VALUE)
                 jasminCode += "sipush ";
             else
-                jasminCode += "bipush ";
+                jasminCode += "ldc ";
         } else
             jasminCode += "ldc ";
 
@@ -802,19 +802,26 @@ public class Backend implements JasminBackend{
 
 
     private String getJasminBranchComparison(Operation operation) {
+        String jasminCode = "isub" + "\n";
         switch (operation.getOpType()) {
             case LTE:
-                return "if_icmple";
+                jasminCode += "ifle";
+                return jasminCode;
             case LTH:
-                return "if_icmplt";
+                jasminCode += "iflt";
+                return jasminCode;
             case GTE:
-                return "if_icmpge";
+                jasminCode += "ifge";
+                return jasminCode;
             case GTH:
-                return "if_icmpgt";
+                jasminCode += "ifge";
+                return jasminCode;
             case EQ:
-                return "if_icmpeq";
+                jasminCode += "ifeq";
+                return jasminCode;
             case NOTB: case NEQ:
-                return "if_icmpne";
+                jasminCode += "ifne";
+                return jasminCode;
             default:
                 System.out.println(operation.getOpType());
                 return "ERROR comparison not implemented yet";
