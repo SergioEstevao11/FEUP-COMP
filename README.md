@@ -35,7 +35,7 @@ OperatorsCheck - Checks if the types are correct in the "Times", "And", "Plus", 
 - _WhileIfConditionCheck_ - Checks if the conditions presented in If and While statements are of type boolean
 
 ### Method Verification 
-**The following verifications are implemented in the methodverification folder :** The following files can be found in the folder methodverification(_src/pt/up/fe/comp/analysis/analyser/methodverification_)
+**The following verifications are implemented in the methodverification folder :** (_src/pt/up/fe/comp/analysis/analyser/methodverification_)
 
 - _CallToUndeclared method_ - checks whether or not a method is declared, if it is imported from another class or if the Super class extends another class which contains the method
 
