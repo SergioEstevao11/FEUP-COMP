@@ -1,4 +1,4 @@
-package pt.up.fe.comp.analysis.analyser;
+package pt.up.fe.comp.analysis.analyser.methodverification;
 
 import pt.up.fe.comp.analysis.SymbolTableBuilder;
 import pt.up.fe.comp.jmm.ast.JmmNode;
@@ -20,7 +20,6 @@ public class CallToUndeclaredMethodCheck  extends PreorderJmmVisitor<Integer, In
         setDefaultVisit((node, oi) -> 0);
     }
     public Integer visitDotAccess(JmmNode dotAccessNode,Integer ret){
-        System.out.println(dotAccessNode.getJmmChild(1).getJmmChild(0).getKind());
         if(dotAccessNode.getJmmChild(1).getJmmChild(0).getKind().equals("Length")){
             return 1;
         }

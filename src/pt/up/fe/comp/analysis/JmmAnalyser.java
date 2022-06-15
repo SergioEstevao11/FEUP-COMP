@@ -5,7 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import pt.up.fe.comp.TestUtils;
-import pt.up.fe.comp.analysis.analyser.*;
+import pt.up.fe.comp.analysis.analyser.methodverification.CallToUndeclaredMethodCheck;
+import pt.up.fe.comp.analysis.analyser.methodverification.ThisCallCheck;
+import pt.up.fe.comp.analysis.analyser.typeverification.*;
 import pt.up.fe.comp.jmm.analysis.JmmAnalysis;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
@@ -54,9 +56,6 @@ public class JmmAnalyser implements JmmAnalysis{
 
         var arrayInWhileIfCondition = new WhileIfConditionCheck(symbolTable,reports);
         arrayInWhileIfCondition.visit(rootNode,null);
-
-        var callToMethodAssumedInExtends = new CallToMethodAssumedInExtends(symbolTable,reports);
-        callToMethodAssumedInExtends.visit(rootNode,null);
 
         var incompatibleArguments = new IncompatibleArgumentsCheck(symbolTable,reports);
         incompatibleArguments.visit(rootNode,null);
