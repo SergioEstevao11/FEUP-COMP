@@ -13,36 +13,6 @@ public class OllirUtils {
         return symbol.getName() + getOllirType(symbol.getType());
     }
 
-    public static Symbol getSymbol(String name, List<Symbol> fields, List<Symbol> localVars){
-
-        Symbol var = null;
-        boolean isField = false;
-        for (Symbol symbol : fields) {
-            if (symbol.getName().equals(name)) {
-                isField = true;
-                var = symbol;
-                break;
-            }
-        }
-        if (!isField){
-            for (Symbol localVar:localVars){
-                if (localVar.getName().equals(name)){
-                    var = localVar;
-                    break;
-                }
-            }
-            //for (Symbol param: parameters){
-            //    if (param.getName().equals(name)){
-            //        var = param;
-            //        break;
-            //    }
-            //}
-        }
-
-        return var;
-    }
-
-
     public static String getOllirType(Type type){
         StringBuilder code = new StringBuilder();
         code.append(".");
@@ -78,14 +48,6 @@ public class OllirUtils {
 
     public static boolean isFinalOperation(JmmNode operation) {
         return operation.getKind().equals("Less") || operation.getKind().equals("And") || operation.getKind().equals("Not");
-    }
-
-    public static String getOllirVar(String jmmVar, Type type){
-        return jmmVar + getOllirType(type);
-    }
-
-    public static String getOllirParameter(int position, String jmmParameter){
-        return "$" + position + "." + jmmParameter;
     }
 
     public static String getOllirOperator(JmmNode jmmOperator){

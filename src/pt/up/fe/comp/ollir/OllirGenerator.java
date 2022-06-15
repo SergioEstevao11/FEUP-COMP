@@ -99,7 +99,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
         classString.append(" {\n");
 
-        for (int i = 1; i < classDecl.getChildren().size(); i++){
+        for (int i = (superClass != null)? 2 : 1 ; i < classDecl.getChildren().size(); i++){
             if (classDecl.getJmmChild(i).getKind().equals("VarDeclaration")) classString.append(visit(classDecl.getJmmChild(i)));
             else break;
         }
@@ -410,6 +410,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         String idStr = visit(identifier);
         String indexStr = visit(indexNode);
 
+        String type = getVarType(identifier.get("name")).replace(".array", "");
+
         if (idStr.contains("\n")){
             retStr.append(idStr.substring(0, idStr.lastIndexOf("\n") + 1));
             idStr = idStr.substring(idStr.lastIndexOf("\n") + 1);
@@ -426,8 +428,16 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
             indexStr = ("t" + varCounter);
         }
 
+       // if (idStr.contains("$")){
+       //     retStr.append("t").append(++varCounter).append(type).append(" :=").append(type).append(" ").append(idStr).append(type).append(";\n");
+       //     idStr = ("t" + varCounter);
+       // }
 
-        String type = getVarType(idStr).replace(".array", "");
+        if (OllirUtils.isOperation(indexNode)){
+            retStr.append("t").append(++varCounter).append(".i32 :=.i32 ").append(indexStr).append(";\n");
+            indexStr = ("t" + varCounter);
+        }
+
 
         retStr.append("\t\tt").append(++varCounter).append(type);
         retStr.append(" :=").append(type).append(" ");
@@ -508,7 +518,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
                             methodString.append(getVarType(memberCall.getJmmParent().getJmmChild(0).get("name")));
                         else methodString.append(getVarType(memberCall.getJmmParent().getJmmChild(0).getJmmChild(0).get("name")));
                     }
-                    else methodString.append(".V;");
+                    else methodString.append(".V;\n");
 
 
                     return methodString.toString();
@@ -531,8 +541,11 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
                 idStr = ("t" + varCounter);
             }
 
-            if (!type.equals(".V") && findMethodParent(memberCall))
+            if (findMethodParent(memberCall)){
+                type = parentType(memberCall);
                 methodString.append("t").append(++varCounter).append(type).append(" :=").append(type).append(" ");
+            }
+
 
             methodString.append("invokevirtual(");
             methodString.append(idStr).append(getVarType(id.get("name"))); //typecheck
@@ -544,7 +557,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
             methodString.append(type).append(";\n");
 
-            if(!type.equals(".V") && findMethodParent(memberCall))
+            if(findMethodParent(memberCall))
                 methodString.append("t").append(varCounter).append(type);
 
 
@@ -845,6 +858,32 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         else {
             return true;
         }
+    }
+
+    public String parentType(JmmNode nodeId){
+        while(!nodeId.getKind().equals("Assignment") && !nodeId.getKind().equals("DotDeclarationArgs") && !nodeId.getKind().equals("ArrayAccess")
+                && !OllirUtils.isOperation(nodeId) && !nodeId.getKind().equals("Start")){
+            nodeId = nodeId.getJmmParent();
+        }
+
+        if (OllirUtils.isOperation(nodeId)) return OllirUtils.getOllirOperator(nodeId);
+        switch(nodeId.getKind()){
+            case "Assignment":
+                if (nodeId.getJmmChild(0).getKind().equals("Identifier"))
+                    return getVarType(nodeId.getJmmChild(0).get("name"));
+                else return getVarType(nodeId.getJmmChild(0).getJmmChild(0).get("name"));
+
+            case "ArrayAccess":
+                return ".i32";
+
+            case "DotDeclarationArgs":
+                String name = nodeId.getJmmParent().getJmmChild(0).get("name");
+                for (String method: symbolTable.getMethods())
+                    if (method.equals(name))
+                        return OllirUtils.getOllirType(symbolTable.getReturnType(name));
+                return ".i32";
+        }
+        return ".i32";
     }
 
 
