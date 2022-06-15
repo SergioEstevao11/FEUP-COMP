@@ -19,7 +19,7 @@ public class OperatorsCheck extends PreorderJmmVisitor<Integer, Integer> {
     public OperatorsCheck(SymbolTableBuilder symbolTable, List<Report> reports) {
         this.reports = reports;
         this.symbolTable = symbolTable;
-        addVisit("Times", this::visitTimes);
+        addVisit("Times", this::visitPlus);
         addVisit("Plus", this::visitPlus);
         addVisit("Minus", this::visitPlus);
         addVisit("And", this::visitAnd);
@@ -51,7 +51,7 @@ public class OperatorsCheck extends PreorderJmmVisitor<Integer, Integer> {
                 }
                 String right_side = symbolTable.getVariableType(method_name, timesNode.getJmmChild(1).get("name")).getName();
                 if (!left_side.equals(right_side))
-                    reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "variables of different type", null));
+                    reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "variables of different type2", null));
             }
             else if(timesNode.getJmmChild(1).getKind().equals("DotAccess")){
                 String call_method_name = timesNode.getJmmChild(1).getJmmChild(1).getJmmChild(0).get("name");
@@ -95,11 +95,14 @@ public class OperatorsCheck extends PreorderJmmVisitor<Integer, Integer> {
     public Integer visitPlus(JmmNode plusNode,Integer ret){
         String method_name = null;
         String left_side_type = null;
+        String right_side_type = null;
         if( plusNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = "main";
         else method_name = plusNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
 
         boolean isMathExpression = symbolTable.isMathExpression(plusNode.getJmmChild(0).getKind());
         boolean isBooleanExpression = symbolTable.isBooleanExpression(plusNode.getJmmChild(0).getKind());
+        boolean isMathExpressionRight = symbolTable.isMathExpression(plusNode.getJmmChild(1).getKind());
+        boolean isBooleanExpressionRight = symbolTable.isBooleanExpression(plusNode.getJmmChild(1).getKind());
 
         if(plusNode.getJmmChild(0).getKind().equals("Identifier")) {
             if(symbolTable.isArray(method_name, plusNode.getJmmChild(0).get("name"))) {
@@ -128,6 +131,7 @@ public class OperatorsCheck extends PreorderJmmVisitor<Integer, Integer> {
         }
         else if(plusNode.getJmmChild(0).getKind().equals("True") || plusNode.getJmmChild(0).getKind().equals("False") || isBooleanExpression){
             reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add booleans", null));
+            return 1;
         }
         else{
             left_side_type = "int";
@@ -136,11 +140,6 @@ public class OperatorsCheck extends PreorderJmmVisitor<Integer, Integer> {
         if(!left_side_type.equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add not ints", null));
 
         if (plusNode.getJmmChild(1).getKind().equals("Identifier")) {
-//            System.out.println(plusNode.getJmmChild(1));
-//            System.out.println(symbolTable.isArray(method_name, plusNode.getJmmChild(1).get("name")));
-            System.out.println(plusNode);
-            System.out.println(plusNode.getJmmChild(0));
-           //System.out.println(symbolTable.isArray(method_name, plusNode.getJmmChild(0).get("name")));
             if (symbolTable.isArray(method_name, plusNode.getJmmChild(1).get("name"))){
                 if(symbolTable.isArray(method_name, plusNode.getJmmChild(0).get("name"))){
                     reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add two arrays", null));
@@ -153,15 +152,36 @@ public class OperatorsCheck extends PreorderJmmVisitor<Integer, Integer> {
 //                }
 //                else reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add int/boolean to an array", null));
 //            }
-            String right_side = symbolTable.getVariableType(method_name, plusNode.getJmmChild(1).get("name")).getName();
-            if (!left_side_type.equals(right_side))
-                reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "variables of different type", null));
-        }
-        else if(plusNode.getJmmChild(1).getKind().equals("Identifie")){
+            right_side_type = symbolTable.getVariableType(method_name, plusNode.getJmmChild(1).get("name")).getName();
 
         }
-        else if(!plusNode.getJmmChild(1).getKind().equals("Number")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add variable which aren't of type int5", null));
+        else if(plusNode.getJmmChild(1).getKind().equals("DotAccess")) {
+            if(plusNode.getJmmChild(1).getJmmChild(1).getJmmChild(0).getKind().equals("Length")){
+                right_side_type = "int";
+            }
+            else{
+                System.out.println("OLAA");
+                String call_method_name = plusNode.getJmmChild(1).getJmmChild(1).getJmmChild(0).get("name");
+                right_side_type = symbolTable.getReturnType(call_method_name).getName();
+            }
+        }
+        else if(plusNode.getJmmChild(1).getKind().equals("ArrayAccess")){
+            right_side_type = symbolTable.getVariableType(method_name,plusNode.getJmmChild(1).getJmmChild(0).get("name")).getName();
+        }
+        else if(plusNode.getJmmChild(1).getKind().equals("True") || plusNode.getJmmChild(1).getKind().equals("False") || isBooleanExpressionRight){
+            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Can't add booleans", null));
+            return 1;
+        }
+        else{
+            right_side_type = "int";
+        }
 
+        if (!left_side_type.equals(right_side_type)){
+            System.out.println("LEFT:" + left_side_type);
+            System.out.println("Right" + right_side_type);
+            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "variables of different type7", null));
+
+        }
 
         return 0;
     }
