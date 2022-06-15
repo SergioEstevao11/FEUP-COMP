@@ -20,7 +20,7 @@ public class OptimizeTest {
 
     @Test
     public void testHelloWorld() {
-        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/cpf/4_jasmin/control_flow/IfWhileNested.jmm"));
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/Lazysort.jmm"));
         System.out.println(result);
         TestUtils.noErrors(result.getReports());
     }

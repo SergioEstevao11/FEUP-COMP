@@ -272,6 +272,9 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         JmmNode parent = assignmentStmt.getJmmParent();
         String type = "";
 
+        if (identifier.getKind().equals("Identifier") && identifier.get("name").equals("lazy"))
+            System.out.println("bola");
+
         if (identifier.getKind().equals("ArrayAccess"))
             type = getVarType(identifier.getJmmChild(0).get("name"), identifier.getJmmChild(0)).replace(".array", "");
         else type = getVarType(identifier.get("name"), identifier);
@@ -523,7 +526,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         }else if (id.getKind().equals("ThisDeclaration")){
             String type = OllirUtils.getOllirType(symbolTable.getReturnType(func.get("name"))); //typecheck
 
-            if (!type.equals(".V"))
+            if (findMethodParent(memberCall))
                 methodString.append("t").append(++varCounter).append(type).append(" :=").append(type).append(" ");
 
             methodString.append("invokevirtual(").append("this");
@@ -536,7 +539,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
             methodString.append(type).append(";\n");
 
-            if(!type.equals(".V"))
+            if(findMethodParent(memberCall))
                 methodString.append("t").append(varCounter).append(type);
 
         }
