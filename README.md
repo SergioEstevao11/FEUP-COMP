@@ -5,45 +5,41 @@ For this project, you need to install [Java](https://jdk.java.net/), [Gradle](ht
 
 ##GROUP: 9G
 
-- André Santos, up201907879, <GRADE\>, 25%
-- João Andrade, up201905589, <GRADE\>, 25%
-- Sérgio Estêvão, up201905680, <GRADE\>, 25%
-- Sofia Germer, up201907461, <GRADE\>, 25%
-
-
-
+| Name     | UP | Contribution|
+| ----------- | ----------- |----------- |
+| André Santos   up201907879   | 25%       |
+| João Andrade   | up201905589        |25%|
+| Sérgio Estêvão      | up201905680       |  25%|
+| Sofia Germer   | up201907461        |25%|
 
 GLOBAL Grade of the project: <0 to 20>
 
 
 
 
-##SUMMARY: 
-(Describe what your tool does and its main features.)
+## SUMMARY: 
+This project's main goal was to apply the theoretical principals of the course Compilers. This was achieved by building a compiler for programs written in the Java-- language. The main parts of the project are Syntactic error controller, Semantic analysis, and Code generation.
 
 
-
-
-
-##SEMANTIC ANALYSIS: 
+## SEMANTIC ANALYSIS: 
 (Refer the semantic rules implemented by your tool.)
 
 
 
 
-##CODE GENERATION: 
+## CODE GENERATION: 
 (describe how the code generation of your tool works and identify the possible problems your tool has regarding code generation.)
 
 
 
 
-##PROS: 
+## PROS: 
 (Identify the most positive aspects of your tool)
 
 
 
 
-##CONS:
+## CONS:
 (Identify the most negative aspects of your tool)
 
 
