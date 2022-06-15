@@ -5,7 +5,7 @@
 /.settings/
 /generated/
 /run/
-
+*.dot
 # Class files
 **/*.class
 !libs-jmm/**/*.class
