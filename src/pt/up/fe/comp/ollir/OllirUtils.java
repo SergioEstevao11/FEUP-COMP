@@ -88,28 +88,23 @@ public class OllirUtils {
         return "$" + position + "." + jmmParameter;
     }
 
-    public static String getOllirOperator(JmmNode jmmOperator, StringBuilder code){
-        if (jmmOperator.getKind().equals("Assignment")){
-            String substring = code.substring(code.lastIndexOf(":=."), code.length() - 1);
-            substring = substring.substring(0, substring.indexOf(" "));
-
-        }
+    public static String getOllirOperator(JmmNode jmmOperator){
 
         switch (jmmOperator.getKind()){
-            case "Add":
-                return " +.i32 ";
+            case "Plus":
+                return ".i32";
             case "Less":
-                return " <.bool ";
-            case "Sub":
-                return " -.i32 ";
-            case "Mult":
-                return " *.i32 ";
-            case "Div":
-                return " /.i32 ";
+                return ".bool";
+            case "Minus":
+                return ".i32";
+            case "Times":
+                return ".i32";
+            case "Divide":
+                return ".i32";
             case "And":
-                return " &&.bool ";
+                return ".bool";
             case "Not":
-                return " !.bool ";
+                return ".bool";
             default:
                 return ".V";
         }

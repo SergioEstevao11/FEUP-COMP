@@ -73,9 +73,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
     }
 
     private String programVisit(JmmNode program, Integer dummy){
-
-        //System.out.println(code);
-
         for (var child: program.getChildren())
             code.append(visit(child));
 
@@ -193,6 +190,11 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
         String newCondStr = this.buildCondition(conditionStmt, condStr, false);
 
+        if (newCondStr.contains("\n")){
+            prefix += newCondStr.substring(0, newCondStr.lastIndexOf("\n") + 1);
+            newCondStr = newCondStr.substring(newCondStr.lastIndexOf("\n") + 1);
+        }
+
         ifStr.append(prefix);
 
         ifStr.append("\t\tif (").append(newCondStr).append(") goto Else").append(localCounter).append(";\n");
@@ -224,6 +226,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
     private String whileVisit(JmmNode whileStmt, Integer dummy){
         StringBuilder whileStr = new StringBuilder();
         JmmNode conditionStmt = whileStmt.getChildren().get(0);
+        if (conditionStmt.getKind().equals("Not"))
+            System.out.println("aqui");
         String condStr = visit(conditionStmt);
         int localCounter = ++markerCounter;
         String prefix = "";
@@ -234,6 +238,11 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         }
 
         String newCondStr = this.buildCondition(conditionStmt, condStr, true);
+
+        if (newCondStr.contains("\n")){
+            prefix += newCondStr.substring(0, newCondStr.lastIndexOf("\n") + 1);
+            newCondStr = newCondStr.substring(newCondStr.lastIndexOf("\n") + 1);
+        }
 
         whileStr.append("\t\tLoop" + localCounter + ":\n");
         whileStr.append(prefix);
@@ -321,6 +330,11 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
                 fieldId = identifier.getJmmChild(0).get("name");
             else fieldId = identifier.get("name");
 
+            if (OllirUtils.isOperation(assignment)){
+                methodStr.append("t").append(++varCounter).append(type).append(" :=").append(type).append(" ")
+                        .append(assignmentStr).append(";\n");
+                assignmentStr = ("t" + varCounter + type);
+            }
 
             methodStr.append("putfield(this, ").append(fieldId).append(type).append(", ").append(assignmentStr).append(").V;\n");
         }
@@ -392,6 +406,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         if (idStr.contains("\n")){
             retStr.append(idStr.substring(0, idStr.lastIndexOf("\n") + 1));
             idStr = idStr.substring(idStr.lastIndexOf("\n") + 1);
+            if (idStr.contains(".")) idStr = idStr.substring(0, idStr.indexOf("."));
         }
 
         if (indexStr.contains("\n")){
@@ -399,14 +414,17 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
             indexStr = indexStr.substring(indexStr.lastIndexOf("\n") + 1);
         }
 
-        if (indexNode.getKind().equals("Number"))
-            indexStr += ".i32"; //todo check if needed
+        if (indexNode.getKind().equals("Number")) {
+            retStr.append("t").append(++varCounter).append(".i32 :=.i32 ").append(indexStr).append(".i32;\n");
+            indexStr = ("t" + varCounter);
+        }
+
 
         String type = getVarType(idStr).replace(".array", "");
 
         retStr.append("\t\tt").append(++varCounter).append(type);
         retStr.append(" :=").append(type).append(" ");
-        retStr.append(idStr).append("[").append(indexStr).append(type).append("]").append(type);
+        retStr.append(idStr).append("[").append(indexStr).append(".i32").append("]").append(type);
         retStr.append(";\nt").append(varCounter).append(type);//typecheck
 
         return retStr.toString();
@@ -416,6 +434,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         StringBuilder methodString = new StringBuilder();
         JmmNode id = memberCall.getJmmChild(0);
         JmmNode func = memberCall.getJmmChild(1).getJmmChild(0);
+
         JmmNode args;
         String argPrefix = "";
         String argString = "";
@@ -474,7 +493,15 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
                     methodString.append(", \"").append(visit(func)).append("\"");
 
                     methodString.append(argString);
-                    methodString.append(").V;\n");
+                    methodString.append(")");
+
+                    if (memberCall.getJmmParent().getKind().equals("Assignment")) {
+                        if (memberCall.getJmmParent().getJmmChild(0).getKind().equals("Identifier"))
+                            methodString.append(getVarType(memberCall.getJmmParent().getJmmChild(0).get("name")));
+                        else methodString.append(getVarType(memberCall.getJmmParent().getJmmChild(0).getJmmChild(0).get("name")));
+                    }
+                    else methodString.append(".V;");
+
 
                     return methodString.toString();
                 }
@@ -483,11 +510,15 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
             // else identifier is not imported
             String type = ".V";
 
-            if (symbolTable.getClassName().equals(getVarType(id.get("name"))))
-            for (String method : symbolTable.getMethods())
-                if (method.equals(func.get("name"))) type = OllirUtils.getOllirType(symbolTable.getReturnType(func.get("name")));
+            if (symbolTable.getClassName().equals(getVarType(id.get("name")).replace(".", "")))
+                for (String method : symbolTable.getMethods())
+                    if (method.equals(func.get("name"))){
+                        type = OllirUtils.getOllirType(symbolTable.getReturnType(func.get("name")));
+                        break;
+                    }
 
-            if (!type.equals(".V"))
+
+            if (!type.equals(".V") && findMethodParent(memberCall))
                 methodString.append("t").append(++varCounter).append(type).append(" :=").append(type).append(" ");
 
             methodString.append("invokevirtual(");
@@ -500,8 +531,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
             methodString.append(type).append(";\n");
 
-            if(!type.equals(".V"))
-                methodString.append("t").append(varCounter);
+            if(!type.equals(".V") && findMethodParent(memberCall))
+                methodString.append("t").append(varCounter).append(type);
 
 
         } else if (id.getKind().equals("NewDeclaration")) {
@@ -542,16 +573,20 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         String exp = visit(expression);
         String type = OllirUtils.getOllirType(symbolTable.getReturnType(methodName(returnNode)));
 
+
+
         if (exp.contains("\n")){
             returnString.append(exp.substring(0, exp.lastIndexOf("\n") + 1));
-            String tmp = exp.substring(exp.lastIndexOf("\n") + 1);
-            returnString.append("ret").append(type);
-            returnString.append(tmp).append(type);
+            exp = exp.substring(exp.lastIndexOf("\n") + 1);
         }
-        else {
-            returnString.append("ret").append(type);
-            returnString.append(" ").append(exp).append(type);
+        if (OllirUtils.isOperation(expression)){
+            returnString.append("t").append(++varCounter).append(type).append(" :=").append(type).append(" ")
+                    .append(exp).append(";\n");
+            exp = ("t" + varCounter);
         }
+
+        returnString.append("ret").append(type).append(" ");
+        returnString.append(exp).append(type);
         returnString.append(";\n");
         return returnString.toString();
     }
@@ -561,10 +596,11 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         List<Symbol> fields = symbolTable.getFields();
         for (Symbol symbol : fields) {
             if (symbol.getName().equals(id.get("name"))) {
-                return "t" + ++varCounter + OllirUtils.getOllirType(getFieldType(id.get("name"))) + " :="
-                        + OllirUtils.getOllirType(getFieldType(id.get("name"))) + " " + "getfield(this, " + id.get("name")
-                        + OllirUtils.getOllirType(getFieldType(id.get("name"))) + ");\nt" + varCounter
-                        + OllirUtils.getOllirType(getFieldType(id.get("name"))); //typecheck
+                String type = OllirUtils.getOllirType(getFieldType(id.get("name")));
+                return "t" + ++varCounter + type + " :="
+                        + type + " " + "getfield(this, " + id.get("name")
+                        + type + ")" + type + ";\nt" + varCounter
+                        + type; //typecheck
             }
         }
 
@@ -596,8 +632,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
     }
 
     private String boolVisit(JmmNode value, Integer dummy){
-        if (value.getKind().equals("True")) return "true";
-        return "false";
+        if (value.getKind().equals("True")) return "true.bool";
+        return "false.bool";
     }
 
     private String newVisit(JmmNode newNode, Integer dummy){
@@ -648,6 +684,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         StringBuilder operationStr = new StringBuilder();
         String leftNewVar = "";
         String rightNewVar = "";
+        String retType = OllirUtils.getOllirOperator(operation);
         String opType = "";
         if(operation.getKind().equals("Plus") || operation.getKind().equals("Minus") ||
                 operation.getKind().equals("Times") || operation.getKind().equals("Divide") || operation.getKind().equals("Less"))
@@ -657,9 +694,9 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         boolean isNot = operation.getKind().equals("Not"); //todo not
 
 
-
         JmmNode left = operation.getJmmChild(0);
         JmmNode right = (!isNot)? operation.getChildren().get(1) : null;
+
 
         String leftStr = visit(left);
         String rightStr = (!isNot)? visit(right) : "";
@@ -670,11 +707,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
             leftNewVar = leftStr.substring(leftStr.lastIndexOf("\n") + 1);
         }
 
-        // TODO CHANGE TYPES
-        //  1 + 2 && 3;
-
-        //  t1.32 and 3.i32
-        //      1 ADD 2        t1.i32 :=.i32 (1.i32 +.i32 2.i32 \n t1
 
         if ((!isNot) && rightStr.contains("\n")){
             String rightPrefix = rightStr.substring(0, rightStr.lastIndexOf("\n") + 1);
@@ -683,22 +715,28 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         }
 
 
-        if (leftNewVar.equals("") && rightNewVar.equals("") && OllirUtils.isOperation(operation.getJmmParent()))
-            operationStr.append("\nt").append(++varCounter).append(opType).append(" :=").append(opType).append(" ");
+        if (OllirUtils.isOperation(operation.getJmmParent()))
+            operationStr.append("\nt").append(++varCounter).append(retType).append(" :=").append(retType).append(" ");
+
+        if (isNot){
+            operationStr.append("!.bool ");
+            if (leftNewVar.equals("")) operationStr.append(leftStr);
+            else operationStr.append(leftNewVar);
+        }
+        else {
+            if (leftNewVar.equals("")) operationStr.append(leftStr).append(opType);
+            else operationStr.append(leftNewVar);
+
+            operationStr.append(getOperator(operation));
+
+            if (rightNewVar.equals("")) operationStr.append(rightStr).append(opType);
+            else operationStr.append(rightNewVar);
+        }
+
+        if (OllirUtils.isOperation(operation.getJmmParent()))
+            operationStr.append(";\nt").append(varCounter).append(retType);
 
 
-        if (leftNewVar.equals("")) operationStr.append(leftStr).append(opType);
-        else operationStr.append(leftNewVar);
-
-        operationStr.append(getOperator(operation));
-
-        if (rightNewVar.equals("")) operationStr.append(rightStr).append(opType);
-        else operationStr.append(rightNewVar);
-
-
-        if (leftNewVar.equals("") && rightNewVar.equals("") && OllirUtils.isOperation(operation.getJmmParent()))
-            operationStr.append(";\nt").append(varCounter).append(opType);
-//
         return operationStr.toString();
     }
 
@@ -707,24 +745,21 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
         if (condition.getKind().equals("DotAccess") || condition.getKind().equals("ArrayAccess")) {
             finalStr.append("t").append(++varCounter).append(".bool :=.bool ").append(condStr).append(";\n");
-            finalStr.append("t").append(varCounter);
-            //if (isWhile)
-            //    finalStr.append(".bool ==.bool 1.bool");
-            //else
-            finalStr.append(".bool !.bool 1.bool");
+            finalStr.append("t").append(varCounter).append(".bool ==.bool 0.bool");
 
 
         } else if (condition.getKind().equals("True") || condition.getKind().equals("False") || condition.getKind().equals("Identifier")) {
 
-            //if (isWhile)
-            //    finalStr.append(condStr).append(".bool ==.bool ").append(condStr).append(".bool");
-            //else
-            finalStr.append(condStr).append(".bool !.bool ").append("1.bool");
+
+            finalStr.append(condStr).append(".bool ==.bool ").append("0.bool");
+        }else if (condition.getKind().equals("Not")){
+            condStr = condStr.substring(condStr.lastIndexOf(" ") + 1);
+            finalStr.append(condStr);
+            if (!condStr.contains(".")) finalStr.append(".bool");
+            finalStr.append(" ==.bool 1.bool");
         }
         else{
-            // if (isWhile)
-            //     return condStr;
-            // else{
+
             if (condStr.contains("<")) {
                 finalStr.append(condStr);
                 finalStr.replace(finalStr.indexOf("<"), finalStr.indexOf("<") + 1, ">=");
@@ -735,10 +770,13 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
             }
             else if (condStr.contains("!")) {
                 finalStr.append(condStr);
-                finalStr.replace(finalStr.indexOf("!"), finalStr.indexOf("!") + 2, "==");
+                finalStr.replace(finalStr.indexOf("!"), finalStr.indexOf("!") + 1, "==");
             }
-            //todo && case
-            //}
+            else if (condStr.contains("&&")){
+                finalStr.append("t").append(++varCounter).append(".bool :=.bool ").append(condStr).append(";\n");
+                finalStr.append("t").append(varCounter).append(".bool ==.bool 0.bool");
+            }
+
         }
 
 
@@ -781,6 +819,18 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         else {
             if (nodeId.getJmmChild(0).getKind().equals("MainMethodHeader")) return "main";
             else return nodeId.getJmmChild(0).getJmmChild(1).get("name");
+        }
+    }
+
+    public Boolean findMethodParent(JmmNode nodeId){
+        while(!nodeId.getKind().equals("Assignment") && !nodeId.getKind().equals("DotDeclarationArgs") && !nodeId.getKind().equals("ArrayAccess")
+                && !OllirUtils.isOperation(nodeId) && !nodeId.getKind().equals("Start")){
+            nodeId = nodeId.getJmmParent();
+        }
+
+        if (nodeId.getKind().equals("Start")) return false;
+        else {
+            return true;
         }
     }
 
