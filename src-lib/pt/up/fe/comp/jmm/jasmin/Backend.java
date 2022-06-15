@@ -576,6 +576,9 @@ public class Backend implements JasminBackend{
 
         if (opType == OperationType.LTH) {
             conditionals++;
+            limitStack(1);
+            stack = 0;
+
             String jasminCode = loadElement(instr.getLeftOperand()) +
                     loadElement(instr.getRightOperand()) +
                     "\t" + getJasminBranchComparison(instr.getOperation()) + " True" + conditionals + "\n" +
@@ -585,7 +588,6 @@ public class Backend implements JasminBackend{
                     "\ticonst_1\n" +
                     "Store" + conditionals + ":\n";
 
-            stack = 1;
             return jasminCode;
         }
 
@@ -651,6 +653,7 @@ public class Backend implements JasminBackend{
 
         if (op.getType().getTypeOfElement() != ElementType.ARRAYREF){
             if (currVarTable.get(op.getName()).getVarType().getTypeOfElement() == ElementType.ARRAYREF) {
+
                 ArrayOperand arrayOp = (ArrayOperand) op;
                 Element index = arrayOp.getIndexOperands().get(0);
 
@@ -813,7 +816,7 @@ public class Backend implements JasminBackend{
     //Stack Functions
     private String generateStackLimits()
     {
-        Integer res = stacklimit + 1;
+        Integer res = stacklimit;
         return "\t.limit stack " + res + "\n";
     }
 

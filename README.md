@@ -2,6 +2,51 @@
 
 For this project, you need to install [Java](https://jdk.java.net/), [Gradle](https://gradle.org/install/), and [Git](https://git-scm.com/downloads/) (and optionally, a [Git GUI client](https://git-scm.com/downloads/guis), such as TortoiseGit or GitHub Desktop). Please check the [compatibility matrix](https://docs.gradle.org/current/userguide/compatibility.html) for Java and Gradle versions.
 
+
+##GROUP: 9G
+
+- André Santos, up201907879, <GRADE\>, 25%
+- João Andrade, up201905589, <GRADE\>, 25%
+- Sérgio Estêvão, up201905680, <GRADE\>, 25%
+- Sofia Germer, up201907461, <GRADE\>, 25%
+
+
+
+
+GLOBAL Grade of the project: <0 to 20>
+
+
+
+
+##SUMMARY: 
+(Describe what your tool does and its main features.)
+
+
+
+
+
+##SEMANTIC ANALYSIS: 
+(Refer the semantic rules implemented by your tool.)
+
+
+
+
+##CODE GENERATION: 
+(describe how the code generation of your tool works and identify the possible problems your tool has regarding code generation.)
+
+
+
+
+##PROS: 
+(Identify the most positive aspects of your tool)
+
+
+
+
+##CONS:
+(Identify the most negative aspects of your tool)
+
+
 ## Project setup
 
 There are three important subfolders inside the main folder. First, inside the subfolder named ``javacc`` you will find the initial grammar definition. Then, inside the subfolder named ``src`` you will find the entry point of the application. Finally, the subfolder named ``tutorial`` contains code solutions for each step of the tutorial. JavaCC21 will generate code inside the subfolder ``generated``.

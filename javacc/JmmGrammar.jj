@@ -67,14 +67,14 @@ TOKEN :
     ;
 
 
-Start : ImportDeclaration ClassDeclaration <EOF>
+Start : (ImportDeclaration)* ClassDeclaration <EOF>
 ;
 
 
 
 ImportDeclaration :
-    (<IMPORT> (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier)
-    (<DOT> (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier))* <SEMICOLON>)*
+    <IMPORT> (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier)
+    (<DOT> (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier))* <SEMICOLON>
 ;
 
 
