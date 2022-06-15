@@ -32,10 +32,10 @@ public class WhileIfConditionCheck extends PreorderJmmVisitor<Integer, Integer> 
 
         if(isMathExpression || whileIfStatementNode.getJmmChild(0).getKind().equals("Number"))  reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Invalid type: can't have an int on a while/if statement", null));
 
-        else if(isBooleanExpression) return 1;
+        else if(isBooleanExpression || whileIfStatementNode.getJmmChild(0).getKind().equals("True") || whileIfStatementNode.getJmmChild(0).getKind().equals("False") ) return 1;
 
         else if(whileIfStatementNode.getJmmChild(0).getKind().equals("DotAccess")){
-            String call_method_name = whileIfStatementNode.getJmmChild(1).getJmmChild(0).get("name");
+            String call_method_name = whileIfStatementNode.getJmmChild(0).getJmmChild(1).getJmmChild(0).get("name");
             String returnMethodType = symbolTable.getReturnType(call_method_name).getName();
             if(!returnMethodType.equals("boolean")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Function did not return a boolean", null));
         }

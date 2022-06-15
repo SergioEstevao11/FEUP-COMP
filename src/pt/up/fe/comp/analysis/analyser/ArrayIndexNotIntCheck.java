@@ -39,10 +39,16 @@ public class ArrayIndexNotIntCheck extends PreorderJmmVisitor<Integer, Integer> 
             String variableType = symbolTable.getVariableType(method_name,arrayAccessNode.getJmmChild(1).get("name")).getName();
             if(!variableType.equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Variable isn't of type Int", null));
         }
-        else{
+        else if(arrayAccessNode.getJmmChild(1).getKind().equals("DotAccess")){
+            System.out.println("var1" +arrayAccessNode.getJmmChild(1));
+            System.out.println("var2" + arrayAccessNode.getJmmChild(1).getJmmChild(0));
             String call_method_name = arrayAccessNode.getJmmChild(1).getJmmChild(0).get("name");
+            System.out.println("NOme metodo" + call_method_name);
             String returnMethodType = symbolTable.getReturnType(call_method_name).getName();
             if(!returnMethodType.equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Invalid type, was expecting an int", null));
+        }
+        else{
+            if(!symbolTable.getVariableType(method_name, arrayAccessNode.getJmmChild(1).getJmmChild(1).get("name")).getName().equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Invalid type, was expecting an int2", null));
         }
 
         return 0;
