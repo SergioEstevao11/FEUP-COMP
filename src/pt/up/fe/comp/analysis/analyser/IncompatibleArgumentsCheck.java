@@ -29,6 +29,8 @@ public class IncompatibleArgumentsCheck extends PreorderJmmVisitor<Integer, Inte
         if(dotAccessNode.getJmmChild(1).getJmmChild(0).getKind().equals("Length")){
             return 1;
         }
+        else if(dotAccessNode.getJmmChild(0).getKind().equals("ThisDeclaration")){ parameters = symbolTable.getParameters(dotAccessNode.getJmmChild(1).getJmmChild(0).get("name"));}
+
         else if(symbolTable.getImports().contains(dotAccessNode.getJmmChild(0).get("name"))) return 1;
         else parameters = symbolTable.getParameters(dotAccessNode.getJmmChild(1).getJmmChild(0).get("name"));
 
