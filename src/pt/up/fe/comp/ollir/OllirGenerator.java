@@ -295,11 +295,21 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         }
 
         if (idStr.contains("\n")){
-            String prefix = idStr.substring(0, idStr.lastIndexOf("\n") + 1);
-            idStr = idStr.substring(idStr.lastIndexOf("\n") + 1);
-            if (idStr.contains("."))
-                idStr = idStr.substring(0, idStr.lastIndexOf("."));
-            methodStr.append(prefix);
+            if (identifier.getKind().equals("ArrayAccess")) {
+                String prev = idStr.substring(0, idStr.lastIndexOf(";\n"));
+                if (prev.contains("\n"))
+                    methodStr.append(prev.substring(0, prev.lastIndexOf("\n") + 1));
+
+                idStr = prev.substring(prev.lastIndexOf(" ") + 1);
+
+            }
+            else {
+                String prefix = idStr.substring(0, idStr.lastIndexOf("\n") + 1);
+                idStr = idStr.substring(idStr.lastIndexOf("\n") + 1);
+                if (idStr.contains("."))
+                    idStr = idStr.substring(0, idStr.lastIndexOf("."));
+                methodStr.append(prefix);
+            }
         }
 
         if (!isField) {
@@ -315,7 +325,9 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
             if (assignment.getKind().equals("Identifier"))
                 assignmentStr += getVarType(assignment.get("name"));
 
-            methodStr.append(idStr).append(type).append(" :=").append(type).append(" ").append(assignmentStr); // typecheck
+            methodStr.append(idStr);
+            if (!identifier.getKind().equals("ArrayAccess")) methodStr.append(type);
+            methodStr.append(" :=").append(type).append(" ").append(assignmentStr); // typecheck
 
             methodStr.append(";\n");
 
@@ -405,15 +417,15 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
     public String arrayAccessVisit(JmmNode arrayAccess, Integer dummy){
         StringBuilder retStr = new StringBuilder();
-        JmmNode identifier = arrayAccess.getChildren().get(0);
-        JmmNode indexNode = arrayAccess.getChildren().get(1);
+        JmmNode identifier = arrayAccess.getJmmChild(0);
+        JmmNode indexNode = arrayAccess.getJmmChild(1);
 
         String idStr = visit(identifier);
         String indexStr = visit(indexNode);
 
         String type = getVarType(identifier.get("name")).replace(".array", "");
 
-        if (idStr.contains("\n")){
+        if (idStr.contains("\n")) {
             retStr.append(idStr.substring(0, idStr.lastIndexOf("\n") + 1));
             idStr = idStr.substring(idStr.lastIndexOf("\n") + 1);
             if (idStr.contains(".")) idStr = idStr.substring(0, idStr.indexOf("."));
@@ -429,16 +441,18 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
             indexStr = ("t" + varCounter);
         }
 
-       // if (idStr.contains("$")){
-       //     retStr.append("t").append(++varCounter).append(type).append(" :=").append(type).append(" ").append(idStr).append(type).append(";\n");
-       //     idStr = ("t" + varCounter);
-       // }
+
+       if (indexStr.contains("$")){
+           retStr.append("t").append(++varCounter).append(".i32 :=.i32 ").append(indexStr).append(type).append(";\n");
+           indexStr = ("t" + varCounter);
+       }
 
         if (OllirUtils.isOperation(indexNode)){
             retStr.append("t").append(++varCounter).append(".i32 :=.i32 ").append(indexStr).append(";\n");
             indexStr = ("t" + varCounter);
         }
 
+        if (indexStr.contains(".")) indexStr = indexStr.substring(0, indexStr.lastIndexOf("."));
 
         retStr.append("\t\tt").append(++varCounter).append(type);
         retStr.append(" :=").append(type).append(" ");
