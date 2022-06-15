@@ -90,6 +90,9 @@ OperatorsCheck - Checks if the types are correct in the "Times", "And", "Plus", 
 
 ### OLLIR 
 
+_While & If's_ - These nodes are implemented using the same structure. A condition is generated with its opposite operand. That way, when the new condition is met, the code skips the normal instructions , breaking the loop or parsing the else statements.
+
+_Assignments, Array Access & Operations_ - These statements are structured in such a way, so that when a temporary variable is created, a prefix statement(with the auxiliary variable set up) and in another line, the new temporary variable(to be parsed by the parent afterwards ) are added to the ollir string
 ### Jasmin
 
 ## Pros: 
