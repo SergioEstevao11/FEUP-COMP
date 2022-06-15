@@ -345,18 +345,26 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
             if (!assignmentStr.contains(".")) assignmentStr += ".i32"; // number fix, todo may need type change
 
-            String fieldId = "";
-            if (identifier.getKind().equals("ArrayAccess"))
-                fieldId = identifier.getJmmChild(0).get("name");
-            else fieldId = identifier.get("name");
 
-            if (OllirUtils.isOperation(assignment)){
-                methodStr.append("t").append(++varCounter).append(type).append(" :=").append(type).append(" ")
-                        .append(assignmentStr).append(";\n");
-                assignmentStr = ("t" + varCounter + type);
+
+            String fieldId = "";
+            if (identifier.getKind().equals("ArrayAccess")){
+                methodStr.append(idStr).append(" :=").append(type).append(" ").append(assignmentStr).append(";\n");
+                assignmentStr = idStr.substring(0, idStr.indexOf("[")) + ".array" + type;
+                fieldId = identifier.getJmmChild(0).get("name") + ".array" + type;
             }
 
-            methodStr.append("putfield(this, ").append(fieldId).append(type).append(", ").append(assignmentStr).append(").V;\n");
+            else {
+                fieldId = identifier.get("name") + type;
+
+                if (OllirUtils.isOperation(assignment)){
+                    methodStr.append("t").append(++varCounter).append(type).append(" :=").append(type).append(" ")
+                            .append(assignmentStr).append(";\n");
+                    assignmentStr = ("t" + varCounter + type);
+                }
+
+            }
+            methodStr.append("putfield(this, ").append(fieldId).append(", ").append(assignmentStr).append(").V;\n");
         }
 
         return methodStr.toString();
@@ -631,6 +639,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
                     .append(exp).append(";\n");
             exp = ("t" + varCounter);
         }
+
+        if (exp.contains(".") && !exp.contains("$")) exp = exp.substring(0, exp.lastIndexOf("."));
 
         returnString.append("ret").append(type).append(" ");
         returnString.append(exp).append(type);
