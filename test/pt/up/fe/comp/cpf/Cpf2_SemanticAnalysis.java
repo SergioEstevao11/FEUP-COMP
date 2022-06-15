@@ -127,7 +127,6 @@ public class Cpf2_SemanticAnalysis {
     public void section3_TypeVerification_arraySumBad() {
         test("type_verification/Array_Sum_Bad.jmm", true);
     }
-
     @Test
     public void section3_TypeVerification_ArrayIndexBad() {
         test("type_verification/Array_Index_Bad.jmm", true);
