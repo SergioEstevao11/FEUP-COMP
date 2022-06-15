@@ -1,18 +1,8 @@
-# Compilers Project
+# Compilers Project, Group: 9G
 
 For this project, you need to install [Java](https://jdk.java.net/), [Gradle](https://gradle.org/install/), and [Git](https://git-scm.com/downloads/) (and optionally, a [Git GUI client](https://git-scm.com/downloads/guis), such as TortoiseGit or GitHub Desktop). Please check the [compatibility matrix](https://docs.gradle.org/current/userguide/compatibility.html) for Java and Gradle versions.
 
-
-## GROUP: 9G
-
-| Name     | UP | Contribution|
-| ----------- | ----------- |----------- |
-| André Santos   | up201907879   | 25%       |
-| João Andrade   | up201905589        |25%|
-| Sérgio Estêvão      | up201905680       |  25%|
-| Sofia Germer   | up201907461        |25%|
-
-## SUMMARY: 
+## Summary: 
 This project's main goal was to acquire and apply the theoretical principals of the Compilers' course unit. This was achieved by building a compiler for programs written in the Java-- language. The main parts of the project are Syntactic error controller, Semantic analysis, OLLIR and Jasmin Code generation.
 
 ## Project setup
@@ -67,8 +57,9 @@ In order for the test class to find your implementations for the stages, it uses
 During the development of your compiler you will update this file in order to setup the classes that implement each of the compilation stages.
 
 # Final Delivery
+Finished developing missing parts of the compiler.
 
-## SEMANTIC ANALYSIS: 
+## Semantic Analysis: 
 
 ### Type Verification
 
@@ -95,17 +86,25 @@ OperatorsCheck - Checks if the types are correct in the "Times", "And", "Plus", 
 
 
 
-## CODE GENERATION: 
+## Code Generation: 
 
 ### OLLIR 
 
 ### Jasmin
 
-## PROS: 
+## Pros: 
 The highlights of our project are:
 - Organized code
 - Complete and detailed AST
 - Robust semantic analysis
 
-## CONS:
+## Cons:
 Sadly we didn't get to implement all the optimizations, which would have made this an even better project.
+
+## Contribution
+| Name     | UP | Contribution|
+| ----------- | ----------- |----------- |
+| André Santos   | up201907879   | 25%       |
+| João Andrade   | up201905589        |25%|
+| Sérgio Estêvão      | up201905680       |  25%|
+| Sofia Germer   | up201907461        |25%|
