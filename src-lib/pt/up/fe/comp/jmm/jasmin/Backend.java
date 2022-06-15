@@ -482,7 +482,11 @@ public class Backend implements JasminBackend{
 
     private String generateInvokeVirtual(CallInstruction instr) {
         StringBuilder jasminCode = new StringBuilder();
+
+
         jasminCode.append(loadElement(instr.getFirstArg()));
+
+
 
         for (Element e : instr.getListOfOperands())
             jasminCode.append(loadElement(e));
@@ -662,6 +666,10 @@ public class Backend implements JasminBackend{
             }
         }
 
+        if (op.getType().getTypeOfElement() == ElementType.INT32 || op.getType().getTypeOfElement() == ElementType.BOOLEAN) {
+            if (currVarTable.get(op.getName()).getVarType().getTypeOfElement() == ElementType.ARRAYREF)
+                stack += 1;
+        }
 
         jasminCode.append(getJasminInst(instr.getRhs()));
 

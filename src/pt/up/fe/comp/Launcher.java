@@ -7,6 +7,8 @@ import java.util.Map;
 
 import pt.up.fe.comp.analysis.JmmAnalyser;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
+import pt.up.fe.comp.jmm.jasmin.Backend;
+import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.ollir.JmmOptimizer;
 import pt.up.fe.specs.util.SpecsIo;
@@ -63,8 +65,23 @@ public class Launcher {
         // Check if there are parsing errors
         TestUtils.noErrors(optimizationResult);
 
-        // ... add remaining stages
-       
+        // Ollir
+
+        OllirResult ollirResult = optimizer.toOllir(optimizationResult);
+
+        TestUtils.noErrors(ollirResult);
+
+        // Jasmin
+
+        var jasminBackend = new Backend();
+
+        var JasminResults = jasminBackend.toJasmin(ollirResult);
+
+        TestUtils.noErrors(JasminResults);
+
+
+
+
     }
 
 }

@@ -1,6 +1,6 @@
 import io;
 class WhileAndIF {
- 
+
     public static void main(String[] args){
         int a;
         int b;
@@ -17,7 +17,7 @@ class WhileAndIF {
 
 
         while((0-1) < c){
-            d[c] = a-b; 
+            d[c] = a-b;
             c= c-1;
             a= a-1;
             b= b-1;

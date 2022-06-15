@@ -4,11 +4,13 @@ import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
+import java.util.List;
+
 public class OllirUtils {
 
     public static String getCode(Symbol symbol){
 
-        return symbol.getName() + "." + getOllirType(symbol.getType());
+        return symbol.getName() + getOllirType(symbol.getType());
     }
 
     public static String getOllirType(Type type){
@@ -16,53 +18,55 @@ public class OllirUtils {
         code.append(".");
 
         if (type.isArray())
-            return "array." + type.getName();
+            code.append("array.");
 
         String jmmType = type.getName();
 
         switch(jmmType){
             case "int":
-                return "i32";
+                code.append("i32");
+                break;
             case "boolean":
-                return "bool";
+                code.append("bool");
+                break;
             case "void":
-                return "V";
+                code.append("V");
+                break;
+            default:
+                code.append(jmmType);
+                break;
         }
 
-        return jmmType;
+        return code.toString();
     }
 
-    public static String getOllirVar(String jmmVar, Type type){
-        return jmmVar + getOllirType(type);
+    public static boolean isOperation(JmmNode operation) {
+        return operation.getKind().equals("Plus") || operation.getKind().equals("Minus") ||
+                operation.getKind().equals("Times") || operation.getKind().equals("Divide") ||
+                operation.getKind().equals("Less") || operation.getKind().equals("And") || operation.getKind().equals("Not");
     }
 
-    public static String getOllirParameter(int position, String jmmParameter){
-        return "$" + position + "." + jmmParameter;
+    public static boolean isFinalOperation(JmmNode operation) {
+        return operation.getKind().equals("Less") || operation.getKind().equals("And") || operation.getKind().equals("Not");
     }
 
-    public static String getOllirOperator(JmmNode jmmOperator, StringBuilder code){
-        if (jmmOperator.getKind().equals("Assignment")){
-            String substring = code.substring(code.lastIndexOf(":=."), code.length() - 1);
-            substring = substring.substring(0, substring.indexOf(" "));
-
-        }
-
+    public static String getOllirOperator(JmmNode jmmOperator){
 
         switch (jmmOperator.getKind()){
-            case "Add":
-                return " +.i32 ";
+            case "Plus":
+                return ".i32";
             case "Less":
-                return " <.bool ";
-            case "Sub":
-                return " -.i32 ";
-            case "Mult":
-                return " *.i32 ";
-            case "Div":
-                return " /.i32 ";
+                return ".bool";
+            case "Minus":
+                return ".i32";
+            case "Times":
+                return ".i32";
+            case "Divide":
+                return ".i32";
             case "And":
-                return " &&.bool ";
+                return ".bool";
             case "Not":
-                return " !.bool ";
+                return ".bool";
             default:
                 return ".V";
         }
