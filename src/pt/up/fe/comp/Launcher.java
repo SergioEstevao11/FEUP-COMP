@@ -1,6 +1,11 @@
 package pt.up.fe.comp;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,45 +48,84 @@ public class Launcher {
         SimpleParser parser = new SimpleParser();
         // Parse stage
         JmmParserResult parserResult = parser.parse(input, config);
-
         // Check if there are parsing errors
         TestUtils.noErrors(parserResult.getReports());
 
          // Instantiate JmmAnalysis
         JmmAnalyser analyser = new JmmAnalyser();
-
         // Analysis stage
         JmmSemanticsResult analysisResult = analyser.semanticAnalysis(parserResult);
         // Check if there are parsing errors
         TestUtils.noErrors(analysisResult.getReports());
 
-         // Instantiate JmmOptimizer
-        var optimizer = new JmmOptimizer();
-
+        // Instantiate JmmOptimizer
+        JmmOptimizer optimizer = new JmmOptimizer();
         // Optimization stage
-        var optimizationResult = optimizer.optimize(analysisResult);
+        OllirResult ollirResult = optimizer.toOllir(analysisResult);
+        // Check if there are optimization errors
+        TestUtils.noErrors(ollirResult.getReports());
 
-
-        // Check if there are parsing errors
-        TestUtils.noErrors(optimizationResult);
-
-        // Ollir
-
-        OllirResult ollirResult = optimizer.toOllir(optimizationResult);
-
-        TestUtils.noErrors(ollirResult);
+        System.out.println("ola54");
 
         // Jasmin
-
         var jasminBackend = new Backend();
+        // Optimization stage
+        var jasminResults = jasminBackend.toJasmin(ollirResult);
+        // Check if there are optimization errors
+        TestUtils.noErrors(jasminResults);
 
-        var JasminResults = jasminBackend.toJasmin(ollirResult);
+        System.out.println("ola");
+        Path mainDir = Paths.get("ToolResults/");
+        try {
+            if (!Files.exists(mainDir)) {
+                Files.createDirectory(mainDir);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        TestUtils.noErrors(JasminResults);
+        Path path = Paths.get("ToolResults/" + ollirResult.getSymbolTable().getClassName() + "/");
+        try {
+            if (!Files.exists(path)) {
+                Files.createDirectory(path);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        try {
+            FileWriter myWriter = new FileWriter(path + "/ast.json");
+            myWriter.write(parserResult.toJson());
+            myWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        try {
+            FileWriter myWriter = new FileWriter(path + "/symbolTable.txt");
+            myWriter.write(analysisResult.getSymbolTable().print());
+            myWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        try {
+            FileWriter myWriter = new FileWriter(path + "/ollir.ollir");
+            myWriter.write(ollirResult.getOllirCode());
+            myWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        try {
+            FileWriter myWriter = new FileWriter(path + "/jasmin.j");
+            myWriter.write(jasminResults.getJasminCode());
+            myWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        jasminResults.compile(path.toFile());
     }
-
+6Dezembro2001
 }

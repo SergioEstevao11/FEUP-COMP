@@ -1,4 +1,4 @@
-package pt.up.fe.comp.analysis.analyser;
+package pt.up.fe.comp.analysis.analyser.typeverification;
 
 import jdk.swing.interop.SwingInterOpUtils;
 import pt.up.fe.comp.Identifier;
@@ -55,7 +55,6 @@ public class OperatorsCheck extends PreorderJmmVisitor<Integer, Integer> {
                 left_side_type = "int";
             }
             else{
-                System.out.println("OLAA");
                 String call_method_name = andNode.getJmmChild(1).getJmmChild(0).get("name");
                 left_side_type = symbolTable.getReturnType(call_method_name).getName();
             }

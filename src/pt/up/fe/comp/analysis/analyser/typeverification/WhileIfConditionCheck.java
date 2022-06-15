@@ -1,4 +1,4 @@
-package pt.up.fe.comp.analysis.analyser;
+package pt.up.fe.comp.analysis.analyser.typeverification;
 
 import pt.up.fe.comp.analysis.SymbolTableBuilder;
 import pt.up.fe.comp.jmm.ast.JmmNode;
@@ -14,7 +14,6 @@ public class WhileIfConditionCheck extends PreorderJmmVisitor<Integer, Integer> 
     private final List<Report> reports;
 
     public WhileIfConditionCheck(SymbolTableBuilder symbolTable, List<Report> reports) {
-
         this.reports = reports;
         this.symbolTable = symbolTable;
         addVisit("WhileStatement", this::visitIfWhileCondition);
@@ -23,7 +22,6 @@ public class WhileIfConditionCheck extends PreorderJmmVisitor<Integer, Integer> 
     }
     public Integer visitIfWhileCondition(JmmNode whileIfStatementNode, Integer ret) {
         String method_name = null;
-
         if( whileIfStatementNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = "main";
         else method_name = whileIfStatementNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
 

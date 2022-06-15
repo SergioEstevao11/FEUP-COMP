@@ -1,4 +1,4 @@
-package pt.up.fe.comp.analysis.analyser;
+package pt.up.fe.comp.analysis.analyser.typeverification;
 
 import org.eclipse.jgit.util.io.IsolatedOutputStream;
 import pt.up.fe.comp.analysis.SymbolTableBuilder;
@@ -58,14 +58,10 @@ public class AssignmentsCheck extends PreorderJmmVisitor<Integer, Integer> {
         boolean isBooleanExpression = symbolTable.isBooleanExpression(assignmentNode.getJmmChild(1).getKind());
 
         if(assignmentNode.getJmmChild(1).getKind().equals("Identifier")){
-            System.out.println(symbolTable.getVariableType(method_name,assignmentNode.getJmmChild(1).get("name")).getName());
-            System.out.println(identifierType);
             if(symbolTable.isObject(method_name,assignmentNode.getJmmChild(1).get("name"))) {
                 if(symbolTable.getSuper() == null){
                     if(assignmentNode.getJmmChild(0).getKind().equals("Identifier")) {
                         if (symbolTable.isObject(method_name, assignmentNode.getJmmChild(0).get("name"))) {
-                            System.out.println(symbolTable.getVariableType(method_name, assignmentNode.getJmmChild(0).get("name")).getName());
-                            System.out.println(symbolTable.getClassName());
                             if (symbolTable.getVariableType(method_name, assignmentNode.getJmmChild(0).get("name")).getName().equals(symbolTable.getClassName())) {
                                 reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Cannot assign a not imported class to an object", null));
                                 return 1;
