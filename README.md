@@ -20,8 +20,7 @@ This project's main goal was to acquire and apply the theoretical principals of 
 
 ### Type Verification
 
-**The following verifications are implemented:**
-The following files can be found in the folder typeverfification(_src/pt/up/fe/comp/analysis/analyser/typeverfification)
+**The following verifications are implemented in the foldertypeverfification :** (_src/pt/up/fe/comp/analysis/analyser/typeverfification)
 
 - _ArrayIndexNotIntCheck_ - In a array access it checks if the index is of type int or not,  if it isn't an error is created
 AssignmentsCheck - Checks in every assignment if the types match in order for it too be correct
@@ -36,26 +35,12 @@ OperatorsCheck - Checks if the types are correct in the "Times", "And", "Plus", 
 - _WhileIfConditionCheck_ - Checks if the conditions presented in If and While statements are of type boolean
 
 ### Method Verification 
-The following files can be found in the folder methodverification(_src/pt/up/fe/comp/analysis/analyser/methodverification_)
+**The following verifications are implemented in the methodverification :** The following files can be found in the folder methodverification(_src/pt/up/fe/comp/analysis/analyser/methodverification_)
 
 - _CallToUndeclared method_ - checks whether or not a method is declared, if it is imported from another class or if the Super class extends another class which contains the method
 
 - _ThisCallCheck_ - Checks if there is any instance  of this on the main method, because the main method is static
-**The following verifications are implemented:**
 
-- The "target" of the method exists and contains the method (e.g. a.foo, see if 'a' exists and if it has a 'foo' method);
-
-- The number of arguments in the invocation is equal to the number of parameters in the declaration;
-
-- The type of the parameters matches the type of the arguments;
-
-- The return type matches the method declaration return type;
-
-- The method is either imported, belongs to the class or its superclass;
-
-- When this invocation of the method is used, check if the method belongs to the class or there is a superclass;
-
-- Allows overload of methods.
 
 
 ## CODE GENERATION: 
