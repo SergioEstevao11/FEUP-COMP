@@ -31,7 +31,7 @@ import pt.up.fe.specs.util.utilities.LineStream;
 
 public class Cpf4_Jasmin {
 
-    private static boolean USE_OLLIR_EXPERIMENTAL = true;
+    private static boolean USE_OLLIR_EXPERIMENTAL = false;
 
     public static void enableOllirInputs() {
         USE_OLLIR_EXPERIMENTAL = true;
