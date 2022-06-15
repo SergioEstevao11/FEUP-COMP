@@ -478,21 +478,30 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         JmmNode args;
         String argPrefix = "";
         String argString = "";
+        String argSavePostfix = "";
+        Boolean flag = false;
         if (!func.getKind().equals("Length")){
             args = memberCall.getJmmChild(1).getJmmChild(1);
 
             for (JmmNode child : args.getChildren()){
                 String node = visit(child);
                 if (node.contains("\n")){
+                    flag = true;
                     argPrefix += node.substring(0, node.lastIndexOf("\n") + 1);
-                    argString += (", " + node.substring(node.lastIndexOf("\n") + 1));
-                }else if (OllirUtils.isOperation(child)){
+                    argSavePostfix = (", " + node.substring(node.lastIndexOf("\n") + 1));
+                    node = node.substring(node.lastIndexOf("\n") + 1);
+                }
+                if (OllirUtils.isOperation(child)){
                     String argType = OllirUtils.isFinalOperation(child) ? ".bool" : ".i32";
                     argPrefix += ("t" + ++varCounter + argType + " :=" + argType + " " + node + ";\n");
                     argString += (", t" + varCounter + argType);
                 }
-
-                else argString += (", " + node + getVarType(child.get("name")));
+                else {
+                    if (flag == true)
+                        argString += argSavePostfix;
+                    else
+                        argString += (", " + node + getVarType(child.get("name")));
+                }
             }
 
             methodString.append(argPrefix);
@@ -766,7 +775,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
         if (isNot){
             operationStr.append("!.bool ");
-            if (leftNewVar.equals("")) operationStr.append(leftStr);
+            if (leftNewVar.equals("")) operationStr.append(leftStr).append(".bool");
             else operationStr.append(leftNewVar);
         }
         else {
