@@ -22,25 +22,21 @@ This project's main goal was to acquire and apply the theoretical principals of 
 
 **The following verifications are implemented:**
 
-- The operations are performed with the same type (e.g. int + boolean); 
+- _CallToUndeclared method_ - checks whether or not a method is declared, if it is imported from another class or if the Super class extends another class which contains the method
 
-- Cannot use arrays directly for arithmetic operation (e.g. array1 + array2);
+- _ThisCallCheck_ - Checks if there is any instance  of this on the main method, because the main method is static
 
-- An array access can only be made over an array (e.g. 1[10] is not valid);
+- _ArrayIndexNotIntCheck_ - In a array access it checks if the index is of type int or not,  if it isn't an error is created
+AssignmentsCheck - Checks in every assignment if the types match in order for it too be correct
 
-- The index of the access array is an integer (e.g. a [true] is not allowed);
+- _AssignmentsCheck_ - Checks in every assignment if the types match in order for it too be correct
 
-- Length method can only be used over arrays;
+- _IncompatibleArguments_ - Checks in a call to a function if the parameters of the function being called match with the arguments of the call
+_
+- _IncompatibleReturn_ - Checks if the return of a function has the same type as the declaration of the same function.
+OperatorsCheck - Checks if the types are correct in the "Times", "And", "Plus", "Minus", "Less" operands
 
-- The assignee's value is the same as the assigned's (e.g. a_int = b_boolean is not allowed);
-
-- A boolean operation is performed only with booleans;
-
-- Conditional expressions result in a boolean;
-
-- Assumes Parameters as Initialized;
-
-- New types allowed are from the class, superclass or imports.
+- _WhileIfConditionCheck_ - Checks if the conditions presented in If and While statements are of type boolean
 
 ### Method Verification 
 
@@ -62,7 +58,10 @@ This project's main goal was to acquire and apply the theoretical principals of 
 
 
 ## CODE GENERATION: 
-(describe how the code generation of your tool works and identify the possible problems your tool has regarding code generation.)
+
+### OLLIR 
+
+### Jasmin
 
 ## PROS: 
 The highlights of our project are:
