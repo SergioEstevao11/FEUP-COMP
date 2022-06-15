@@ -1,4 +1,4 @@
-package pt.up.fe.comp.analysis.analyser;
+package pt.up.fe.comp.analysis.analyser.typeverification;
 
 import pt.up.fe.comp.analysis.SymbolTableBuilder;
 import pt.up.fe.comp.jmm.analysis.table.Type;
@@ -45,22 +45,15 @@ public class ArrayIndexNotIntCheck extends PreorderJmmVisitor<Integer, Integer> 
                 returnMethodType = "int";
             }
             else {
-                System.out.println("var1" + arrayAccessNode.getJmmChild(1));
-                System.out.println("var2" + arrayAccessNode.getJmmChild(1).getJmmChild(0));
                 String call_method_name = arrayAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(0).get("name");
-                System.out.println("NOme metodo" + call_method_name);
                 returnMethodType = symbolTable.getReturnType(call_method_name).getName();
             }
             if(!returnMethodType.equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Invalid type, was expecting an int10", null));
         }
         else if(arrayAccessNode.getJmmChild(1).getKind().equals("ArrayAccess")){
-            System.out.println("1" + arrayAccessNode.getJmmChild(1).getJmmChild(0).get("name"));
-            System.out.println("2" + symbolTable.getVariableType(method_name,arrayAccessNode.getJmmChild(1).getJmmChild(0).get("name")).getName());
             if(!symbolTable.getVariableType(method_name,arrayAccessNode.getJmmChild(1).getJmmChild(0).get("name")).getName().equals("int"))  reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Invalid type, was expecting an int11", null));
         }
         else{
-            System.out.println(arrayAccessNode.getJmmChild(1));
-            System.out.println("FINALMENT" + arrayAccessNode.getJmmChild(1).getJmmChild(1));
             if(!symbolTable.getVariableType(method_name, arrayAccessNode.getJmmChild(1).getJmmChild(1).get("name")).getName().equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Invalid type, was expecting an int2", null));
         }
         return 0;
