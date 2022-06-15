@@ -67,14 +67,14 @@ TOKEN :
     ;
 
 
-Start : ImportDeclaration ClassDeclaration <EOF>
+Start : (ImportDeclaration)* ClassDeclaration <EOF>
 ;
 
 
 
 ImportDeclaration :
-    (<IMPORT> (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier)
-    (<DOT> (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier))* <SEMICOLON>)*
+    <IMPORT> (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier)
+    (<DOT> (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier))* <SEMICOLON>
 ;
 
 
@@ -96,6 +96,7 @@ Type :
     (<BOOLEAN> {jjtThis.put("type", lastConsumedToken.getImage());})        |
     (<STRING> {jjtThis.put("type", lastConsumedToken.getImage());})
 ;
+
 
 MethodDeclaration :
     <PUBLIC> (CommonMethodHeader | MainMethodHeader) <OPEN_BRACKET> MethodBody <CLOSE_BRACKET>
@@ -189,8 +190,9 @@ KeyWords #void:  <TRUE> #True |
 ThisDeclaration : <THIS> (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier)?
 ;
 
+
 NewDeclaration : <NEW> (<INT> #Int ArrayAccess #ArrayAccess(2) | (<IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage());}) #Identifier) <OPEN_CURVE_BRACKET> <CLOSE_CURVE_BRACKET>)
-;          
+;
 
 
 INJECT BaseNode :
