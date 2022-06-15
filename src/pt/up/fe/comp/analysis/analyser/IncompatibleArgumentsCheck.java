@@ -29,6 +29,7 @@ public class IncompatibleArgumentsCheck extends PreorderJmmVisitor<Integer, Inte
         if(dotAccessNode.getJmmChild(1).getJmmChild(0).getKind().equals("Length")){
             return 1;
         }
+        else if(symbolTable.getImports().contains(dotAccessNode.getJmmChild(0).get("name"))) return 1;
         else parameters = symbolTable.getParameters(dotAccessNode.getJmmChild(1).getJmmChild(0).get("name"));
 
         if(parameters == null && dotAccessNode.getJmmChild(1).getJmmChild(1).getNumChildren()  != 0) {
@@ -62,14 +63,19 @@ public class IncompatibleArgumentsCheck extends PreorderJmmVisitor<Integer, Inte
                                 argumentType = "boolean";
                             }
                             else if(dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).getKind().equals("ArrayAccess")){
-                                System.out.println(dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).getJmmChild(0));
+                                System.out.println(symbolTable.isObject(method_name,dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).getJmmChild(0).get("name")));
                                 argumentType = symbolTable.getVariableType(method_name, dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).getJmmChild(0).get("name")).getName();
                             }
                             else if(dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).getKind().equals("Identifier")){
+                                System.out.println( "GETTER" + dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).getKind());
+
                                 argumentType = symbolTable.getVariableType(method_name, dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).get("name")).getName();
 
                             }
                             else { // if(dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).getKind().equals("DotAcess"))
+
+                                System.out.println( "GETTER" + dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).getKind());
+
                                 String call_method_name = dotAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(j).getJmmChild(1).getJmmChild(0).get("name");
                                 argumentType = symbolTable.getReturnType(call_method_name).getName();
                             }
@@ -77,7 +83,7 @@ public class IncompatibleArgumentsCheck extends PreorderJmmVisitor<Integer, Inte
                         if (!argumentType.equals(parameterType)) {
                             System.out.println("PARAMETRO" + parameterType);
                             System.out.println("ARRGUMENTO" + argumentType);
-                            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Incompatible arguments \"", null));
+                            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Incompatible arguments ", null));
                             return 0;
                         }
                     }
