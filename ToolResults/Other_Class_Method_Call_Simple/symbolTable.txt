@@ -1,0 +1,11 @@
+Class: Other_Class_Method_Call_Simple
+Super: java.lang.Object
+
+Imports:
+ - List
+
+Fields: <no fields>
+
+Methods: 2
+ - signature: main; returnType: void; params: String[] a; local vars: int k, List l, Other_Class_Method_Call_Simple mc
+ - signature: foo; returnType: int; params: List l; local vars: <no vars>

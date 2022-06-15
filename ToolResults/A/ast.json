@@ -1,0 +1,229 @@
+{
+  "rootNode": {
+    "kind": "Start",
+    "attributes": {},
+    "children": [
+      {
+        "kind": "ImportDeclaration",
+        "attributes": {},
+        "children": [
+          {
+            "kind": "Identifier",
+            "attributes": {
+              "name": "B"
+            },
+            "children": []
+          }
+        ]
+      },
+      {
+        "kind": "ClassDeclaration",
+        "attributes": {},
+        "children": [
+          {
+            "kind": "Identifier",
+            "attributes": {
+              "name": "A"
+            },
+            "children": []
+          },
+          {
+            "kind": "Extend",
+            "attributes": {
+              "name": "B"
+            },
+            "children": []
+          },
+          {
+            "kind": "MethodDeclaration",
+            "attributes": {},
+            "children": [
+              {
+                "kind": "MainMethodHeader",
+                "attributes": {},
+                "children": [
+                  {
+                    "kind": "Identifier",
+                    "attributes": {
+                      "name": "args"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "kind": "MethodBody",
+                "attributes": {},
+                "children": []
+              }
+            ]
+          },
+          {
+            "kind": "MethodDeclaration",
+            "attributes": {},
+            "children": [
+              {
+                "kind": "CommonMethodHeader",
+                "attributes": {},
+                "children": [
+                  {
+                    "kind": "Type",
+                    "attributes": {
+                      "type": "A"
+                    },
+                    "children": []
+                  },
+                  {
+                    "kind": "Identifier",
+                    "attributes": {
+                      "name": "foo"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "kind": "MethodBody",
+                "attributes": {},
+                "children": [
+                  {
+                    "kind": "VarDeclaration",
+                    "attributes": {},
+                    "children": [
+                      {
+                        "kind": "Type",
+                        "attributes": {
+                          "type": "A"
+                        },
+                        "children": []
+                      },
+                      {
+                        "kind": "Identifier",
+                        "attributes": {
+                          "name": "a"
+                        },
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "VarDeclaration",
+                    "attributes": {},
+                    "children": [
+                      {
+                        "kind": "Type",
+                        "attributes": {
+                          "type": "B"
+                        },
+                        "children": []
+                      },
+                      {
+                        "kind": "Identifier",
+                        "attributes": {
+                          "name": "b"
+                        },
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "Assignment",
+                    "attributes": {},
+                    "children": [
+                      {
+                        "kind": "Identifier",
+                        "attributes": {
+                          "name": "a"
+                        },
+                        "children": []
+                      },
+                      {
+                        "kind": "NewDeclaration",
+                        "attributes": {},
+                        "children": [
+                          {
+                            "kind": "Identifier",
+                            "attributes": {
+                              "name": "A"
+                            },
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "Assignment",
+                    "attributes": {},
+                    "children": [
+                      {
+                        "kind": "Identifier",
+                        "attributes": {
+                          "name": "b"
+                        },
+                        "children": []
+                      },
+                      {
+                        "kind": "NewDeclaration",
+                        "attributes": {},
+                        "children": [
+                          {
+                            "kind": "Identifier",
+                            "attributes": {
+                              "name": "B"
+                            },
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "Assignment",
+                    "attributes": {},
+                    "children": [
+                      {
+                        "kind": "Identifier",
+                        "attributes": {
+                          "name": "b"
+                        },
+                        "children": []
+                      },
+                      {
+                        "kind": "Identifier",
+                        "attributes": {
+                          "name": "a"
+                        },
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "Return",
+                    "attributes": {},
+                    "children": [
+                      {
+                        "kind": "Identifier",
+                        "attributes": {
+                          "name": "a"
+                        },
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "reports": [],
+  "config": {
+    "inputFile": "/home/afonso2345/FEUP/COMP/comp2022-9g/test/fixtures/public/cp2/ObjectAssignmentPassExtends.jmm",
+    "debug": "false",
+    "optimize": "false",
+    "registerAllocation": "-1"
+  }
+}

@@ -1,0 +1,20 @@
+import List;
+Other_Class_Method_Call_Simple {
+.construct Other_Class_Method_Call_Simple().V{
+invokespecial(this, "<init>").V;
+}
+
+ .method public static main(a.array.String).V {
+l.List :=.List new(List).List;
+mc.Other_Class_Method_Call_Simple :=.Other_Class_Method_Call_Simple new(Other_Class_Method_Call_Simple).Other_Class_Method_Call_Simple;
+t1.i32 :=.i32 invokevirtual(l.List, "add", 10.i32).i32;
+k.i32 :=.i32 t1.i32;
+invokevirtual(mc.Other_Class_Method_Call_Simple, "foo", l.List).i32;
+ret.V;
+}
+ .method public foo(l.List).i32 {
+t2.List :=.List $1.l.V;
+invokevirtual(t2.List, "add", 20.i32).V;
+ret.i32 .i32;
+}
+}

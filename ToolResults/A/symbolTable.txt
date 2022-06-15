@@ -1,0 +1,11 @@
+Class: A
+Super: B
+
+Imports:
+ - B
+
+Fields: <no fields>
+
+Methods: 2
+ - signature: main; returnType: void; params: String[] args; local vars: <no vars>
+ - signature: foo; returnType: A; params:  <no params>; local vars: A a, B b

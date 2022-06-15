@@ -1,0 +1,360 @@
+{
+  "rootNode": {
+    "kind": "Start",
+    "attributes": {},
+    "children": [
+      {
+        "kind": "ImportDeclaration",
+        "attributes": {},
+        "children": [
+          {
+            "kind": "Identifier",
+            "attributes": {
+              "name": "List"
+            },
+            "children": []
+          }
+        ]
+      },
+      {
+        "kind": "ClassDeclaration",
+        "attributes": {},
+        "children": [
+          {
+            "kind": "Identifier",
+            "attributes": {
+              "name": "Other_Class_Method_Call_Simple"
+            },
+            "children": []
+          },
+          {
+            "kind": "MethodDeclaration",
+            "attributes": {},
+            "children": [
+              {
+                "kind": "MainMethodHeader",
+                "attributes": {},
+                "children": [
+                  {
+                    "kind": "Identifier",
+                    "attributes": {
+                      "name": "a"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "kind": "MethodBody",
+                "attributes": {},
+                "children": [
+                  {
+                    "kind": "VarDeclaration",
+                    "attributes": {},
+                    "children": [
+                      {
+                        "kind": "Type",
+                        "attributes": {
+                          "type": "int"
+                        },
+                        "children": []
+                      },
+                      {
+                        "kind": "Identifier",
+                        "attributes": {
+                          "name": "k"
+                        },
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "VarDeclaration",
+                    "attributes": {},
+                    "children": [
+                      {
+                        "kind": "Type",
+                        "attributes": {
+                          "type": "List"
+                        },
+                        "children": []
+                      },
+                      {
+                        "kind": "Identifier",
+                        "attributes": {
+                          "name": "l"
+                        },
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "VarDeclaration",
+                    "attributes": {},
+                    "children": [
+                      {
+                        "kind": "Type",
+                        "attributes": {
+                          "type": "Other_Class_Method_Call_Simple"
+                        },
+                        "children": []
+                      },
+                      {
+                        "kind": "Identifier",
+                        "attributes": {
+                          "name": "mc"
+                        },
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "Assignment",
+                    "attributes": {},
+                    "children": [
+                      {
+                        "kind": "Identifier",
+                        "attributes": {
+                          "name": "l"
+                        },
+                        "children": []
+                      },
+                      {
+                        "kind": "NewDeclaration",
+                        "attributes": {},
+                        "children": [
+                          {
+                            "kind": "Identifier",
+                            "attributes": {
+                              "name": "List"
+                            },
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "Assignment",
+                    "attributes": {},
+                    "children": [
+                      {
+                        "kind": "Identifier",
+                        "attributes": {
+                          "name": "mc"
+                        },
+                        "children": []
+                      },
+                      {
+                        "kind": "NewDeclaration",
+                        "attributes": {},
+                        "children": [
+                          {
+                            "kind": "Identifier",
+                            "attributes": {
+                              "name": "Other_Class_Method_Call_Simple"
+                            },
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "Assignment",
+                    "attributes": {},
+                    "children": [
+                      {
+                        "kind": "Identifier",
+                        "attributes": {
+                          "name": "k"
+                        },
+                        "children": []
+                      },
+                      {
+                        "kind": "DotAccess",
+                        "attributes": {},
+                        "children": [
+                          {
+                            "kind": "Identifier",
+                            "attributes": {
+                              "name": "l"
+                            },
+                            "children": []
+                          },
+                          {
+                            "kind": "DotDeclaration",
+                            "attributes": {},
+                            "children": [
+                              {
+                                "kind": "Identifier",
+                                "attributes": {
+                                  "name": "add"
+                                },
+                                "children": []
+                              },
+                              {
+                                "kind": "DotDeclarationArgs",
+                                "attributes": {},
+                                "children": [
+                                  {
+                                    "kind": "Number",
+                                    "attributes": {
+                                      "name": "10"
+                                    },
+                                    "children": []
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "DotAccess",
+                    "attributes": {},
+                    "children": [
+                      {
+                        "kind": "Identifier",
+                        "attributes": {
+                          "name": "mc"
+                        },
+                        "children": []
+                      },
+                      {
+                        "kind": "DotDeclaration",
+                        "attributes": {},
+                        "children": [
+                          {
+                            "kind": "Identifier",
+                            "attributes": {
+                              "name": "foo"
+                            },
+                            "children": []
+                          },
+                          {
+                            "kind": "DotDeclarationArgs",
+                            "attributes": {},
+                            "children": [
+                              {
+                                "kind": "Identifier",
+                                "attributes": {
+                                  "name": "l"
+                                },
+                                "children": []
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "MethodDeclaration",
+            "attributes": {},
+            "children": [
+              {
+                "kind": "CommonMethodHeader",
+                "attributes": {},
+                "children": [
+                  {
+                    "kind": "Type",
+                    "attributes": {
+                      "type": "int"
+                    },
+                    "children": []
+                  },
+                  {
+                    "kind": "Identifier",
+                    "attributes": {
+                      "name": "foo"
+                    },
+                    "children": []
+                  },
+                  {
+                    "kind": "Type",
+                    "attributes": {
+                      "type": "List"
+                    },
+                    "children": []
+                  },
+                  {
+                    "kind": "Identifier",
+                    "attributes": {
+                      "name": "l"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "kind": "MethodBody",
+                "attributes": {},
+                "children": [
+                  {
+                    "kind": "Return",
+                    "attributes": {},
+                    "children": [
+                      {
+                        "kind": "DotAccess",
+                        "attributes": {},
+                        "children": [
+                          {
+                            "kind": "Identifier",
+                            "attributes": {
+                              "name": "l"
+                            },
+                            "children": []
+                          },
+                          {
+                            "kind": "DotDeclaration",
+                            "attributes": {},
+                            "children": [
+                              {
+                                "kind": "Identifier",
+                                "attributes": {
+                                  "name": "add"
+                                },
+                                "children": []
+                              },
+                              {
+                                "kind": "DotDeclarationArgs",
+                                "attributes": {},
+                                "children": [
+                                  {
+                                    "kind": "Number",
+                                    "attributes": {
+                                      "name": "20"
+                                    },
+                                    "children": []
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "reports": [],
+  "config": {
+    "inputFile": "/home/afonso2345/FEUP/COMP/comp2022-9g/test/fixtures/public/cpf/2_semantic_analysis/calls/Other_Class_Method_Call_Simple.jmm",
+    "debug": "false",
+    "optimize": "false",
+    "registerAllocation": "-1"
+  }
+}

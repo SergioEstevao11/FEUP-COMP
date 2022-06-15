@@ -54,8 +54,16 @@ public class OperatorsCheck extends PreorderJmmVisitor<Integer, Integer> {
             if(andNode.getJmmChild(0).getJmmChild(1).getJmmChild(0).getKind().equals("Length")){
                 left_side_type = "int";
             }
+            else if(andNode.getJmmChild(0).getJmmChild(0).getKind().equals("ThisDeclaration")){
+                String call_method_name = andNode.getJmmChild(0).getJmmChild(1).getJmmChild(0).get("name");
+                left_side_type = symbolTable.getReturnType(call_method_name).getName();
+            }
+            else if(andNode.getJmmChild(0).getJmmChild(0).getKind().equals("NewDeclaration")){
+                String call_method_name = andNode.getJmmChild(0).getJmmChild(1).getJmmChild(0).get("name");
+                left_side_type = symbolTable.getReturnType(call_method_name).getName();
+            }
             else{
-                String call_method_name = andNode.getJmmChild(1).getJmmChild(0).get("name");
+                String call_method_name = andNode.getJmmChild(0).getJmmChild(1).getJmmChild(0).get("name");
                 left_side_type = symbolTable.getReturnType(call_method_name).getName();
             }
         }
@@ -140,7 +148,7 @@ public class OperatorsCheck extends PreorderJmmVisitor<Integer, Integer> {
                 left_side_type = "int";
             }
             else{
-                String call_method_name = plusNode.getJmmChild(1).getJmmChild(0).get("name");
+                String call_method_name = plusNode.getJmmChild(0).getJmmChild(1).getJmmChild(0).get("name");
                 left_side_type = symbolTable.getReturnType(call_method_name).getName();
             }
         }

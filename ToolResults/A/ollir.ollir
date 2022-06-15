@@ -1,0 +1,16 @@
+import B;
+A extends B {
+.construct A().V{
+invokespecial(this, "<init>").V;
+}
+
+ .method public static main(args.array.String).V {
+ret.V;
+}
+ .method public foo().A {
+a.A :=.A new(A).A;
+b.B :=.B new(B).B;
+b.B :=.B a.A;
+ret.A a.A;
+}
+}
