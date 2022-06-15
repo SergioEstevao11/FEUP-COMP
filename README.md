@@ -22,7 +22,7 @@ This project's main goal was to acquire and apply the theoretical principals of 
 
 **The following verifications are implemented:**
 
-- The operations are performed with the same type (e.g. int + boolean); [Code] (src/pt/up/fe/comp/analysis/analyser)
+- The operations are performed with the same type (e.g. int + boolean); 
 
 - Cannot use arrays directly for arithmetic operation (e.g. array1 + array2);
 
