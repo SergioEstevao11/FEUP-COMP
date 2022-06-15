@@ -73,7 +73,7 @@ AssignmentsCheck - Checks in every assignment if the types match in order for it
 - _IncompatibleArguments_ - Checks in a call to a function if the parameters of the function being called match with the arguments of the call
 
 - _IncompatibleReturn_ - Checks if the return of a function has the same type as the declaration of the same function.
-OperatorsCheck - Checks if the types are correct in the "Times", "And", "Plus", "Minus", "Less" operands
+OperatorsCheck - Checks if the types are correct in the "Times", "And", "Plus", "Minus", "Less" , "Divide", "Not" operands
 
 - _WhileIfConditionCheck_ - Checks if the conditions presented in If and While statements are of type boolean
 
