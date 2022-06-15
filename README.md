@@ -3,45 +3,34 @@
 For this project, you need to install [Java](https://jdk.java.net/), [Gradle](https://gradle.org/install/), and [Git](https://git-scm.com/downloads/) (and optionally, a [Git GUI client](https://git-scm.com/downloads/guis), such as TortoiseGit or GitHub Desktop). Please check the [compatibility matrix](https://docs.gradle.org/current/userguide/compatibility.html) for Java and Gradle versions.
 
 
-##GROUP: 9G
+## GROUP: 9G
 
 | Name     | UP | Contribution|
 | ----------- | ----------- |----------- |
-| André Santos   up201907879   | 25%       |
+| André Santos   | up201907879   | 25%       |
 | João Andrade   | up201905589        |25%|
 | Sérgio Estêvão      | up201905680       |  25%|
 | Sofia Germer   | up201907461        |25%|
 
-GLOBAL Grade of the project: <0 to 20>
-
-
-
-
 ## SUMMARY: 
-This project's main goal was to apply the theoretical principals of the course Compilers. This was achieved by building a compiler for programs written in the Java-- language. The main parts of the project are Syntactic error controller, Semantic analysis, and Code generation.
+This project's main goal was to acquire and apply the theoretical principals of the Compilers' course unit. This was achieved by building a compiler for programs written in the Java-- language. The main parts of the project are Syntactic error controller, Semantic analysis, OLLIR and Jasmin Code generation.
 
 
 ## SEMANTIC ANALYSIS: 
 (Refer the semantic rules implemented by your tool.)
 
 
-
-
 ## CODE GENERATION: 
 (describe how the code generation of your tool works and identify the possible problems your tool has regarding code generation.)
 
-
-
-
 ## PROS: 
-(Identify the most positive aspects of your tool)
-
-
-
+The highlights of our project are:
+- Organized code
+- Complete and detailed AST
+- Robust semantic analysis
 
 ## CONS:
-(Identify the most negative aspects of your tool)
-
+Sadly we didn't get to implement all the optimizations, which would have made this an even better project.
 
 ## Project setup
 
@@ -93,3 +82,5 @@ The testing framework, which uses the class TestUtils located in ``src-lib/pt/up
 In order for the test class to find your implementations for the stages, it uses the file ``config.properties`` that is in root of your repository. It has four fields, one for each stage (i.e. ``ParserClass``, ``AnalysisClass``, ``OptimizationClass``, ``BackendClass``), and initially it only has one value, ``pt.up.fe.comp.SimpleParser``, associated with the first stage.
 
 During the development of your compiler you will update this file in order to setup the classes that implement each of the compilation stages.
+
+## Final Delivery
