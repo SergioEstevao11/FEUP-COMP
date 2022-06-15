@@ -87,7 +87,8 @@ OperatorsCheck - Checks if the types are correct in the "Times", "And", "Plus", 
 
 ## Code Generation: 
 
-Starting with the Java-- code file, we developed a parser for this language, taking into account the furnished grammar. With the code exempt of lexical and syntactic errors, we perform the generation of the syntax tree while annotating some nodes and leafs with extra information. With this AST we can create the Symbol Table and perform a Semantic Analysis. The next step needed is to generate OLLIR code derived from the AST and Symbol table and the final step is to generate the set of JVM instructions to be accepted by jasmin.
+This step consists in generating OLLIR code derived from the AST and Symbol table and finaly generating the set of JVM instructions to be accepted by jasmin.
+
 
 ### OLLIR 
 
