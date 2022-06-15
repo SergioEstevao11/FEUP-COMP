@@ -17,7 +17,48 @@ This project's main goal was to acquire and apply the theoretical principals of 
 
 
 ## SEMANTIC ANALYSIS: 
-(Refer the semantic rules implemented by your tool.)
+
+### Type Verification
+
+**The following verifications are implemented:**
+
+- The operations are performed with the same type (e.g. int + boolean); [Code] (/home/sofia/Desktop/MIEIC-2semestre/C/comp2022-9g/src/pt/up/fe/comp/analysis/analyser)
+
+- Cannot use arrays directly for arithmetic operation (e.g. array1 + array2);
+
+- An array access can only be made over an array (e.g. 1[10] is not valid);
+
+- The index of the access array is an integer (e.g. a [true] is not allowed);
+
+- Length method can only be used over arrays;
+
+- The assignee's value is the same as the assigned's (e.g. a_int = b_boolean is not allowed);
+
+- A boolean operation is performed only with booleans;
+
+- Conditional expressions result in a boolean;
+
+- Assumes Parameters as Initialized;
+
+- New types allowed are from the class, superclass or imports.
+
+### Method Verification 
+
+**The following verifications are implemented:**
+
+- The "target" of the method exists and contains the method (e.g. a.foo, see if 'a' exists and if it has a 'foo' method);
+
+- The number of arguments in the invocation is equal to the number of parameters in the declaration;
+
+- The type of the parameters matches the type of the arguments;
+
+- The return type matches the method declaration return type;
+
+- The method is either imported, belongs to the class or its superclass;
+
+- When this invocation of the method is used, check if the method belongs to the class or there is a superclass;
+
+- Allows overload of methods.
 
 
 ## CODE GENERATION: 
