@@ -775,7 +775,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
         if (isNot){
             operationStr.append("!.bool ");
-            if (leftNewVar.equals("")) operationStr.append(leftStr);
+            if (leftNewVar.equals("")) operationStr.append(leftStr).append(".bool");
             else operationStr.append(leftNewVar);
         }
         else {
