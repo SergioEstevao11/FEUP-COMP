@@ -23,21 +23,45 @@ public class ArrayIndexNotIntCheck extends PreorderJmmVisitor<Integer, Integer> 
         setDefaultVisit((node, oi) -> 0);
     }
     public Integer visitArrayAccess(JmmNode arrayAccessNode, Integer ret){
-        JmmNode left_node = arrayAccessNode.getJmmChild(0);
-        JmmNode right_node = arrayAccessNode.getJmmChild(1);
+        String method_name;
 
-        String method_name = null;
-        String left_node_name = null;
-
-        if( arrayAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = arrayAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(0).get("name");
+        if( arrayAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = "main";
         else method_name = arrayAccessNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
-        if(!left_node.getKind().equals("Type")) left_node_name = left_node.get("name");
 
-        String right_node_name = right_node.get("name");
-        String right_node_type = symbolTable.getVariableType(method_name,right_node_name).getName();
+        boolean isMathExpression = symbolTable.isMathExpression(arrayAccessNode.getJmmChild(1).getKind());
+        boolean isBooleanExpression = symbolTable.isBooleanExpression(arrayAccessNode.getJmmChild(1).getKind());
 
-        if(symbolTable.isArray(method_name, left_node_name)){
-            if(!right_node_type.equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "\"" + right_node_type + "\" invalid type: can't access an array without an int", null));
+        if(isBooleanExpression || arrayAccessNode.getJmmChild(1).getKind().equals("True") || arrayAccessNode.getJmmChild(1).getKind().equals("False")){
+            reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Cant access an array with a boolean", null));
+        }
+        else if(isMathExpression || arrayAccessNode.getJmmChild(1).getKind().equals("Number")) return 1;
+        else if(arrayAccessNode.getJmmChild(1).getKind().equals("Identifier")){
+            String variableType = symbolTable.getVariableType(method_name,arrayAccessNode.getJmmChild(1).get("name")).getName();
+            if(!variableType.equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Variable isn't of type Int", null));
+        }
+        else if(arrayAccessNode.getJmmChild(1).getKind().equals("DotAccess")){
+            String returnMethodType;
+            if(arrayAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(0).getKind().equals("Length")){
+                returnMethodType = "int";
+            }
+            else {
+                System.out.println("var1" + arrayAccessNode.getJmmChild(1));
+                System.out.println("var2" + arrayAccessNode.getJmmChild(1).getJmmChild(0));
+                String call_method_name = arrayAccessNode.getJmmChild(1).getJmmChild(1).getJmmChild(0).get("name");
+                System.out.println("NOme metodo" + call_method_name);
+                returnMethodType = symbolTable.getReturnType(call_method_name).getName();
+            }
+            if(!returnMethodType.equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Invalid type, was expecting an int10", null));
+        }
+        else if(arrayAccessNode.getJmmChild(1).getKind().equals("ArrayAccess")){
+            System.out.println("1" + arrayAccessNode.getJmmChild(1).getJmmChild(0).get("name"));
+            System.out.println("2" + symbolTable.getVariableType(method_name,arrayAccessNode.getJmmChild(1).getJmmChild(0).get("name")).getName());
+            if(!symbolTable.getVariableType(method_name,arrayAccessNode.getJmmChild(1).getJmmChild(0).get("name")).getName().equals("int"))  reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Invalid type, was expecting an int11", null));
+        }
+        else{
+            System.out.println(arrayAccessNode.getJmmChild(1));
+            System.out.println("FINALMENT" + arrayAccessNode.getJmmChild(1).getJmmChild(1));
+            if(!symbolTable.getVariableType(method_name, arrayAccessNode.getJmmChild(1).getJmmChild(1).get("name")).getName().equals("int")) reports.add(Report.newError(Stage.SEMANTIC, -1, -1, "Invalid type, was expecting an int2", null));
         }
         return 0;
     }

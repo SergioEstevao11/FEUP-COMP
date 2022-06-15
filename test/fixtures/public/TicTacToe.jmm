@@ -94,8 +94,6 @@ class TicTacToe {
   }
 
 
-
-
   public int winner() {
     int[] test_array;
     int winner;

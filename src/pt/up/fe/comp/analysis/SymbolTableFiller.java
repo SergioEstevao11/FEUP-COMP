@@ -107,43 +107,42 @@ public class SymbolTableFiller extends PreorderJmmVisitor<String, String> {
     private String visitVarDeclaration(JmmNode node, String space) {
 
         Symbol field = new Symbol(SymbolTableBuilder.getType(node.getJmmChild(0), "type"), node.getJmmChild(1).get("name"));
-        //class variables
+
         if (scope.equals("CLASS")) {
             if (table.hasField(field.getName())) {
                 this.reports.add(new Report(
                         ReportType.ERROR, Stage.SEMANTIC,
-                        Integer.parseInt(node.get("line")),
-                        Integer.parseInt(node.get("col")),
-                        "Variable already declared: " + field.getName()));
-                table.addField(field);
+                        Integer.parseInt("-1"),
+                        Integer.parseInt("-1"),
+                        "Variable already declared in class: " + field.getName()));
                 return space + "ERROR";
             }
-
-        // local variable
-        } else {
-            if (table.hasField(field.getName())) {
+            table.addField(field);
+        }
+        else if(scope == "MAIN"){
+            if(table.getLocalVariables("main").contains(field)){
                 this.reports.add(new Report(
-                        ReportType.ERROR,
-                        Stage.SEMANTIC,
-                        Integer.parseInt(node.get("line")),
-                        Integer.parseInt(node.get("col")),
-                        "Variable already declared: " + field.getName()));
-                table.addField(field);
+                        ReportType.ERROR, Stage.SEMANTIC,
+                        Integer.parseInt("-1"),
+                        Integer.parseInt("-1"),
+                        "Variable already declared in main: " + field.getName()));
                 return space + "ERROR";
             }
-
-            if(scope == "METHOD"){
-                var parent = node.getJmmParent().getJmmParent();
-                var common_method_header = parent.getJmmChild(0);
-                var method_name = common_method_header.getJmmChild(1).get("name");
-                table.addLocalVariable(method_name, field);
+            table.addLocalVariable("main", field);
+        }
+        else if(scope == "METHOD"){
+            var parent = node.getJmmParent().getJmmParent();
+            var common_method_header = parent.getJmmChild(0);
+            var method_name = common_method_header.getJmmChild(1).get("name");
+            if(table.getLocalVariables(method_name).contains(field)){
+                this.reports.add(new Report(
+                        ReportType.ERROR, Stage.SEMANTIC,
+                        Integer.parseInt("-1"),
+                        Integer.parseInt("-1"),
+                        "Variable already declared in method: " + method_name + field.getName()));
+                return space + "ERROR";
             }
-            if(scope == "MAIN"){
-                var parent = node.getJmmParent().getJmmParent();
-                var main_method_header = parent.getJmmChild(0);
-                table.addLocalVariable("main", field);
-
-            }
+            table.addLocalVariable(method_name, field);
         }
         return space + "VARDECLARATION";
     }
