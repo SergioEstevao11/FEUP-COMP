@@ -22,7 +22,6 @@ public class WhileIfConditionCheck extends PreorderJmmVisitor<Integer, Integer> 
     }
     public Integer visitIfWhileCondition(JmmNode whileIfStatementNode, Integer ret) {
         String method_name = null;
-
         if( whileIfStatementNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getKind().equals("MainMethodHeader")) method_name = "main";
         else method_name = whileIfStatementNode.getAncestor("MethodDeclaration").get().getJmmChild(0).getJmmChild(1).get("name");
 
