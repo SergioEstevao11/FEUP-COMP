@@ -85,7 +85,6 @@ OperatorsCheck - Checks if the types are correct in the "Times", "And", "Plus", 
 - _ThisCallCheck_ - Checks if there is any instance  of this on the main method, because the main method is static
 
 
-
 ## Code Generation: 
 
 ### OLLIR 
