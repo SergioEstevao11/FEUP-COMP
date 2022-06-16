@@ -272,9 +272,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
         JmmNode parent = assignmentStmt.getJmmParent();
         String type = "";
 
-        if (identifier.getKind().equals("Identifier") && identifier.get("name").equals("lazy"))
-            System.out.println("bola");
-
         if (identifier.getKind().equals("ArrayAccess"))
             type = getVarType(identifier.getJmmChild(0).get("name"), identifier.getJmmChild(0)).replace(".array", "");
         else type = getVarType(identifier.get("name"), identifier);
@@ -305,12 +302,13 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
         if (idStr.contains("\n")){
             if (identifier.getKind().equals("ArrayAccess")) {
-                String prev = idStr.substring(0, idStr.lastIndexOf(";\n"));
-                if (prev.contains("\n"))
-                    methodStr.append(prev.substring(0, prev.lastIndexOf("\n") + 1));
+                if (identifier.getJmmChild(0).getKind().equals("Identifier")){
+                    String prev = idStr.substring(0, idStr.lastIndexOf(";\n"));
+                    if (prev.contains("\n"))
+                        methodStr.append(prev.substring(0, prev.lastIndexOf("\n") + 1));
 
-                idStr = prev.substring(prev.lastIndexOf(" ") + 1);
-
+                    idStr = prev.substring(prev.lastIndexOf(" ") + 1);
+                }
             }
             else {
                 String prefix = idStr.substring(0, idStr.lastIndexOf("\n") + 1);
@@ -521,17 +519,32 @@ public class OllirGenerator extends AJmmVisitor<Integer, String>{
 
 
         if (func.getKind().equals("Length")) {
-            methodString.append("t").append(++varCounter).append(".i32 :=.i32 arraylength(").append(visit(id)).append(getVarType(id.get("name"), id)).append(").i32;\n"); //todo check type
+            String idLenStr = visit(id);
+
+            if(idLenStr.contains("\n")){
+                methodString.append(idLenStr.substring(0, idLenStr.lastIndexOf("\n") + 1));
+                idLenStr = idLenStr.substring(idLenStr.lastIndexOf("\n") + 1);
+            }
+
+            methodString.append("t").append(++varCounter).append(".i32 :=.i32 arraylength(").append(idLenStr).append(getVarType(id.get("name"), id)).append(").i32;\n"); //todo check type
             methodString.append("t").append(varCounter).append(".i32");
         }else if (id.getKind().equals("ThisDeclaration")){
             String type = OllirUtils.getOllirType(symbolTable.getReturnType(func.get("name"))); //typecheck
+            String function = visit(func);
+
+            if(function.contains("\n")){
+                methodString.append(function.substring(0, function.lastIndexOf("\n") + 1));
+                function = function.substring(function.lastIndexOf("\n") + 1);
+            }
 
             if (findMethodParent(memberCall))
                 methodString.append("t").append(++varCounter).append(type).append(" :=").append(type).append(" ");
 
             methodString.append("invokevirtual(").append("this");
 
-            methodString.append(", \"").append(visit(func)).append("\"");
+
+
+            methodString.append(", \"").append(function).append("\"");
 
             methodString.append(argString);
 
