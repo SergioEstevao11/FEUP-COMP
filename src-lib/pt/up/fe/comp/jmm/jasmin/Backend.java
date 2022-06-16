@@ -802,7 +802,7 @@ public class Backend implements JasminBackend{
 
 
     private String getJasminBranchComparison(Operation operation) {
-        String jasminCode = "isub" + "\n";
+        String jasminCode = "isub" + "\n" + "\t";
         switch (operation.getOpType()) {
             case LTE:
                 jasminCode += "ifle";

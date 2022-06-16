@@ -22,7 +22,7 @@ import pt.up.fe.specs.util.SpecsSystem;
 
 public class Launcher {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         SpecsSystem.programStandardInit();
 
         SpecsLogs.info("Executing with args: " + Arrays.toString(args));
@@ -44,7 +44,6 @@ public class Launcher {
         config.put("registerAllocation", "-1");
         config.put("debug", "false");
 
-        System.out.println("wioetuigviebt");
 
         // Instantiate JmmParser
         SimpleParser parser = new SimpleParser();
@@ -67,13 +66,13 @@ public class Launcher {
         // Check if there are optimization errors
         TestUtils.noErrors(ollirResult.getReports());
 
+
         // Jasmin
         var jasminBackend = new Backend();
         // Optimization stage
-        var jasminResult = jasminBackend.toJasmin(ollirResult);
+        var jasminResults = jasminBackend.toJasmin(ollirResult);
         // Check if there are optimization errors
-        TestUtils.noErrors(jasminResult);
-
+        TestUtils.noErrors(jasminResults);
 
         Path mainDir = Paths.get("ToolResults/");
         try {
@@ -119,14 +118,12 @@ public class Launcher {
 
         try {
             FileWriter myWriter = new FileWriter(path + "/jasmin.j");
-            myWriter.write(jasminResult.getJasminCode());
+            myWriter.write(jasminResults.getJasminCode());
             myWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        jasminResult.compile(path.toFile());
+        jasminResults.compile(path.toFile());
     }
-
-
 }
